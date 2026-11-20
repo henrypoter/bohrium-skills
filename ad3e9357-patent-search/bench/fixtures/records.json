@@ -1,0 +1,56 @@
+{
+ "records": [
+  {
+   "id": "R1",
+   "title": "Deep learning based protein structure prediction",
+   "authors": "Jumper J",
+   "year": 2021,
+   "doi": "10.1038/abc",
+   "source": "PubMed",
+   "language": "en",
+   "version": "journal"
+  },
+  {
+   "id": "R2",
+   "title": "Deep learning based protein structure prediction",
+   "authors": "Jumper J",
+   "year": 2021,
+   "doi": "10.1038/abc",
+   "source": "Scopus",
+   "language": "en",
+   "version": "journal"
+  },
+  {
+   "id": "R3",
+   "title": "Deep learning based protein structure prediction",
+   "authors": "Jumper J",
+   "year": 2021,
+   "doi": "",
+   "arxiv": "2101.00001",
+   "source": "arXiv",
+   "language": "en",
+   "version": "preprint"
+  },
+  {
+   "id": "R4",
+   "title": "Deep learning based protein structure prediction method",
+   "authors": "Jumper J",
+   "year": 2021,
+   "doi": "",
+   "arxiv": "2101.99999",
+   "source": "bioRxiv",
+   "language": "en",
+   "version": "preprint"
+  },
+  {
+   "id": "R5",
+   "title": "Cell pyroptosis in inflammation",
+   "authors": "Shi J",
+   "year": 2017,
+   "doi": "10.1038/nature22307",
+   "source": "PubMed",
+   "language": "en",
+   "version": "journal"
+  }
+ ]
+}

@@ -1,0 +1,198 @@
+{
+ "case_id": "case-001",
+ "status": "issues",
+ "protocol_version": "v1.0",
+ "research_question": {
+  "topic": "pyroptosis in inflammation",
+  "object": "pyroptosis",
+  "method": "screening",
+  "time_range": "2015-2025",
+  "evidence_requirement": "original studies",
+  "scope": "finite snapshot"
+ },
+ "queries": [
+  {
+   "id": "Q1",
+   "query": "pyroptosis AND inflammation",
+   "database": "PubMed",
+   "fields": "title/abstract",
+   "date_range": "2015-2025",
+   "run_date": "2026-11-20"
+  },
+  {
+   "id": "Q2",
+   "query": "细胞焦亡 AND 炎症",
+   "database": "CNKI",
+   "fields": "题名/摘要",
+   "date_range": "2015-2025",
+   "run_date": "2026-11-20"
+  }
+ ],
+ "records": [
+  {
+   "id": "R1",
+   "title": "Cell pyroptosis in inflammation",
+   "authors": "Shi J",
+   "year": 2017,
+   "doi": "10.1038/nature22307",
+   "source": "PubMed",
+   "language": "en",
+   "version": "journal"
+  },
+  {
+   "id": "R2",
+   "title": "Pyroptosis drives IL-1b release",
+   "authors": "Wang Y",
+   "year": 2019,
+   "doi": "10.1000/b",
+   "source": "Scopus",
+   "language": "en",
+   "version": "journal"
+  },
+  {
+   "id": "R3",
+   "title": "A commentary on pyroptosis",
+   "authors": "Li X",
+   "year": 2020,
+   "doi": "10.1000/c",
+   "source": "Scopus",
+   "language": "en",
+   "version": "comment"
+  },
+  {
+   "id": "R4",
+   "title": "细胞焦亡在炎症中的作用",
+   "authors": "张某",
+   "year": 2019,
+   "doi": "",
+   "source": "CNKI",
+   "language": "zh",
+   "version": "journal"
+  }
+ ],
+ "dedup": {
+  "exact_groups": [
+   [
+    "R1"
+   ]
+  ],
+  "near_candidates": [],
+  "merged": 0
+ },
+ "reason_code_dict": {
+  "I1": "直接相关-原始研究",
+  "I2": "直接相关-综述",
+  "E3": "设计不符",
+  "E5": "语种不符"
+ },
+ "screening": [
+  {
+   "record_id": "R1",
+   "annotator": "A",
+   "decision": "include",
+   "reason_code": "I1",
+   "evidence_snippet": "we show pyroptosis drives inflammation in vivo",
+   "evidence_location": "abstract p1",
+   "rule": "I1"
+  },
+  {
+   "record_id": "R2",
+   "annotator": "A",
+   "decision": "include",
+   "reason_code": "I1",
+   "evidence_snippet": "IL-1b release via pyroptosis",
+   "evidence_location": "abstract p1",
+   "rule": "I1"
+  },
+  {
+   "record_id": "R3",
+   "annotator": "A",
+   "decision": "exclude",
+   "reason_code": "E3",
+   "evidence_snippet": "this commentary discusses",
+   "evidence_location": "abstract p1",
+   "rule": "E3"
+  },
+  {
+   "record_id": "R4",
+   "annotator": "A",
+   "decision": "exclude",
+   "reason_code": "E5",
+   "evidence_snippet": "题录为中文原始研究，语种不在允许范围",
+   "evidence_location": "title",
+   "rule": "E5"
+  }
+ ],
+ "agreement": {
+  "decision_agreement": 0.85,
+  "cohen_kappa": 0.71,
+  "n": 4
+ },
+ "arbitration": [
+  {
+   "record_id": "R4",
+   "disagreement_type": "decision",
+   "decision": "exclude",
+   "rationale": "中文题录，语种不在允许范围"
+  }
+ ],
+ "counts": {
+  "records_raw": 4,
+  "records_dedup": 4,
+  "included": 2,
+  "excluded": 2,
+  "maybe": 0
+ },
+ "audit_log": [
+  {
+   "step": "search",
+   "input_n": 0,
+   "output_n": 4,
+   "operator": "agent",
+   "timestamp": "2026-11-20T10:00Z",
+   "rule_version": "v1.0"
+  },
+  {
+   "step": "dedup",
+   "input_n": 4,
+   "output_n": 4,
+   "operator": "script",
+   "timestamp": "2026-11-20T10:02Z",
+   "rule_version": "v1.0"
+  },
+  {
+   "step": "screen_A",
+   "input_n": 4,
+   "output_n": 4,
+   "operator": "A",
+   "timestamp": "2026-11-20T10:20Z",
+   "rule_version": "v1.0"
+  }
+ ],
+ "coverage": {
+  "reference_total": 4,
+  "retrieved": 4,
+  "missed": 0,
+  "missed_by_code": {}
+ },
+ "gain": {
+  "baseline_accuracy": 0.62,
+  "skill_accuracy": 0.88,
+  "kappa_baseline": 0.35,
+  "kappa_skill": 0.71,
+  "manual_checks_saved": 0.4
+ },
+ "unchecked": [],
+ "sources": [
+  "PubMed",
+  "CNKI",
+  "Scopus"
+ ],
+ "uncertainty": [
+  "有限快照，未声称全局召回"
+ ],
+ "change_log": [
+  "v1.0 建协议",
+  "R4 仲裁排除"
+ ]
+}
