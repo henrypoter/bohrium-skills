@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""file_tool 自测：哈希去重、版本链、目录规范核验、交付校验。"""
-import json, os, shutil, subprocess, sys, tempfile
+"""annotation_tool 自测：锚点核验、笔记支撑、关联依据、版本归并、可复现契约；正向零误杀 + 变异必命中。"""
+import json, os, subprocess, sys, tempfile
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-TOOL = os.path.join(HERE, "..", "scripts", "file_tool.py")
+TOOL = os.path.join(HERE, "..", "scripts", "annotation_tool.py")
 TMP = tempfile.mkdtemp()
 checks = []
 
@@ -13,88 +13,82 @@ def run(*a):
     try:
         return r.returncode, json.loads(r.stdout)
     except Exception:
-        return r.returncode, {"raw": r.stdout[:200]}
+        return r.returncode, {"raw": r.stdout[:150]}
+
+
+def dump(n, o):
+    p = os.path.join(TMP, n); json.dump(o, open(p, "w", encoding="utf-8"), ensure_ascii=False); return p
 
 
 def add(n, c, d=""):
     checks.append((n, c, d))
 
 
-BATCH = os.path.join(TMP, "batch")
-os.makedirs(os.path.join(BATCH, "data"), exist_ok=True)
-open(os.path.join(BATCH, "report_v1.pdf"), "w").write("AAA")
-open(os.path.join(BATCH, "report_v2.pdf"), "w").write("BBBB")
-open(os.path.join(BATCH, "report_final.pdf"), "w").write("CCCCC")
-open(os.path.join(BATCH, "a.txt"), "w").write("same-content")
-open(os.path.join(BATCH, "a_copy.txt"), "w").write("same-content")
-open(os.path.join(BATCH, "empty.txt"), "w").write("")
-open(os.path.join(BATCH, "data", "raw.csv"), "w").write("x,y\n1,2\n")
+SRC = "我们在45例样本中观察到显著差异。机制研究表明X蛋白起关键作用。"
+srcp = os.path.join(TMP, "src.txt"); open(srcp, "w", encoding="utf-8").write(SRC)
 
-# 1) 清单基础
-rc, d = run("inventory", BATCH)
-add("inventory:文件数与嵌套", rc == 0 and d.get("n_files") == 7, str(d.get("n_files")))
+ANN = {"annotations": [
+    {"id": "A1", "type": "highlight", "source_file": "paper.pdf", "page": 3, "color": "yellow",
+     "quote": "我们在45例样本中观察到显著差异", "note": "样本量关键"},
+    {"id": "A2", "type": "margin", "source_file": "paper.pdf", "page": 5,
+     "quote": "机制研究表明X蛋白起关键作用", "note": "机制"}]}
 
-# 2) 哈希重复组
-add("inventory:内容哈希重复组", len(d.get("duplicate_groups", [])) == 1
-    and sorted(d["duplicate_groups"][0]["files"]) == ["a.txt", "a_copy.txt"],
-    str(d.get("duplicate_groups"))[:160])
+rc, d = run("anchor_check", dump("a.json", ANN), "--text", srcp)
+add("anchor正向:锚点都在原文", rc == 0 and d.get("ok"), str(d)[:150])
 
-# 3) 版本链
-add("inventory:版本链识别", any(len(v["files"]) == 3 for v in d.get("version_chains", [])),
-    str(d.get("version_chains"))[:160])
+bad = json.loads(json.dumps(ANN)); bad["annotations"][0]["quote"] = "原文里没有这句"
+rc, d = run("anchor_check", dump("a1.json", bad), "--text", srcp)
+add("anchor变异:锚点错位被抓", rc == 1 and d.get("anchor_not_in_source"), str(d.get("anchor_not_in_source"))[:120])
 
-# 4) 空文件
-add("inventory:空文件列出", d.get("empty_files") == ["empty.txt"], str(d.get("empty_files")))
+bad = json.loads(json.dumps(ANN)); bad["annotations"][0]["type"] = "note"
+rc, d = run("anchor_check", dump("a2.json", bad), "--text", srcp)
+add("anchor变异:类型混同被抓", rc == 1 and d.get("type_invalid_or_mixed"), str(d.get("type_invalid_or_mixed")))
 
-# 5) 目录规范通过
-spec = {"path_patterns": ["^data/.+$", "^[^/]+$"], "required_meta": [],
-        "manifest_csv": None}
-sp = os.path.join(TMP, "spec.json")
-json.dump(spec, open(sp, "w"), ensure_ascii=False)
-rc, d = run("checkmap", BATCH, "--spec", sp)
-add("checkmap:规范内零误报", rc == 0 and d.get("ok"), str(d)[:160])
+bad = json.loads(json.dumps(ANN)); bad["annotations"][0].pop("page")
+rc, d = run("anchor_check", dump("a3.json", bad), "--text", srcp)
+add("anchor变异:缺页码被抓", rc == 1 and any(m.get("field") == "page" for m in d.get("missing_field", [])), str(d.get("missing_field")))
 
-# 6) 路径违规被抓
-open(os.path.join(BATCH, "data", "deep", ), "w") if False else None
-os.makedirs(os.path.join(BATCH, "misc"), exist_ok=True)
-open(os.path.join(BATCH, "misc", "x.bin"), "w").write("z")
-spec2 = {"path_patterns": ["^data/.+$", "^[^/]+$"], "required_meta": []}
-sp2 = os.path.join(TMP, "spec2.json")
-json.dump(spec2, open(sp2, "w"), ensure_ascii=False)
-rc, d = run("checkmap", BATCH, "--spec", sp2)
-add("checkmap:路径违规被抓", rc == 1 and "misc/x.bin" in d.get("path_violations", []),
-    str(d.get("path_violations"))[:120])
+NOTE = {"notes": [
+    {"id": "N1", "kind": "conclusion", "claim": "X蛋白起关键作用",
+     "support": [{"annotation_id": "A2", "quote": "机制研究表明X蛋白起关键作用", "location": "p5"}]}]}
+rc, d = run("note_check", dump("n.json", NOTE))
+add("note正向:论断有支撑", rc == 0 and d.get("ok"), str(d)[:150])
 
-BASE = {"case_id": "c1", "status": "issues", "directory_tree": {"data": ["raw.csv"]},
-        "manifest": [{"path": "data/raw.csv", "sha256": "abc", "source": "raw", "version": "v1"}],
-        "dedup": {"groups": 1}, "versions": {"report": ["report_v1.pdf", "report_v2.pdf"]},
-        "operations": [{"action": "move", "src": "raw.csv", "dst": "data/raw.csv", "result": "ok"}],
-        "gain": {"baseline_fill_rate": 0.6, "skill_fill_rate": 0.98},
-        "unchecked": [], "sources": ["upload batch"], "uncertainty": [], "change_log": []}
+bad = json.loads(json.dumps(NOTE)); bad["notes"][0]["support"] = []
+rc, d = run("note_check", dump("n1.json", bad))
+add("note变异:摘抄(无支撑)被抓", rc == 1 and d.get("notes_without_support"), str(d.get("notes_without_support")))
 
-# 7) schema 正向
-rc, d = run("schema", json.dump(BASE, open(os.path.join(TMP, "r.json"), "w"), ensure_ascii=False) or os.path.join(TMP, "r.json"))
-add("schema正向:合规零误杀", rc == 0 and d.get("ok"), str(d.get("errors"))[:150])
+LINK = {"links": [{"from": "N1", "to": "N2", "relation": "supports", "basis": "两条证据独立指向同一结论"}]}
+rc, d = run("link_check", dump("l.json", LINK))
+add("link正向:关联有依据", rc == 0 and d.get("ok"), str(d)[:150])
 
-# 8) schema 变异：manifest 缺 sha256
-bad = json.loads(json.dumps(BASE)); bad["manifest"][0].pop("sha256")
-p = os.path.join(TMP, "r2.json"); json.dump(bad, open(p, "w"), ensure_ascii=False)
-rc, d = run("schema", p)
-add("schema变异:manifest缺sha256->失败", rc == 1 and any("sha256" in e for e in d.get("errors", [])),
-    str(d.get("errors"))[:120])
+bad = json.loads(json.dumps(LINK)); bad["links"][0]["basis"] = "都提到X"
+rc, d = run("link_check", dump("l1.json", bad))
+add("link变异:关键词误连被抓", rc == 1 and d.get("links_keyword_only"), str(d.get("links_keyword_only")))
 
-# 9) schema 变异：操作缺 result
-bad = json.loads(json.dumps(BASE)); bad["operations"][0].pop("result")
-p = os.path.join(TMP, "r3.json"); json.dump(bad, open(p, "w"), ensure_ascii=False)
-rc, d = run("schema", p)
-add("schema变异:操作缺result->失败", rc == 1 and any("result" in e for e in d.get("errors", [])),
-    str(d.get("errors"))[:120])
+bad = json.loads(json.dumps(LINK)); bad["links"][0]["basis"] = ""
+rc, d = run("link_check", dump("l2.json", bad))
+add("link变异:无依据被抓", rc == 1 and d.get("links_without_basis"), str(d.get("links_without_basis")))
 
-# 10) schema 变异：缺目录树
-bad = json.loads(json.dumps(BASE)); bad.pop("directory_tree")
-p = os.path.join(TMP, "r4.json"); json.dump(bad, open(p, "w"), ensure_ascii=False)
-rc, d = run("schema", p)
-add("schema变异:缺directory_tree->失败", rc == 1, str(d.get("errors"))[:120])
+FILES = {"files": [{"path": "a.pdf", "sha256": "h1"}, {"path": "a_copy.pdf", "sha256": "h1"},
+                   {"path": "b.pdf", "sha256": "h2"}]}
+rc, d = run("version_check", dump("f.json", FILES))
+add("version正向:重复归并", rc == 0 and d.get("n_duplicate_groups") == 1, str(d)[:150])
+
+bad = json.loads(json.dumps(FILES)); bad["files"][0].pop("sha256")
+rc, d = run("version_check", dump("f1.json", bad))
+add("version变异:缺哈希被抓", rc == 1 and d.get("files_without_hash"), str(d.get("files_without_hash")))
+
+RES = {"case_id": "c1", "status": "issues", "script_version": "annotate-v1.0",
+       "sources": [{"file": "paper.pdf", "sha256": "h1"}], "annotations": ANN["annotations"],
+       "notes": NOTE["notes"], "links": LINK["links"], "counts": {}, "skipped": [], "conflicts": [],
+       "gain": {}, "unchecked": [], "uncertainty": [], "change_log": []}
+rc, d = run("schema", dump("r.json", RES))
+add("schema正向:合规零误杀", rc == 0 and d.get("ok"), str(d.get("errors")))
+
+bad = json.loads(json.dumps(RES)); bad["sources"][0].pop("sha256")
+rc, d = run("schema", dump("r1.json", bad))
+add("schema变异:缺文件哈希->失败", rc == 1, str(d.get("errors"))[:120])
 
 ok = sum(1 for _, c, _ in checks if c)
 for n, c, dd in checks:
