@@ -1,0 +1,4 @@
+Self-made demo source (NOT an official case):
+"Upon stimulation, extracellular EGF binds the receptor EGFR at the plasma membrane. The
+activated EGFR phosphorylates ERK in the cytosol; ERK then translocates into
+the nucleus and activates FOS, inducing target gene transcription."

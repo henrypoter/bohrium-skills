@@ -1,0 +1,6 @@
+{"name": "c3_pkgconflict", "title": "包冲突稿：冲突预检显式化",
+ "guide": "guide_ieee.txt", "manuscript": "ms_pkgconflict.tex",
+ "parse_manuscript_too": true, "run_fit": false, "compile": false,
+ "expect": {"pkg_conflicts_min": 2, "conflict_precheck_min": 1},
+ "baseline": {"manual_edits": 0,
+   "note": "baseline 无包清单抽取手段，natbib+biblatex 双引文后端与 hyperref 重复通常只能等编译报错后逐个排查"}}

@@ -1,0 +1,35 @@
+{
+ "_note": "示例输出（自拟演示材料实跑生成的节选），非平台正式案例结果；artifacts/versions 等字段已省略",
+ "case_id": "demo-example",
+ "skill": "academic-writing-client",
+ "status": "partial",
+ "summary": "1 chapters, 2 revisions (0 proposed), 2 claims (1 bound)",
+ "main_output": "/tmp/awcex/out/manuscript.docx",
+ "sources": {
+  "claims": [
+   {"id": "C1", "claim": "准确率 88.1%", "evidence": "88.1%", "source": "materials/ch1_intro.md", "locator": "ch1 引言", "status": "bound", "verify": "verbatim in materials/ch1_intro.md"},
+   {"id": "C2", "claim": "对照实验结果", "evidence": "", "source": "", "locator": "", "status": "needs-human", "verify": "no evidence text"}
+  ]
+ },
+ "changes": [
+  {"id": 1, "chapter": "ch1", "type": "revise", "before": "准确率为 88.1% [1]", "after": "准确率为 88.1%（数据来源：示例参考文献 [1]）", "reason": "指令①", "source": "materials/ch1_intro.md 第3行", "status": "accepted"},
+  {"id": 2, "chapter": "ch1", "type": "polish", "before": "目前还没有数据", "after": "相关数据尚待补充", "reason": "指令②", "source": "指令文本", "status": "rejected"}
+ ],
+ "export_report": {
+  "md": {"status": "ok"},
+  "tex": {"status": "ok"},
+  "docx": {"status": "ok"},
+  "pdf": {"status": "ok"},
+  "readback": {
+   "docx": {"status": "ok", "paragraphs": 4, "headings": 1, "expected_headings": 1},
+   "tex": {"status": "ok"},
+   "md": {"status": "ok", "bytes": 328},
+  "refs": {"status": "mismatch", "citations": [1], "ref_keys": [],
+           "unresolved": [1], "unreferenced": []}
+  }
+ },
+ "confirmations_needed": ["C2"],
+ "uncertainty": "unverified claims: ['C2']; unresolved citations: [1] (add refs or fix numbering)",
+ "limits": ["unverified claims: ['C2']",
+            "unresolved citations: [1] (add refs or fix numbering)"]
+}

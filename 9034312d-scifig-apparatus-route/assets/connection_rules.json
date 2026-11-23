@@ -1,0 +1,10 @@
+{
+  "comment": "连接语义判据(单一事实源): style->stroke/dash。渲染与 verify 共同引用。",
+  "rules": {
+    "sequence": {"stroke": "#37474f", "dash": "", "label": "步骤顺序"},
+    "material": {"stroke": "#1565c0", "dash": "", "label": "物料流"},
+    "energy": {"stroke": "#ef6c00", "dash": "7 4", "label": "能量/加热"},
+    "info": {"stroke": "#2e7d32", "dash": "2 3", "label": "信息/控制"},
+    "reflux": {"stroke": "#757575", "dash": "6 3 2 3", "label": "回流/旁路"}
+  }
+}

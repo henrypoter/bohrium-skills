@@ -1,0 +1,14 @@
+# 术语表样例（自拟，演示资产沉淀格式；列：源术语 <TAB> 锁定译法 <TAB> 禁用译法… <TAB> +允许变体…）
+# 用 check_terms.py parse 解析，check 核对，update 维护；可跨稿件累积复用。
+perovskite solar cells	钙钛矿太阳能电池	钙钛矿太阳电池
+power conversion efficiency	光电转换效率	光电转化效率
+stability	稳定性	+稳定性能
+charge transport layer	电荷传输层
+electron transport layer	电子传输层
+hole transport layer	空穴传输层
+open-circuit voltage	开路电压
+short-circuit current density	短路电流密度
+fill factor	填充因子
+band gap	带隙	能隙
+degradation	降解	+衰退
+encapsulation	封装

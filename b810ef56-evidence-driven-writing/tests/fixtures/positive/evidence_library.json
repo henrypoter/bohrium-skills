@@ -1,0 +1,39 @@
+{
+  "_note": "正向夹具：合规证据库（文献与数据均虚构，仅用于测试）",
+  "evidence": [
+    {
+      "id": "E1",
+      "authors": "Zhang, Wei et al.",
+      "year": "2021",
+      "title": "催化剂 X 产率效应的综述",
+      "venue": "材料学报",
+      "doi": "10.1234/mater.2021.011",
+      "type": "综述",
+      "locator": "第2段",
+      "quote": "催化剂 X 在 300 K 下将反应产率从 45% 提升至 78%，且该结论在 8 个独立实验室得到重复验证",
+      "supports": "催化剂 X 在 300 K 液相体系下将产率从 45% 提升至 78%，经 8 个独立实验室重复",
+      "data": "产率 45%→78%；12 项实验汇总；8 个独立实验室重复",
+      "conditions": "300 K 标准气压液相反应体系",
+      "limitations": "综述层面，未报告各实验间异质性",
+      "evidence_level": "A",
+      "caveat": null
+    },
+    {
+      "id": "E2",
+      "authors": "Li, Na et al.",
+      "year": "2023",
+      "title": "催化剂 X 单批次实验",
+      "venue": "催化通讯",
+      "doi": "10.5678/catl.2023.042",
+      "type": "原始研究",
+      "locator": "第1段",
+      "quote": "催化剂 X 的产率提升幅度为 12%",
+      "supports": "单批次小样本（n=5）下产率提升 12%",
+      "data": "n=5；提升 12%",
+      "conditions": "单批次、小样本",
+      "limitations": "样本量有限，受批次差异影响，未重复验证",
+      "evidence_level": "C",
+      "caveat": null
+    }
+  ]
+}

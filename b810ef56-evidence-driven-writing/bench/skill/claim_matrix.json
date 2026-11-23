@@ -1,0 +1,27 @@
+{
+  "_note": "正向夹具：合规论断-证据绑定矩阵（文献与数据均虚构，仅用于测试）",
+  "claims": [
+    {
+      "id": "C1",
+      "text": "催化剂 X 在 300 K 下将反应产率从 45% 提升至 78%，该结论在 8 个独立实验室得到重复验证",
+      "verdict": "supported",
+      "bindings": [
+        {"evidence_id": "E1", "scope": "full",
+         "note": "quote 逐字覆盖 300 K/45%→78%/8 个独立实验室重复"},
+        {"evidence_id": "E2", "scope": "partial",
+         "note": "单批次小样本仅报告 12% 提升，量级更弱，作条件性补充"}
+      ]
+    },
+    {
+      "id": "C2",
+      "text": "催化剂 X 将反应产率从 45% 提升至 78% 的结论已获得较广泛接受",
+      "verdict": "supported",
+      "bindings": [
+        {"evidence_id": "E1", "scope": "full",
+         "note": "综述汇总 12 项实验且 8 个独立实验室重复，A 级证据支撑「较广泛接受」"},
+        {"evidence_id": "E2", "scope": "partial",
+         "note": "小样本研究量级更低，不改变多实验室重复的主结论"}
+      ]
+    }
+  ]
+}

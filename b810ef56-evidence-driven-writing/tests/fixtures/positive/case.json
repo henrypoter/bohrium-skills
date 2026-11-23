@@ -1,0 +1,10 @@
+{
+  "_note": "正向夹具用的自拟 case（非平台正式案例）",
+  "case_id": "fixture-positive",
+  "task": "依据给定材料写一段催化剂 X 产率效应的综述段落",
+  "output_contract": {
+    "manuscript": "成稿（Markdown）",
+    "evidence_library": "证据库 JSON",
+    "claim_matrix": "论断-证据绑定矩阵 JSON"
+  }
+}

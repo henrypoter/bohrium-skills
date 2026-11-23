@@ -1,0 +1,33 @@
+{
+  "_HOW_TO_USE": "FILLED TEMPLATE (illustrative instance, NOT an official case). Copy this file to /app/work/elements.json and REPLACE every entity/label/edge/group with content from YOUR case materials. Rules: (1) every label must appear VERBATIM in a source file you pass to check_figure.py -- typos like 'glycolisis' are caught and corrected via suggestions; (2) every node/edge/group needs 'source' = {\"locator\": ..., \"quote\": ...}: quote is a VERBATIM fragment (<=30 chars) copied from the material, locator is 'file.txt' or 'file.txt:L<line>[-L<line>]' or 'file.txt:C<start>-C<end>' (1-based) -- the checker verifies the quote exists in the material AND lands inside the locator interval (else fail: suspected fabrication / misplaced); (3) 'required' = the figure elements/panels the task statement explicitly names -- the coverage audit FAILS if any is missing and then result.json status must be 'partial'; declare [] only if the task names nothing; (4) keep 'legend':'auto' so legend derives from actual usage; (5) unknowns go to 'uncertainties', human-confirmed trade-offs to 'change_log', never invented.",
+  "_example_source": "For the filled values below, save this as source.txt (5 lines): [L1] EGF binds the receptor EGFR at the plasma membrane. [L2] Activated EGFR activates RAS in the cytoplasm. [L3] RAS activates RAF, and RAF activates MEK. [L4] MEK activates ERK, which translocates to the nucleus. [L5] SPRY2 inhibits RAS.",
+  "title": "REPLACE: figure title from task",
+  "canvas": {"width": 900, "height": 560},
+  "nodes": [
+    {"id": "EGF", "label": "EGF", "kind": "ligand", "source": {"locator": "source.txt:L1", "quote": "EGF binds the receptor EGFR"}},
+    {"id": "EGFR", "label": "EGFR", "kind": "receptor", "source": {"locator": "source.txt:L1", "quote": "EGFR at the plasma membrane"}},
+    {"id": "RAS", "label": "RAS", "kind": "kinase", "source": {"locator": "source.txt:L2", "quote": "EGFR activates RAS"}},
+    {"id": "RAF", "label": "RAF", "kind": "kinase", "source": {"locator": "source.txt:L3", "quote": "RAS activates RAF"}},
+    {"id": "MEK", "label": "MEK", "kind": "kinase", "source": {"locator": "source.txt:L3", "quote": "RAF activates MEK"}},
+    {"id": "ERK", "label": "ERK", "kind": "kinase", "source": {"locator": "source.txt:L4", "quote": "MEK activates ERK"}},
+    {"id": "SPRY2", "label": "SPRY2", "kind": "inhibitor", "source": {"locator": "source.txt:L5", "quote": "SPRY2 inhibits RAS"}}
+  ],
+  "edges": [
+    {"from": "EGF", "to": "EGFR", "type": "activates", "label": "binds", "source": {"locator": "source.txt:L1", "quote": "EGF binds the receptor EGFR"}},
+    {"from": "EGFR", "to": "RAS", "type": "activates", "label": "activates", "source": {"locator": "source.txt:L2", "quote": "EGFR activates RAS"}},
+    {"from": "RAS", "to": "RAF", "type": "activates", "label": "activates", "source": {"locator": "source.txt:L3", "quote": "RAS activates RAF"}},
+    {"from": "RAF", "to": "MEK", "type": "activates", "label": "activates", "source": {"locator": "source.txt:L3", "quote": "RAF activates MEK"}},
+    {"from": "MEK", "to": "ERK", "type": "activates", "label": "activates", "source": {"locator": "source.txt:L4", "quote": "MEK activates ERK"}},
+    {"from": "SPRY2", "to": "RAS", "type": "inhibits", "label": "inhibits", "source": {"locator": "source.txt:L5", "quote": "SPRY2 inhibits RAS"}}
+  ],
+  "groups": [
+    {"id": "cytoplasm", "label": "cytoplasm", "members": ["RAS", "RAF", "MEK", "SPRY2"], "source": {"locator": "source.txt:L2", "quote": "in the cytoplasm"}}
+  ],
+  "legend": "auto",
+  "required": ["EGFR", "RAS", "ERK", "SPRY2", "cytoplasm"],
+  "units_notes": [],
+  "uncertainties": [
+    {"item": "ERK translocation to nucleus", "note": "stated in source but no compartment drawn; recorded instead of inventing a second panel"}
+  ],
+  "change_log": []
+}

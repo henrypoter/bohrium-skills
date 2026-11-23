@@ -1,0 +1,6 @@
+{"name": "c1_compliant", "title": "合规稿：只核不改",
+ "guide": "guide_ieee.txt", "manuscript": "ms_compliant.tex",
+ "parse_manuscript_too": false, "run_fit": true, "compile": true,
+ "expect": {"pre_fail": 0, "fit_applied": 0, "post_ready": true, "fidelity_clean": true},
+ "baseline": {"manual_edits": 0,
+   "note": "baseline 仍须通读规范与原稿、逐项人工比对全部规格、试编译并目检 PDF"}}

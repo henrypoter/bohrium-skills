@@ -1,0 +1,11 @@
+{
+  "comment": "node: Okabe-Ito colorblind-safe palette keyed by node kind (legend==figure). font: DejaVu Sans fallback. Edge glyph grammar lives in edge_rules.json.",
+  "node": ["#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7"],
+  "edge": "#333333",
+  "group_fill": "#F5F5F5",
+  "font": "DejaVu Sans",
+  "export_presets": {
+    "journal_pdf": {"format": "pdf", "fonts_embedded": true, "min_line_width_pt": 0.5},
+    "preview_png": {"format": "png", "dpi": 300, "background": "#FFFFFF"}
+  }
+}

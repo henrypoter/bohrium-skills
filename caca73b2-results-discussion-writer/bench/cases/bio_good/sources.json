@@ -1,0 +1,9 @@
+{"figures": ["图1","图2"], "tables": ["表1"],
+ "values": [
+  {"id":"S1","value":98.2,"unit":"%","desc":"对照组存活率","fig":"表1","significant":null,"disp":1.5,"disp_type":"SD"},
+  {"id":"S2","value":71.6,"unit":"%","desc":"处理组存活率","fig":"表1","significant":true,"p":"0.003","disp":3.1,"disp_type":"SD","test":"t","df":18,"stat":3.21},
+  {"id":"S3","value":0.003,"desc":"组间t检验p值","fig":"表1","significant":true},
+  {"id":"S4","value":5,"desc":"每组样本量","fig":"表1","significant":null},
+  {"id":"S5","value":4.8,"unit":"%","desc":"迁移率变化","fig":"图2","significant":false,"p":"0.12"},
+  {"id":"S6","value":0.12,"desc":"迁移率检验p值","fig":"图2","significant":false}],
+ "citations": [{"id":"C1","ref":"张某某, 2021, 细胞学报"}]}

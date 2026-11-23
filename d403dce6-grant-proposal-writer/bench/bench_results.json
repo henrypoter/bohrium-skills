@@ -1,0 +1,116 @@
+{
+ "disclaimer": "确定性路径对照 + 校验器夹具测试；LLM 端到端写作质量由平台固定案例与白板对照负责，未在此声称。",
+ "aggregate": {
+  "fixture_rows": 11,
+  "scenario_rows": 5,
+  "claims": 3,
+  "evidence": 3,
+  "gaps": 2,
+  "contents": 3,
+  "baseline_ops": 18,
+  "skill_ops": 3,
+  "skill_manual_ops": 0,
+  "skill_model_requests": 0,
+  "baseline_ctx_chars": 1542,
+  "skill_ctx_chars": 229,
+  "ctx_reduction_pct": 85.1
+ },
+ "rows": [
+  {
+   "case": "good_draft",
+   "expectation": "正向零误杀：合规稿 check PASS 且 issues=0（task.md 缺失时 init 仍 exit 0）",
+   "verdict": "pass",
+   "detail": "passed=True issues=0"
+  },
+  {
+   "case": "repeat_check",
+   "expectation": "重复运行：check_state 两次逐字段一致",
+   "verdict": "pass",
+   "detail": ""
+  },
+  {
+   "case": "pack_outputs",
+   "expectation": "pack：status=complete、used_in 三级对应回填、四件产物齐备、checks.passed=true",
+   "verdict": "pass",
+   "detail": "status=complete used_in={'S1': ['立项依据', '技术路线', '创新点'], 'S2': ['立项依据', '技术路线', '创新点'], 'P1': ['立项依据', '技术路线', '创新点', '研究基础']}"
+  },
+  {
+   "case": "idempotent_init",
+   "expectation": "init 幂等：复跑不覆盖已写骨架与 result.json",
+   "verdict": "pass",
+   "detail": ""
+  },
+  {
+   "case": "mut_banned_word",
+   "expectation": "变异必命中：check FAIL 且报告含「禁用词」",
+   "verdict": "pass",
+   "detail": "passed=False tag_found=True"
+  },
+  {
+   "case": "mut_uncited_claim",
+   "expectation": "变异必命中：check FAIL 且报告含「缺引」",
+   "verdict": "pass",
+   "detail": "passed=False tag_found=True"
+  },
+  {
+   "case": "mut_orphan_gap",
+   "expectation": "变异必命中：check FAIL 且报告含「孤儿缺口」",
+   "verdict": "pass",
+   "detail": "passed=False tag_found=True"
+  },
+  {
+   "case": "mut_orphan_content",
+   "expectation": "变异必命中：check FAIL 且报告含「孤儿内容」",
+   "verdict": "pass",
+   "detail": "passed=False tag_found=True"
+  },
+  {
+   "case": "mut_undefined_gap",
+   "expectation": "变异必命中：check FAIL 且报告含「未定义」",
+   "verdict": "pass",
+   "detail": "passed=False tag_found=True"
+  },
+  {
+   "case": "mut_p_out_of_range",
+   "expectation": "变异必命中：check FAIL 且报告含「越界」",
+   "verdict": "pass",
+   "detail": "passed=False tag_found=True"
+  },
+  {
+   "case": "mut_s_out_of_range",
+   "expectation": "变异必命中：check FAIL 且报告含「越界」",
+   "verdict": "pass",
+   "detail": "passed=False tag_found=True"
+  },
+  {
+   "case": "mut_inno_no_anchor",
+   "expectation": "变异必命中：check FAIL 且报告含「锚定」",
+   "verdict": "pass",
+   "detail": "passed=False tag_found=True"
+  },
+  {
+   "case": "mut_prior_no_pref",
+   "expectation": "变异必命中：check FAIL 且报告含「未挂P」",
+   "verdict": "pass",
+   "detail": "passed=False tag_found=True"
+  },
+  {
+   "case": "mut_missing_section",
+   "expectation": "变异必命中：check FAIL 且报告含「章节缺失」",
+   "verdict": "pass",
+   "detail": "passed=False tag_found=True"
+  },
+  {
+   "case": "case_parse_error",
+   "expectation": "材料缺失/解析失败：exit 0，降级为诚实 partial 并登记 material_gaps",
+   "verdict": "pass",
+   "detail": "gaps=['case.json 解析失败: Expecting property name enclosed in double quotes: line 1 column 2 (char 1)']"
+  },
+  {
+   "case": "long_input",
+   "expectation": "超长输入：台账截断 60 条且不崩溃",
+   "verdict": "pass",
+   "detail": "ledger=60"
+  }
+ ]
+}

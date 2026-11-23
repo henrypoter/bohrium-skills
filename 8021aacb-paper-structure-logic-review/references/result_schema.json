@@ -1,0 +1,40 @@
+{
+  "case_id": "从 /input/case.json 复制",
+  "status": "success|partial|failed",
+  "summary": "≤120字：概况+主要结构问题+六维覆盖说明",
+  "deliverables": [
+    {"path": "/app/output/diagnosis.md", "kind": "诊断报告（必需）"},
+    {"path": "/app/output/edit_plan.md", "kind": "六维 source-grounded 修改方案（必需，可编辑）"},
+    {"path": "/app/output/skeleton.json", "kind": "骨架图谱（必需）"},
+    {"path": "/app/output/revised_draft.md", "kind": "修改稿（可选：仅当存在 L1/L2 句子级落笔时产出；整篇重写非必需）"}
+  ],
+  "diagnosis": [
+    {"id": "D1", "dimension": "六维之一", "location": "S2.P3", "criterion": "判据+检索范围",
+     "evidence": "原文≤40字", "type": "问题类型", "severity": "high|mid|low", "action": "动作摘要"}
+  ],
+  "edit_plan": [
+    {"id": "E1", "action": "move|merge|split|narrow|add_transition|delete|rewrite_sentence",
+     "level": "L1|L2|L3", "anchor": "S2.P3", "target": "S4.P1 或 null",
+     "detail": "操作；L3 只建议", "ref_diagnosis": "D1"}
+  ],
+  "dimension_plan": {
+    "research_question":    {"status": "no_finding|diagnosed", "diagnosis_ids": [], "edit_ids": []},
+    "section_structure":    {"status": "no_finding|diagnosed", "diagnosis_ids": [], "edit_ids": []},
+    "argument_chain":       {"status": "no_finding|diagnosed", "diagnosis_ids": [], "edit_ids": []},
+    "paragraph_relation":   {"status": "no_finding|diagnosed", "diagnosis_ids": [], "edit_ids": []},
+    "redundancy":           {"status": "no_finding|diagnosed", "diagnosis_ids": [], "edit_ids": []},
+    "conclusion_boundary":  {"status": "no_finding|diagnosed", "diagnosis_ids": [], "edit_ids": []}
+  },
+  "change_log": [
+    {"anchor": "S5.P1.s2", "level": "L1|L2", "original": "原句", "revised": "新句",
+     "reason": "理由", "fact_note": "可选：有意改动的解释"}
+  ],
+  "dimensions_checked": ["已逐维核查的六维列表；诊断无命中时必填，区分无命中与未核查"],
+  "sources": ["输入文件路径"],
+  "fact_source_map": [{"item": "关键数字/术语/图表/论断", "source_location": "输入+锚点", "note": "未新增外事实"}],
+  "uncertainty": ["无法判定项"],
+  "human_confirmation": ["需作者确认项"],
+  "material_gaps": ["缺章节/截断等"],
+  "anomalies": ["运行异常"],
+  "budget": {"model_requests_used": 0, "seconds_used": 0, "note": "诚实填写"}
+}

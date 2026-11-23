@@ -1,0 +1,1 @@
+{"case_id": "c1", "status": "issues", "result": {"x": 1}, "evidence": [{"a": "b"}], "artifacts": [{"path": "out", "type": "report", "description": "d"}], "unchecked": [], "sources": ["材料"], "uncertainty": [], "change_log": []}

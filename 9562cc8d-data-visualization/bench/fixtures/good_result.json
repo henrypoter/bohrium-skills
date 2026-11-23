@@ -1,0 +1,28 @@
+{
+  "case_id": "case-001",
+  "status": "issues",
+  "data": {"files": ["sample_data.csv"], "source_version": "v1", "rows_before": 8, "rows_after": 6},
+  "steps": [
+    {"id": "S1", "action": "去除完全重复记录", "rule": "按 sample_id+measure 完全重复时保留首条", "field": "sample_id", "input_count": 8, "output_count": 7, "changed": 1},
+    {"id": "S2", "action": "缺失值标记", "rule": "未检测/录入缺失(-999)不参与均值，单独计数", "field": "measure", "input_count": 7, "output_count": 7, "changed": 0}
+  ],
+  "results": [
+    {"id": "R1", "label": "treat 组均值", "value": 12.8, "unit": "mg/L", "source": "measure 字段 treat 组", "ci": [12.0, 13.6]},
+    {"id": "R2", "label": "control 组均值", "value": 8.6, "unit": "mg/L", "source": "measure 字段 control 组", "ci": [7.9, 9.3]}
+  ],
+  "quality": {
+    "missing_by_field": {"measure": 2},
+    "duplicates": 1,
+    "outliers": 1,
+    "assumption_checks": ["样本量 <30，未做正态性检验，改用非参数检验"]
+  },
+  "artifacts": [
+    {"path": "/app/output/cleaned_table.csv", "type": "cleaned_table", "description": "去重后的清洗表"},
+    {"path": "/app/output/analysis.py", "type": "code", "description": "分析脚本(含种子与依赖)"}
+  ],
+  "checks": ["去重后行数 6 与报告一致", "缺失值 2 条已单独计数未参与均值"],
+  "unchecked": ["单位不一致的 S07 未纳入均值，待确认换算"],
+  "sources": ["sample_data.csv", "数据字典 data_dict.md"],
+  "uncertainty": ["S07 单位 μg/L 需确认是否换算为 mg/L"],
+  "change_log": ["inspect 探查发现 1 重复 + 2 缺失 + 1 单位不一致"]
+}

@@ -1,0 +1,95 @@
+{
+  "fixture_positive": {
+    "exit": 0,
+    "summary": {
+      "issue": 0,
+      "warn": 0,
+      "info": 0
+    },
+    "zero_false_positive": true
+  },
+  "fixture_mutant": {
+    "exit": 0,
+    "summary": {
+      "issue": 2,
+      "warn": 6,
+      "info": 0
+    },
+    "planted": 5,
+    "hit": 5,
+    "missed": []
+  },
+  "c1_full": {
+    "chapters": 5,
+    "baseline_ctx_chars": 13225,
+    "skill_ctx_chars": 1660,
+    "ctx_reduction_pct": 87.4,
+    "skill_ctx_per_chapter": [
+      172,
+      252,
+      332,
+      412,
+      492
+    ],
+    "min_total_words": 3000,
+    "chapters_with_min_words": 5
+  },
+  "pipeline_artifacts": {
+    "count": 5,
+    "files": [
+      "manuscript.docx",
+      "manuscript.html",
+      "manuscript.md",
+      "manuscript.pdf",
+      "result.json"
+    ],
+    "plan_json": true,
+    "chapter_files": 5
+  },
+  "c2_gap": {
+    "chapters": 5,
+    "baseline_ctx_chars": 12625,
+    "skill_ctx_chars": 1660,
+    "ctx_reduction_pct": 86.9,
+    "skill_ctx_per_chapter": [
+      172,
+      252,
+      332,
+      412,
+      492
+    ],
+    "min_total_words": 3000,
+    "chapters_with_min_words": 5
+  },
+  "ops": {
+    "baseline_manual_actions": [
+      "通读全部材料(N次重读)",
+      "逐章写作时回翻材料定位事实",
+      "手工统一术语/缩写",
+      "逐条核对引用与文献条目",
+      "手工重排图表编号与交叉引用",
+      "人工通读全稿核对结论数字"
+    ],
+    "baseline_manual_action_count": 6,
+    "skill_manual_action_count": 0,
+    "skill_cli_steps": [
+      "--init",
+      "--plan",
+      "逐章写(N次模型请求)",
+      "--assemble --render",
+      "consistency.py(advisory, 5 规则) + --finalize"
+    ],
+    "skill_cli_step_count": 5,
+    "main_path_commands_before": 6,
+    "main_path_commands_after": 5,
+    "length_discipline": "plan.json 每章落 min_words、全篇落 min_total_words；--assemble 报 LENGTH/SHORT 只提示不阻断"
+  },
+  "determinism": {
+    "double_plan_byte_identical": true
+  },
+  "selftest": {
+    "exit": 0,
+    "pass": true
+  },
+  "failures": []
+}

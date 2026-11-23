@@ -1,0 +1,68 @@
+{
+  "boundary": "确定性路径对照；baseline 为构造模拟，非平台白板；不度量 LLM 端到端写作质量（由平台 harness 提供）",
+  "metrics": {
+    "baseline": {
+      "numeric_anchor_rate": 0.833,
+      "unanchored_numbers": 1,
+      "claim_binding_rate": 0.0,
+      "unbound_citations": 3,
+      "unbacked_hard_words": 4,
+      "conflict_ack": false,
+      "rework_items": 9,
+      "artifacts": 1
+    },
+    "skill": {
+      "numeric_anchor_rate": 1.0,
+      "unanchored_numbers": 0,
+      "claim_binding_rate": 1.0,
+      "unbound_citations": 0,
+      "unbacked_hard_words": 0,
+      "conflict_ack": true,
+      "rework_items": 0,
+      "artifacts": 5
+    }
+  },
+  "machine_check": {
+    "evidence_lib_rc": 0,
+    "check_result_rc": 0
+  },
+  "comparisons": [
+    {
+      "metric": "numeric_anchor_rate",
+      "baseline": 0.833,
+      "skill": 1.0,
+      "skill_wins": true
+    },
+    {
+      "metric": "claim_binding_rate",
+      "baseline": 0.0,
+      "skill": 1.0,
+      "skill_wins": true
+    },
+    {
+      "metric": "unbacked_hard_words",
+      "baseline": 4,
+      "skill": 0,
+      "skill_wins": true
+    },
+    {
+      "metric": "conflict_ack",
+      "baseline": false,
+      "skill": true,
+      "skill_wins": true
+    },
+    {
+      "metric": "rework_items",
+      "baseline": 9,
+      "skill": 0,
+      "skill_wins": true
+    },
+    {
+      "metric": "artifacts",
+      "baseline": 1,
+      "skill": 5,
+      "skill_wins": true
+    }
+  ],
+  "all_pass": true
+}

@@ -1,0 +1,13 @@
+{"figures": ["Fig. 1","Fig. 2"], "tables": ["Table 1"],
+ "values": [
+  {"id":"P1","value":612,"unit":"MPa","desc":"treated tensile strength","fig":"Table 1","significant":true,"p":"0.017","disp":14,"disp_type":"SD","test":"t","df":12,"stat":2.78},
+  {"id":"P2","value":540,"unit":"MPa","desc":"control tensile strength","fig":"Table 1","significant":null,"disp":11,"disp_type":"SD"},
+  {"id":"P3","value":0.017,"desc":"strength t-test p","fig":"Table 1","significant":true},
+  {"id":"P4","value":7,"desc":"specimens per group","fig":"Table 1","significant":null},
+  {"id":"P5","value":8.9,"unit":"%","desc":"treated elongation","fig":"Fig. 2","significant":false,"p":"0.41"},
+  {"id":"P6","value":9.4,"unit":"%","desc":"control elongation","fig":"Fig. 2","significant":null},
+  {"id":"P7","value":0.41,"desc":"elongation t-test p","fig":"Fig. 2","significant":false},
+  {"id":"P8","value":650,"unit":"°C","desc":"austenitizing temperature","fig":"Table 1","significant":null},
+  {"id":"P9","value":12.5,"unit":"°C/s","desc":"cooling rate","fig":"Table 1","significant":null},
+  {"id":"P10","value":7.85,"unit":"g/cm³","desc":"density","fig":"Table 1","significant":null}],
+ "citations": [{"id":"C1","ref":"Smith et al., 2019, Mater. Sci. Eng. A"},{"id":"C2","ref":"Lee et al., 2022, Acta Mater."}]}

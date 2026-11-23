@@ -1,0 +1,162 @@
+{
+  "summary": {
+    "total": 17,
+    "failed": 0,
+    "criterion": "正向零误杀(rc=0)；变异必命中(rc=1且码命中)；异常路径按口径降级"
+  },
+  "results": [
+    {
+      "case": "positive_合规样例",
+      "expect_rc": 0,
+      "expect_code": null,
+      "got_rc": 0,
+      "hit": true,
+      "seconds": 1.6,
+      "pass": true
+    },
+    {
+      "case": "E1_缺必填字段",
+      "expect_rc": 1,
+      "expect_code": "E1",
+      "got_rc": 1,
+      "hit": true,
+      "seconds": 1.13,
+      "pass": true
+    },
+    {
+      "case": "E5_编造quote",
+      "expect_rc": 1,
+      "expect_code": "E5",
+      "got_rc": 1,
+      "hit": true,
+      "seconds": 1.13,
+      "pass": true
+    },
+    {
+      "case": "E7_数值与原文不符",
+      "expect_rc": 1,
+      "expect_code": "E7",
+      "got_rc": 1,
+      "hit": true,
+      "seconds": 1.37,
+      "pass": true
+    },
+    {
+      "case": "E9_弱证据强结论",
+      "expect_rc": 1,
+      "expect_code": "E9",
+      "got_rc": 1,
+      "hit": true,
+      "seconds": 1.18,
+      "pass": true
+    },
+    {
+      "case": "E10_仅partial判supported",
+      "expect_rc": 1,
+      "expect_code": "E10",
+      "got_rc": 1,
+      "hit": true,
+      "seconds": 1.23,
+      "pass": true
+    },
+    {
+      "case": "E2_缺判定理由note",
+      "expect_rc": 1,
+      "expect_code": "E2",
+      "got_rc": 1,
+      "hit": true,
+      "seconds": 1.43,
+      "pass": true
+    },
+    {
+      "case": "E4_conflicted绑定不足2",
+      "expect_rc": 1,
+      "expect_code": "E4",
+      "got_rc": 1,
+      "hit": true,
+      "seconds": 1.38,
+      "pass": true
+    },
+    {
+      "case": "M1_正文引用未定义编号",
+      "expect_rc": 1,
+      "expect_code": "M1",
+      "got_rc": 1,
+      "hit": true,
+      "seconds": 1.4,
+      "pass": true
+    },
+    {
+      "case": "E12_证据编号冲突",
+      "expect_rc": 1,
+      "expect_code": "E12",
+      "got_rc": 1,
+      "hit": true,
+      "seconds": 1.29,
+      "pass": true
+    },
+    {
+      "case": "E12_论断编号冲突",
+      "expect_rc": 1,
+      "expect_code": "E12",
+      "got_rc": 1,
+      "hit": true,
+      "seconds": 1.24,
+      "pass": true
+    },
+    {
+      "case": "E6_非法证据等级",
+      "expect_rc": 1,
+      "expect_code": "E6",
+      "got_rc": 1,
+      "hit": true,
+      "seconds": 1.23,
+      "pass": true
+    },
+    {
+      "case": "ANOM_论断超出材料判unsupported",
+      "expect_rc": 0,
+      "expect_code": null,
+      "got_rc": 0,
+      "hit": true,
+      "seconds": 1.2,
+      "pass": true
+    },
+    {
+      "case": "ANOM_材料缺失(E5降级为unchecked)",
+      "expect_rc": 0,
+      "expect_code": "E5=unchecked",
+      "got_rc": 0,
+      "hit": true,
+      "seconds": 0.83,
+      "pass": true
+    },
+    {
+      "case": "ANOM_超长输入(~450KB)",
+      "expect_rc": 0,
+      "expect_code": null,
+      "got_rc": 0,
+      "hit": true,
+      "seconds": 0.91,
+      "pass": true
+    },
+    {
+      "case": "R_合规result.json",
+      "expect_rc": 0,
+      "expect_code": null,
+      "got_rc": 0,
+      "hit": true,
+      "seconds": 0,
+      "pass": true
+    },
+    {
+      "case": "R_缺字段必拒",
+      "expect_rc": 1,
+      "expect_code": "uncertainty",
+      "got_rc": 1,
+      "hit": true,
+      "seconds": 0,
+      "pass": true
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+% Self-made fixture: manuscript already compliant with guide_ieee.txt.
+\documentclass[12pt,a4paper]{article}
+\usepackage[top=2.54cm,bottom=2.54cm,left=3.0cm,right=3.0cm]{geometry}
+\usepackage{graphicx}
+\usepackage{fontspec}
+\setmainfont{Liberation Serif}
+\linespread{1.5}
+\title{Sample manuscript}
+\author{Author One}
+\begin{document}
+\maketitle
+\begin{abstract}
+This is a short abstract.
+\end{abstract}
+\section{Introduction}
+Text with a citation~\cite{ref1}.
+\begin{figure}
+\centering
+\includegraphics[width=0.5\textwidth]{fig1.pdf}
+\caption{Example figure.}
+\end{figure}
+\begin{table}
+\centering
+\caption{Example table.}
+\begin{tabular}{cc}
+a & b \\
+\end{tabular}
+\end{table}
+\begin{equation}
+E = mc^2
+\end{equation}
+\footnote{A footnote.}
+\bibliographystyle{IEEEtran}
+\bibliography{refs}
+\end{document}

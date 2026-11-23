@@ -1,0 +1,9 @@
+sample_id,group,measure,unit,note
+S01,treat,12.5,mg/L,
+S02,treat,13.1,mg/L,
+S03,treat,,mg/L,未检测
+S04,control,8.2,mg/L,
+S04,control,8.2,mg/L,重复
+S05,control,-999,mg/L,录入缺失
+S06,control,9.0,mg/L,
+S07,treat,12000,μg/L,单位不一致

@@ -1,0 +1,9 @@
+{
+ "r2_min": 0.999,
+ "drop_outliers": true,
+ "outlier_k": 3.0,
+ "max_drops": 2,
+ "spacing_rtol": 0.15,
+ "log_min_ticks": 3,
+ "_doc": "axisfit.py thresholds; --rules FILE overrides."
+}

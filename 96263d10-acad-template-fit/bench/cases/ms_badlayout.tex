@@ -1,0 +1,25 @@
+% Self-made fixture: manuscript violating guide_ieee.txt on 7 preamble rules.
+\documentclass[10pt,letterpaper,twocolumn]{article}
+\usepackage[top=1in,bottom=1in,left=1in,right=1in]{geometry}
+\usepackage{times}
+\linespread{1.0}
+\title{Sample manuscript}
+\author{Author One}
+\begin{document}
+\maketitle
+\begin{abstract}
+This is a short abstract.
+\end{abstract}
+\section{Introduction}
+Text with a citation~\cite{ref1}.
+\begin{table}
+\centering
+\caption{A table.}
+\begin{tabular}{cc}
+a & b \\
+\end{tabular}
+\end{table}
+\footnote{A footnote.}
+\bibliographystyle{plain}
+\bibliography{refs}
+\end{document}

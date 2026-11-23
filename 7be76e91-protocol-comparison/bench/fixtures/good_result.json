@@ -1,0 +1,97 @@
+{
+ "case_id": "case-001",
+ "status": "issues",
+ "research_goal": {
+  "objective": "测药物A对某细胞增殖的影响",
+  "hypothesis": "药物A在10-100 μM范围内剂量依赖抑制细胞增殖",
+  "constraints": [
+   "预算5万",
+   "4周内完成"
+  ]
+ },
+ "variables": [
+  {
+   "id": "V1",
+   "name": "药物A浓度",
+   "type": "independent",
+   "operational_definition": "培养液中药物A终浓度(μM)",
+   "unit": "μM",
+   "range": "0/10/30/100"
+  },
+  {
+   "id": "V2",
+   "name": "细胞存活率",
+   "type": "dependent",
+   "operational_definition": "CCK-8 吸光度归一化到空白组",
+   "unit": "%",
+   "range": "0-100"
+  }
+ ],
+ "controls": [
+  {
+   "id": "C1",
+   "type": "negative",
+   "purpose": "空白对照组",
+   "confounder_excluded": "溶剂DMSO效应"
+  },
+  {
+   "id": "C2",
+   "type": "positive",
+   "purpose": "已知抑制剂的阳性对照",
+   "confounder_excluded": "实验体系是否响应"
+  }
+ ],
+ "steps": [
+  {
+   "id": "S1",
+   "action": "铺板",
+   "equipment": "96孔板",
+   "material": "细胞悬液",
+   "duration": "0.5h",
+   "parameter_range": "5000细胞/孔"
+  }
+ ],
+ "resources": {
+  "equipment": [
+   "酶标仪"
+  ],
+  "materials": [
+   "CCK-8"
+  ],
+  "sample": "细胞株X",
+  "time_estimate": "2周",
+  "cost_estimate": "约1.2万"
+ },
+ "risks": [
+  {
+   "id": "R1",
+   "failure_mode": "无信号(细胞未贴壁)",
+   "trigger": "吸光度<0.1",
+   "consequence": "数据不可用",
+   "mitigation": "复孔+重复三次",
+   "stop_rule": "重复仍无信号则查细胞状态"
+  }
+ ],
+ "judgments": [
+  {
+   "id": "J1",
+   "claim": "选CCK-8测增殖",
+   "evidence": "文献常用且线性范围匹配",
+   "source": "文献[1]",
+   "confidence": "high"
+  }
+ ],
+ "expert_confirmation": [
+  "药物A溶解度需实验员确认"
+ ],
+ "unchecked": [],
+ "sources": [
+  "文献[1]"
+ ],
+ "uncertainty": [
+  "剂量上限未覆盖临床浓度"
+ ],
+ "change_log": [
+  "初版方案生成"
+ ]
+}

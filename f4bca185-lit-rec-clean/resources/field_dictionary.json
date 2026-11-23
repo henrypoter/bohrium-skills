@@ -1,0 +1,5 @@
+{
+ "version": "1.0",
+ "description": "列名同义映射（F 系）。同写法多条命中时 priority 高者胜；未命中列保留原名入 unmapped_fields。",
+ "rules": [{"rule_id": "F01", "canonical": "record_id", "priority": 100, "match": ["record_id", "row_id", "id", "行号"]}, {"rule_id": "F02", "canonical": "source_ref", "priority": 95, "match": ["source_ref", "source", "reference", "ref", "文献", "出处", "paper"]}, {"rule_id": "F03", "canonical": "page_ref", "priority": 70, "match": ["page", "页", "页码", "paragraph", "loc"]}, {"rule_id": "F04", "canonical": "substance", "priority": 90, "match": ["substance", "material", "compound", "sample", "物质", "材料", "化合物", "样品", "样本", "催化剂", "catalyst"]}, {"rule_id": "F05", "canonical": "property", "priority": 90, "match": ["property", "metric", "parameter", "指标", "参数", "性质"]}, {"rule_id": "F06", "canonical": "value_raw", "priority": 90, "match": ["value", "value_raw", "val", "result", "reading", "数值", "测量值", "结果"]}, {"rule_id": "F07", "canonical": "unit_raw", "priority": 90, "match": ["unit", "units", "unit_raw", "单位"]}, {"rule_id": "F08", "canonical": "condition", "priority": 80, "match": ["condition", "conditions", "test_condition", "context", "条件", "note", "notes"]}]
+}

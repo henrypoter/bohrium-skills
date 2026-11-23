@@ -1,0 +1,7 @@
+{"name": "c2_badlayout", "title": "坏版式稿：确定性改稿到可交付",
+ "guide": "guide_ieee.txt", "manuscript": "ms_badlayout.tex",
+ "parse_manuscript_too": false, "run_fit": true, "compile": true,
+ "expect": {"pre_fail_min": 7, "fit_applied": 7, "post_ready": true, "fidelity_clean": true,
+   "second_run_applied": 0},
+ "baseline": {"manual_edits": 7,
+   "note": "baseline 须人工完成纸张/字号/栏数/四边距/行距/文献样式/字体 7 类改动并反复试编译"}}

@@ -1,0 +1,20 @@
+{
+  "_comment": "MINIMAL EXAMPLE (self-made, not an official case). Source sentence saved as demo_source.txt (one line = L1): 'A kinase phosphorylates B at 25 °C; phosphorylated B inhibits C.' Every source = {locator, quote}; quote is a verbatim <=30-char fragment verified to exist AND to land inside the locator interval.",
+  "title": "Example: A-B-C regulation",
+  "canvas": {"width": 900, "height": 420},
+  "nodes": [
+    {"id": "A", "label": "A kinase", "kind": "enzyme", "source": {"locator": "demo_source.txt:L1", "quote": "A kinase"}},
+    {"id": "B", "label": "B", "kind": "substrate", "sublabel": "phosphorylated", "source": {"locator": "demo_source.txt:L1", "quote": "phosphorylates B"}},
+    {"id": "C", "label": "C", "kind": "target", "source": {"locator": "demo_source.txt:L1", "quote": "inhibits C"}}
+  ],
+  "edges": [
+    {"from": "A", "to": "B", "type": "activates", "label": "phosphorylates B at 25 °C", "source": {"locator": "demo_source.txt:L1", "quote": "phosphorylates B at 25 °C"}},
+    {"from": "B", "to": "C", "type": "inhibits", "label": "inhibits", "source": {"locator": "demo_source.txt:L1", "quote": "B inhibits C"}}
+  ],
+  "groups": [],
+  "legend": "auto",
+  "required": ["A kinase", "B", "C"],
+  "units_notes": ["temperature: 25 °C (from source)"],
+  "uncertainties": [],
+  "change_log": []
+}

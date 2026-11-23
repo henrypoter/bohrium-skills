@@ -1,0 +1,10 @@
+{
+  "comment": "External criteria (SBGN arc aligned): relation type -> required endpoint glyph. build_svg.py renders from this table; check_figure.py enforces marker-end match + marked end at 'to' node. Edit here; both sides stay in sync.",
+  "rules": {
+    "activates": {"marker": "arrow", "dash": "", "glyph": "solid line + filled triangle arrowhead"},
+    "flows": {"marker": "arrow", "dash": "", "glyph": "solid line + triangle arrowhead"},
+    "inhibits": {"marker": "tbar", "dash": "", "glyph": "solid line + flat T bar (never an arrowhead)"},
+    "contains": {"marker": "", "dash": "6,4", "glyph": "dashed line / grouping box, no endpoint mark"},
+    "unknown": {"marker": "", "dash": "4,4", "glyph": "dashed line, no mark; flag in uncertainty"}
+  }
+}

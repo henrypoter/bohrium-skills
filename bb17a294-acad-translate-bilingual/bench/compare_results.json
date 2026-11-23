@@ -1,0 +1,23 @@
+{
+ "scope": "self-made fixtures; QC-detectable fidelity only; not a platform harness run",
+ "baseline_raw_translation": {
+  "term_consistency": 0.6667,
+  "numeric_completeness": 0.4444,
+  "citation_completeness": 0.3333,
+  "omission_rate": 0.25,
+  "semantic_flags": 1,
+  "terms_pass": false,
+  "integrity_pass": false,
+  "align_pass": false
+ },
+ "skill_pipeline": {
+  "term_consistency": 1.0,
+  "numeric_completeness": 1.0,
+  "citation_completeness": 1.0,
+  "omission_rate": 0.0,
+  "semantic_flags": 0,
+  "terms_pass": true,
+  "integrity_pass": true,
+  "align_pass": true
+ }
+}

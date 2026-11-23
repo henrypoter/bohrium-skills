@@ -1,0 +1,5 @@
+{"case_id": "bench-demo",
+ "title": "钙钛矿太阳能电池界面稳定性研究",
+ "references": ["Zhang et al. (2023) 报道MAPbI3器件在85℃下500小时效率保持率为62%。DOI:10.1000/demo1",
+                "Li et al. (2024) 通过界面钝化将保持率提升至78%，但湿热耦合衰减机制不明。DOI:10.1000/demo2"],
+ "applicant_preliminary": ["申请人团队已制备SAM空穴传输层器件，初始效率24.1%（已完成）。"]}

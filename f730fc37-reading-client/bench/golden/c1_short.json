@@ -1,0 +1,10 @@
+{
+ "title": "短文（单主题，4 行）",
+ "material": "c1_short.txt",
+ "question": "卡尔文循环在哪里进行？",
+ "keyword": "卡尔文",
+ "quote": "卡尔文循环在叶绿体基质中进行，固定二氧化碳。",
+ "answer": "在叶绿体基质中进行。",
+ "note": "核心结论位置",
+ "baseline_tries": 1
+}

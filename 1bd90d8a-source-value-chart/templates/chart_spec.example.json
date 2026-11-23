@@ -1,0 +1,34 @@
+{
+  "_README": "FILLED WORKING EXAMPLE with demo data (NOT an official case, NOT a prepared answer). Copy this file to /app/work/chart_spec.json, then replace every column name, series value, unit and label VERBATIM from YOUR source table (run scripts/inspect_materials.py first and copy header strings). Keys starting with '_' are ignored by the renderer. Verify it runs: python3 scripts/build_figure.py --spec templates/chart_spec.example.json --outdir /tmp/example_out --styles templates/styles.json",
+  "figure_id": "fig1",
+  "style": "nature_single",
+  "caption": "Figure 1. DrugX induces target expression and reduces cell viability. (a) Mean expression (log2 FC) by treatment and cell line; error bars represent SD; n = 3; *p<=0.05, **p<=0.01, two-tailed t-test. (b) Relative viability over time; error bars represent SEM; n = 3.",
+  "statistics": {"test": "two-tailed t-test", "correction": "none", "n": 3},
+  "layout": {"ncols": 2},
+  "panels": [
+    {
+      "panel_id": "a", "chart_type": "bar", "title": "a",
+      "source": {"file": "templates/demo_bar.csv"},
+      "x": {"column": "treatment", "label": "Treatment", "quote": "treatment,cell_line,mean_expr"},
+      "y": {"column": "mean_expr", "label": "Expression", "unit": "log2 FC", "quote": "mean_expr,sd,p_label"},
+      "series": {"column": "cell_line", "values": ["A549", "HeLa"], "quote": "treatment,cell_line"},
+      "error": {"column": "sd", "kind": "sd", "quote": "mean_expr,sd,p_label"},
+      "significance": {"column": "p_label", "quote": "sd,p_label"}
+    },
+    {
+      "panel_id": "b", "chart_type": "line", "title": "b",
+      "source": {"file": "templates/demo_line.csv"},
+      "x": {"column": "time_h", "label": "Time (h)", "quote": "time_h,dose,rel_viability"},
+      "y": {"column": "rel_viability", "label": "Relative viability", "unit": "fold", "quote": "rel_viability,sem"},
+      "series": {"column": "dose", "quote": "time_h,dose"},
+      "error": {"column": "sem", "kind": "sem", "quote": "rel_viability,sem"}
+    }
+  ],
+  "_required_outputs_example": {
+    "_howto": "Derive the case-level required figure list from task.md (e.g. 'Fig1a bar + Fig1b line'), save as /app/work/required_outputs.json in the shape below, then run: python3 scripts/audit_outputs.py --outdir /app/output --require /app/work/required_outputs.json --result /app/output/result.json (exit 3 + forced status=partial when anything is missing).",
+    "required": [
+      {"figure_id": "fig1", "chart_type": "bar"},
+      {"figure_id": "fig2", "chart_type": "line"}
+    ]
+  }
+}

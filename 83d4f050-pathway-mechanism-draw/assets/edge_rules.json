@@ -1,0 +1,16 @@
+{
+  "comment": "SBGN/KEGG-aligned single source: build renders marker-end; check enforces it in the SVG. Edit here; both stay in sync.",
+  "relations": {
+    "activates": {"marker": "arrow"},
+    "inhibits": {"marker": "bar"},
+    "binds": {"marker": "dot"},
+    "phosphorylates": {"marker": "arrow", "badge": "P"},
+    "ubiquitinates": {"marker": "arrow", "badge": "Ub"},
+    "methylates": {"marker": "arrow", "badge": "Me"},
+    "acetylates": {"marker": "arrow", "badge": "Ac"},
+    "degrades": {"marker": "arrow", "badge": "X"},
+    "translocates": {"marker": "arrow", "dash": "7 5"},
+    "transports": {"marker": "arrow", "dash": "7 5"},
+    "unknown": {"marker": null, "dash": "3 3", "badge": "?"}
+  }
+}

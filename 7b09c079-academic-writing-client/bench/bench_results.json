@@ -1,0 +1,120 @@
+{
+ "all_pass": true,
+ "passed": 18,
+ "total": 18,
+ "checks": [
+  {
+   "check": "b1 正向-修订回退",
+   "ok": true,
+   "detail": "accept 保留、reject 已回退原文"
+  },
+  {
+   "check": "b1 正向-引用核对零误杀",
+   "ok": true,
+   "detail": "citations=[1, 2, 3] unresolved=[]（含 [1,2]/[1-2] 组合与区间展开）"
+  },
+  {
+   "check": "b1 正向-导出回读",
+   "ok": true,
+   "detail": "readback md/tex/docx 全 ok；refs=ok；pdf=ok（工具链缺失时诚实记 failed，不影响结论）"
+  },
+  {
+   "check": "b1 正向-结果契约",
+   "ok": true,
+   "detail": "status=complete confirmations=[]"
+  },
+  {
+   "check": "b1 正向-参考文献入稿",
+   "ok": true,
+   "detail": "docx 内含参考文献节与 [3] 条目"
+  },
+  {
+   "check": "b1 变异-引用断裂必命中",
+   "ok": true,
+   "detail": "unresolved=[9]（[9] 被识别为悬缺引用）"
+  },
+  {
+   "check": "b1 变异-结果诚实降级",
+   "ok": true,
+   "detail": "status=partial limits=['unresolved citations: [9] (add refs or fix numbering)']"
+  },
+  {
+   "check": "b2 公式表格-导出回读",
+   "ok": true,
+   "detail": "readback={'md': 'ok', 'tex': 'ok', 'docx': 'ok'}"
+  },
+  {
+   "check": "b2 公式保真",
+   "ok": true,
+   "detail": "tex 中 \\lambda 等公式内容未被文本转义破坏（$$ 转为 \\[...\\] 直通编译器）"
+  },
+  {
+   "check": "b2 表格保真",
+   "ok": true,
+   "detail": "markdown 表格行原样保留（可编辑源）"
+  },
+  {
+   "check": "b2 区间非引用零误杀",
+   "ok": true,
+   "detail": "公式内 [0,1] 区间未被误判为引用：citations=[]"
+  },
+  {
+   "check": "异常-空锚点拒绝",
+   "ok": true,
+   "detail": "exit=3（旧版本曾 exit=0 且插文污染章节）"
+  },
+  {
+   "check": "异常-无改动修订拒绝",
+   "ok": true,
+   "detail": "exit=3（防虚增版本号）"
+  },
+  {
+   "check": "异常-空章节文件拒绝",
+   "ok": true,
+   "detail": "exit=4（材料缺口，不入库）"
+  },
+  {
+   "check": "异常-锚点缺失不改稿",
+   "ok": true,
+   "detail": "exit=3（拒绝整段覆盖）"
+  },
+  {
+   "check": "异常-会话损坏明确报错",
+   "ok": true,
+   "detail": "exit=1：{\"ok\": false, \"error\": \"project.json corrupted (not valid JSON); remove /tmp/tmp"
+  },
+  {
+   "check": "异常-无章节导出前置拦截",
+   "ok": true,
+   "detail": "exit=5（不跑到深处才崩）"
+  },
+  {
+   "check": "异常-无章节修订前置拦截",
+   "ok": true,
+   "detail": "exit=5"
+  }
+ ],
+ "metrics": {
+  "workload": "2 轮定位-修改-处置 + 3 文献 + 1 论断（夹具 b1_citation_dense.md，458 字节）",
+  "context_bytes": {
+   "base": 916,
+   "skill": 618,
+   "delta_pct": 32.5
+  },
+  "steps_model_requests": {
+   "base": 5,
+   "skill": 13,
+   "note": "base：每轮整章重读+整章重写(2 次模型请求)×2 轮 + 人工 diff(1)；skill：实测 CLI 步数"
+  },
+  "artifacts": {
+   "base": 1,
+   "skill": 10,
+   "note": "base 仅 1 份平铺改写文本，无逐条留痕/版本/回退产物"
+  },
+  "traceability": {
+   "base": "0 条可逐条接受/拒绝的改动记录",
+   "skill": "2 条修订记录(含 before/after/reason/status) + 2 个历史版本 + readback 回读报告"
+  }
+ },
+ "honest_boundary": "仅确定性路径对照；LLM 改稿质量与平台 A/B 需 harness 固定案例，不在本地声称。"
+}

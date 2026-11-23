@@ -1,0 +1,5 @@
+treatment,cell_line,mean_expr,sd,p_label
+DMSO,A549,0.02,0.05,ns
+DrugX,A549,1.18,0.11,*
+DMSO,HeLa,0.11,0.06,ns
+DrugX,HeLa,1.47,0.09,**

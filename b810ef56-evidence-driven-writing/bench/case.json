@@ -1,0 +1,10 @@
+{
+  "_note": "bench 自拟演示案例（非平台正式案例；材料文献与数据均虚构）",
+  "case_id": "bench-demo",
+  "task": "依据 bench/material 下两篇材料，写一段（3-5 句）催化剂 X 产率效应的综述段落，事实与来源一致。",
+  "output_contract": {
+    "manuscript": "成稿（Markdown，事实句内嵌论断编号）",
+    "evidence_library": "证据库 JSON",
+    "claim_matrix": "论断-证据绑定矩阵 JSON"
+  }
+}

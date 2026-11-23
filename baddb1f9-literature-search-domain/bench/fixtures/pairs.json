@@ -1,0 +1,70 @@
+{
+ "pairs": [
+  {
+   "record_id": "R1",
+   "a": {
+    "decision": "include",
+    "reason_code": "I1"
+   },
+   "b": {
+    "decision": "include",
+    "reason_code": "I1"
+   }
+  },
+  {
+   "record_id": "R2",
+   "a": {
+    "decision": "include",
+    "reason_code": "I1"
+   },
+   "b": {
+    "decision": "include",
+    "reason_code": "I2"
+   }
+  },
+  {
+   "record_id": "R3",
+   "a": {
+    "decision": "exclude",
+    "reason_code": "E3"
+   },
+   "b": {
+    "decision": "exclude",
+    "reason_code": "E3"
+   }
+  },
+  {
+   "record_id": "R4",
+   "a": {
+    "decision": "exclude",
+    "reason_code": "E5"
+   },
+   "b": {
+    "decision": "include",
+    "reason_code": "I1"
+   }
+  },
+  {
+   "record_id": "R5",
+   "a": {
+    "decision": "include",
+    "reason_code": "I1"
+   },
+   "b": {
+    "decision": "include",
+    "reason_code": "I1"
+   }
+  },
+  {
+   "record_id": "R6",
+   "a": {
+    "decision": "exclude",
+    "reason_code": "E3"
+   },
+   "b": {
+    "decision": "include",
+    "reason_code": "I1"
+   }
+  }
+ ]
+}

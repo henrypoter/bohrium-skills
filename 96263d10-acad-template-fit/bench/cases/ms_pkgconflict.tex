@@ -1,0 +1,11 @@
+% Self-made fixture: package conflicts (two citation backends, hyperref twice).
+\documentclass[12pt,a4paper]{article}
+\usepackage{natbib}
+\usepackage{biblatex}
+\usepackage{hyperref}
+\usepackage{hyperref}
+\usepackage[top=2.54cm,bottom=2.54cm,left=3.0cm,right=3.0cm]{geometry}
+\begin{document}
+\section{Introduction}
+Text~\cite{ref1}.
+\end{document}

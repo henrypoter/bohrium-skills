@@ -1,0 +1,14 @@
+{
+  "case_id": "bench-demo",
+  "status": "complete",
+  "sources": ["bench/material/paper_a.txt", "bench/material/paper_b.txt"],
+  "uncertainty": [
+    {"claim_id": "C2",
+     "reason": "「较广泛接受」依据单篇综述的汇总结论，未独立检索领域调查",
+     "action": "如需更强表述请人工补充多篇独立综述"}
+  ],
+  "change_records": ["初稿将 C2 写作「领域共识」，evidence_lib E9 提示后改为「较广泛接受」对齐 A 级措辞"],
+  "manuscript": "manuscript.md",
+  "evidence_library": "evidence_library.json",
+  "claim_matrix": "claim_matrix.json"
+}

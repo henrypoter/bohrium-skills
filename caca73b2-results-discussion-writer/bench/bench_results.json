@@ -1,0 +1,99 @@
+{
+ "cases": {
+  "bio_good": {
+   "exit": 0,
+   "fail": 0,
+   "warn": 0,
+   "used_values": 6,
+   "total_values": 6,
+   "seconds": 0.309,
+   "expect": "fail=0,warn=0,exit=0",
+   "pass": true
+  },
+  "phys_good": {
+   "exit": 0,
+   "fail": 0,
+   "warn": 0,
+   "used_values": 10,
+   "total_values": 10,
+   "seconds": 0.264,
+   "expect": "fail=0,warn=0,exit=0",
+   "pass": true
+  },
+  "degraded": {
+   "exit": 0,
+   "fail": 0,
+   "warn": 0,
+   "used_values": 3,
+   "total_values": 3,
+   "seconds": 0.204,
+   "expect": "fail=0,warn=0,exit=0",
+   "pass": true
+  },
+  "bio_mutant": {
+   "exit": 1,
+   "fail": 2,
+   "warn": 10,
+   "expect": "exit=1 且注入的 10 项错误预期全部命中",
+   "seeded_expectations": 10,
+   "missed": [],
+   "claim_items(spin/强表述检出数)": 2,
+   "by_score_dimension": {
+    "任务完成度": {
+     "fail": 0,
+     "warn": 1,
+     "info": 0
+    },
+    "结果完整性": {
+     "fail": 1,
+     "warn": 2,
+     "info": 0
+    },
+    "结果正确性": {
+     "fail": 1,
+     "warn": 5,
+     "info": 0
+    },
+    "结果可核验性": {
+     "fail": 0,
+     "warn": 2,
+     "info": 2
+    }
+   },
+   "seconds": 0.432,
+   "pass": true
+  }
+ },
+ "compare": {
+  "说明": "同一材料; 直写路径=bio_mutant(模拟基础 Agent 常见失败模式), 流程路径=bio_good(sources.json+rd_check 修复后)",
+  "fail_直写": 2,
+  "fail_流程": 0,
+  "warn_直写": 10,
+  "warn_流程": 0,
+  "错误检出_命中/注入": "10/10",
+  "spin与强表述检出数": 2,
+  "产物数_直写": 1,
+  "产物数_流程": 4,
+  "产物_流程": [
+   "sources.json 证据清单",
+   "draft.md 章节稿",
+   "report.json 核查报告",
+   "result.json 契约结果"
+  ],
+  "核查耗时秒_变异稿": 0.432,
+  "核查耗时秒_流程稿": 0.309
+ },
+ "scale": {
+  "repeat": 200,
+  "bytes": 228800,
+  "exit": 0,
+  "fail": 0,
+  "warn": 0,
+  "seconds": 0.581,
+  "limit_seconds": 10,
+  "expect": "判定与单倍一致(0/0)且 <10s",
+  "pass": true
+ },
+ "all_pass": true,
+ "failures": []
+}

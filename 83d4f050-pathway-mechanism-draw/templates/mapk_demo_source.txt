@@ -1,0 +1,6 @@
+Self-made demo source for the TEMPLATE (NOT an official case):
+"Extracellular EGF binds the receptor EGFR at the plasma membrane. Activated
+EGFR recruits the GRB2-SOS complex in the cytosol; GRB2-SOS activates RAS,
+RAS activates RAF, RAF phosphorylates MEK, and MEK phosphorylates ERK. ERK
+then activates the transcription factor ELK1 in the nucleus. ERK inhibits
+the GRB2-SOS complex in a negative feedback loop."

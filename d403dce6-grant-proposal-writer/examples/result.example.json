@@ -1,0 +1,27 @@
+{
+  "case_id": "demo-001",
+  "status": "partial",
+  "deliverables": {
+    "proposal_sections": "/app/output/proposal_sections.md",
+    "route_map": "/app/output/route_map.mmd",
+    "consistency_report": "/app/output/consistency_report.md",
+    "note": "示例：完整案例应交付全部七要素章节"
+  },
+  "source_mapping": [
+    {"evidence_id": "S1", "source": "case.json.references[0]", "type": "文献", "used_in": ["立项依据"]},
+    {"evidence_id": "S2", "source": "case.json.references[1]", "type": "文献", "used_in": ["立项依据", "创新点"]},
+    {"evidence_id": "P1", "source": "case.json.applicant_preliminary[0]", "type": "申请人前期基础", "used_in": ["立项依据", "研究基础"]}
+  ],
+  "checks": {"passed": true, "coverage": 1.0, "n_priors": 1,
+    "counts": {"研究目标": 3, "研究内容": 3, "技术路线": 3, "考核指标": 3}, "issues_count": 0},
+  "version_boundary": {
+    "change_records": ["init: 生成证据台账/骨架/矩阵", "check: 修复1处未挂引论断", "pack: 汇总终稿，回填 used_in"],
+    "manual_confirmation": ["考核指标数值需申请人确认"],
+    "material_gaps": ["缺少团队分工材料：研究基础章节已标注【待补充】"],
+    "conflicts": [],
+    "anomalies": []
+  },
+  "sources": ["/input/case.json", "/input/task.md"],
+  "uncertainty": ["示例输出，非正式案例结果；子问题3材料支撑较弱，置信度中"],
+  "meta": {"skill": "grant-proposal-writer", "ts": 0, "task_excerpt": "依据给定材料撰写……"}
+}

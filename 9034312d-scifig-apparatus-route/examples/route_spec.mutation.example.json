@@ -1,0 +1,1 @@
+{"kind":"route","title":"变异夹具: 图注错位","lanes":[{"id":"L1"}],"nodes":[{"id":"a","label":"A 混合","lane":"L1","order":1,"source":"句1"},{"id":"b","label":"B 反应","lane":"L1","order":2,"source":"句1"}],"edges":[{"from":"a","to":"b","style":"sequence"}],"caption_steps":["1 混合","2 反应"],"uncertainty":["夹具: caption=2≠sequence边1, verify 记 numbering issue 不阻断"]}

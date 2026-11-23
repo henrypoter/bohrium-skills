@@ -1,0 +1,18 @@
+{
+  "case_id": "<来自 /input/case.json>",
+  "status": "partial | success | failed",
+  "status_reason": "<partial/failed 时必填：原因与人工接管入口>",
+  "sources": ["<页码/段落/图表/文件:行号 定位>"],
+  "uncertainty": ["<未报告、无法判断、材料冲突项>"],
+  "missing_materials": ["<缺失材料 + 缺它导致哪一步做不了>"],
+  "change_log": [{"time_utc": "<UTC>", "change": "<增量改动说明>"}],
+  "reproduction_checklist": [{"item": "<代码/数据/参数/依赖/许可证>", "source": "<定位>", "version": "<版本或unknown>", "status": "found|missing"}],
+  "environment": {"snapshot_file": "work/env.json", "mismatch_vs_paper": []},
+  "parameter_table": [{"method": "A", "name": "<参数>", "value": null, "source_class": "paper|code|self", "location": "<定位>", "notes": ""}],
+  "metric_card": [{"metric": "<指标>", "paper": {"definition": null, "data_split": null, "aggregation": null, "precision": null, "location": null}, "repro": {"definition": null, "data_split": null, "aggregation": null, "precision": null, "location": null}}],
+  "runs": [{"method": "A", "command": "<实际命令>", "seed": null, "seeds": [null], "wall_time_s": null, "output_file": "<work/runs/...>"}],
+  "statistics": [{"metric": "<指标>", "method": "A", "n": null, "mean": null, "std": null, "ci95": [null, null], "paper": null, "paper_in_ci": null}],
+  "sensitivity": [{"parameter": "<参数>", "level": "不敏感|中等敏感|高敏感|无法评估", "max_rel_range": null, "dominates_conclusion": null}],
+  "comparison": [{"metric": "<指标>", "method": "A", "paper": null, "repro": null, "abs_err": null, "rel_err": null, "tolerance": 0.02, "abs_tolerance": null, "numerical_grade": "复现一致|定性一致|不一致|无法验证（材料不足）", "evidence_grade": "T1|T2|T3|T4", "verdict": "<数值等级> × <证据等级>", "location": "<原文定位>"}],
+  "attribution": [{"metric": "<指标>", "cause": "环境/依赖漂移|随机性/种子|参数缺失或漏抽|口径不一致|原文笔误（疑似）|实现差异|统计波动|无法判定", "evidence": "<定位或运行记录>"}],  "verdict_summary": "可复现|部分复现|不可复现（附依据）"
+}

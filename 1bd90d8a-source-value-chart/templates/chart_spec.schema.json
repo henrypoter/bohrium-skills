@@ -1,0 +1,36 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "chart_spec v3",
+  "type": "object",
+  "required": ["figure_id", "panels"],
+  "properties": {
+    "figure_id": {"type": "string"},
+    "style": {"type": "string"},
+    "caption": {"type": "string", "description": "must state error-bar meaning, n and significance convention"},
+    "source_figure": {"type": "string"},
+    "statistics": {"type": "object", "properties": {"test": {"type": "string"}, "correction": {"type": "string"}, "n": {}}},
+    "layout": {"type": "object", "properties": {"ncols": {"type": "integer", "minimum": 1}}},
+    "panels": {"type": "array", "minItems": 1, "items": {"$ref": "#/definitions/panel"}}
+  },
+  "definitions": {
+    "col": {"type": "object", "required": ["column"], "properties": {"column": {"type": "string", "description": "VERBATIM header of the source table; typo -> exit 2 with difflib top-3 suggestions"}, "quote": {"type": "string", "description": "optional VERBATIM fragment of the data-file header/first line anchoring this mapping; dual-channel check: normalized quote must exist in the file head AND contain the column name, else exit 2"}, "label": {"type": "string"}, "unit": {"type": "string"}}},
+    "panel": {"type": "object", "required": ["panel_id", "chart_type", "source", "x", "y"],
+      "properties": {
+        "panel_id": {"type": "string"},
+        "chart_type": {"enum": ["bar", "line", "scatter", "box", "heatmap"]},
+        "title": {"type": "string"},
+        "source": {"type": "object", "required": ["file"], "properties": {"file": {"type": "string"}, "delimiter": {"type": "string"}}},
+        "x": {"$ref": "#/definitions/col"},
+        "y": {"$ref": "#/definitions/col"},
+        "series": {"type": "object", "required": ["column"],
+          "properties": {"column": {"type": "string"}, "label": {"type": "string"},
+            "quote": {"type": "string", "description": "optional verbatim data-file fragment containing the series column header"},
+            "values": {"type": "array", "items": {"type": "string"},
+              "description": "optional verbatim legend/category names from the series column; each is verified literally against data values (typo -> exit 2 with suggestions); unlisted source values become unrendered_rows errors"}}},
+        "error": {"type": "object", "required": ["column", "kind"], "properties": {"column": {"type": "string"}, "kind": {"enum": ["sd", "se", "sem", "ci", "ci90", "ci95", "ci99"]}}},
+        "significance": {"$ref": "#/definitions/col"},
+        "value": {"$ref": "#/definitions/col"},
+        "colormap": {"type": "string"}
+      }}
+  }
+}

@@ -1,0 +1,190 @@
+{
+ "disclaimer": "确定性路径对照；LLM 端到端答案质量需平台 harness，未在此声称。",
+ "aggregate": {
+  "cases": 3,
+  "comparable_cases": 2,
+  "baseline_context_chars": 2298,
+  "skill_context_chars": 324,
+  "skill_envelope_chars": 2558,
+  "baseline_ops": 10,
+  "skill_ops": 12,
+  "baseline_manual_ops": 10,
+  "skill_manual_ops": 0,
+  "baseline_anchor_ok": 0,
+  "skill_anchor_ok": 2,
+  "baseline_artifacts": 0,
+  "skill_artifacts": 6,
+  "context_reduction_pct": 85.9
+ },
+ "rows": [
+  {
+   "case": "c1_short",
+   "title": "短文（单主题，4 行）",
+   "baseline": {
+    "ctx_chars": 113,
+    "ops": 4,
+    "manual_ops": 4,
+    "cli_ops": 0,
+    "anchor_ok": false,
+    "artifacts": 0
+   },
+   "skill": {
+    "text_status": "ok",
+    "ops": 6,
+    "manual_ops": 0,
+    "cli_ops": 6,
+    "ctx_chars": 105,
+    "envelope_chars": 1214,
+    "anchor_ok": true,
+    "artifacts": 3,
+    "honest": null,
+    "trace": [
+     {
+      "cmd": "open",
+      "rc": 0,
+      "chars": 266
+     },
+     {
+      "cmd": "search",
+      "rc": 0,
+      "chars": 99
+     },
+     {
+      "cmd": "select",
+      "rc": 0,
+      "chars": 375
+     },
+     {
+      "cmd": "qa",
+      "rc": 0,
+      "chars": 118
+     },
+     {
+      "cmd": "note",
+      "rc": 0,
+      "chars": 88
+     },
+     {
+      "cmd": "export",
+      "rc": 0,
+      "chars": 268
+     }
+    ]
+   },
+   "expectation": "锚点可核验 + 三件产物齐备",
+   "verdict": "pass"
+  },
+  {
+   "case": "c2_long",
+   "title": "长文（5 节 ~60 行，关键结论埋在 4.1 末）",
+   "baseline": {
+    "ctx_chars": 2185,
+    "ops": 6,
+    "manual_ops": 6,
+    "cli_ops": 0,
+    "anchor_ok": false,
+    "artifacts": 0
+   },
+   "skill": {
+    "text_status": "ok",
+    "ops": 6,
+    "manual_ops": 0,
+    "cli_ops": 6,
+    "ctx_chars": 219,
+    "envelope_chars": 1344,
+    "anchor_ok": true,
+    "artifacts": 3,
+    "honest": null,
+    "trace": [
+     {
+      "cmd": "open",
+      "rc": 0,
+      "chars": 265
+     },
+     {
+      "cmd": "search",
+      "rc": 0,
+      "chars": 118
+     },
+     {
+      "cmd": "select",
+      "rc": 0,
+      "chars": 486
+     },
+     {
+      "cmd": "qa",
+      "rc": 0,
+      "chars": 120
+     },
+     {
+      "cmd": "note",
+      "rc": 0,
+      "chars": 90
+     },
+     {
+      "cmd": "export",
+      "rc": 0,
+      "chars": 265
+     }
+    ]
+   },
+   "expectation": "锚点可核验 + 三件产物齐备",
+   "verdict": "pass"
+  },
+  {
+   "case": "c3_scanned",
+   "title": "扫描件（无文本层，检验诚实降级）",
+   "baseline": {
+    "ctx_chars": 0,
+    "ops": 1,
+    "anchor_ok": false,
+    "artifacts": 0
+   },
+   "skill": {
+    "text_status": "no_text_layer",
+    "ops": 6,
+    "manual_ops": 0,
+    "cli_ops": 6,
+    "ctx_chars": 6,
+    "envelope_chars": 758,
+    "anchor_ok": null,
+    "artifacts": 3,
+    "honest": true,
+    "trace": [
+     {
+      "cmd": "open",
+      "rc": 0,
+      "chars": 172
+     },
+     {
+      "cmd": "search",
+      "rc": 0,
+      "chars": 24
+     },
+     {
+      "cmd": "select",
+      "rc": 2,
+      "chars": 58
+     },
+     {
+      "cmd": "qa",
+      "rc": 0,
+      "chars": 133
+     },
+     {
+      "cmd": "note",
+      "rc": 0,
+      "chars": 81
+     },
+     {
+      "cmd": "export",
+      "rc": 0,
+      "chars": 290
+     }
+    ]
+   },
+   "expectation": "无文本层时诚实降级（不编造、标注、仍交付）",
+   "verdict": "pass"
+  }
+ ]
+}

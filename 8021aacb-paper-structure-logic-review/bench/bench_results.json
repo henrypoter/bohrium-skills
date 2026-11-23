@@ -1,0 +1,105 @@
+{
+ "note": "同稿双路径确定性流程对照；非平台白板；不声称 LLM 端到端质量增益",
+ "cases": [
+  {
+   "case": "var_zh",
+   "path_A_no_diagnosis_rewrite": {
+    "rewritten_sentences": 10,
+    "fact_drift_sentences": 2,
+    "fact_drift_items": 4,
+    "fact_drift_detail": [
+     "数值丢2; 引用丢[2]",
+     "数值丢1,12%"
+    ],
+    "change_traces": 0,
+    "anchored_edits": 0,
+    "diagnosis_items": 0,
+    "l3_guard": "无权限概念：结论句一并被改写",
+    "deliverables": 1
+   },
+   "path_B_diagnosis_edit_flow": {
+    "rewritten_sentences": 1,
+    "fact_drift_sentences_unexplained": 0,
+    "fact_drift_sentences_explained_by_fact_note": 0,
+    "change_traces": 1,
+    "anchored_edits": 1,
+    "diagnosis_items": 2,
+    "edit_plan_items": 2,
+    "l3_suggestions_not_applied": 1,
+    "deliverables": 4
+   },
+   "diagnosis_sample": [
+    {
+     "id": "D1",
+     "dimension": "redundancy",
+     "location": "S3.P1.s2",
+     "criterion": "与 S2.P1.s1 近逐字重复(shingle=1.00)且非引言-结论呼应",
+     "evidence": "本文研究调度算法，提出一种贪心调度器。",
+     "type": "跨章节复述",
+     "severity": "mid",
+     "action": "delete"
+    },
+    {
+     "id": "D2",
+     "dimension": "conclusion_boundary",
+     "location": "S5.P1",
+     "criterion": "强因果表述且全节无限定词，证据范围限于已报告实验",
+     "evidence": "强因果且无限定词，需核对证据范围",
+     "type": "结论越界",
+     "severity": "high",
+     "action": "narrow"
+    }
+   ]
+  },
+  {
+   "case": "var_en",
+   "path_A_no_diagnosis_rewrite": {
+    "rewritten_sentences": 8,
+    "fact_drift_sentences": 2,
+    "fact_drift_items": 4,
+    "fact_drift_detail": [
+     "数值丢2; 引用丢[2]",
+     "数值丢1,12%"
+    ],
+    "change_traces": 0,
+    "anchored_edits": 0,
+    "diagnosis_items": 0,
+    "l3_guard": "无权限概念：结论句一并被改写",
+    "deliverables": 1
+   },
+   "path_B_diagnosis_edit_flow": {
+    "rewritten_sentences": 1,
+    "fact_drift_sentences_unexplained": 0,
+    "fact_drift_sentences_explained_by_fact_note": 0,
+    "change_traces": 1,
+    "anchored_edits": 1,
+    "diagnosis_items": 2,
+    "edit_plan_items": 2,
+    "l3_suggestions_not_applied": 1,
+    "deliverables": 4
+   },
+   "diagnosis_sample": [
+    {
+     "id": "D1",
+     "dimension": "redundancy",
+     "location": "S3.P1.s2",
+     "criterion": "与 S2.P1.s1 近逐字重复(shingle=1.00)且非引言-结论呼应",
+     "evidence": "We study scheduling algorithms and propo",
+     "type": "跨章节复述",
+     "severity": "mid",
+     "action": "delete"
+    },
+    {
+     "id": "D2",
+     "dimension": "conclusion_boundary",
+     "location": "S5.P1",
+     "criterion": "强因果表述且全节无限定词，证据范围限于已报告实验",
+     "evidence": "强因果且无限定词，需核对证据范围",
+     "type": "结论越界",
+     "severity": "high",
+     "action": "narrow"
+    }
+   ]
+  }
+ ]
+}

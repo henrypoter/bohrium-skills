@@ -1,0 +1,858 @@
+{
+ "disclaimer": "确定性路径对照：度量路径开销/可核验性/产物完备性；不度量 LLM 端到端质量（需平台 harness）；baseline ops 为文档化模型，非实测；样例为自拟 fixtures。",
+ "aggregate": {
+  "cases": 3,
+  "baseline_ops": 55,
+  "skill_ops": 11,
+  "baseline_ctx_chars": 4003,
+  "skill_ctx_chars": 1254,
+  "baseline_machine_verdicts": 0,
+  "skill_machine_verdicts": 35,
+  "baseline_artifacts": 3,
+  "skill_artifacts": 16,
+  "baseline_changelog": 0,
+  "skill_changelog": 7,
+  "lean_ops": 6,
+  "lean_ctx_chars": 767,
+  "lean_artifacts": 17,
+  "context_reduction_pct": 68.7,
+  "ops_reduction_pct": 80.0,
+  "lean_ops_reduction_pct": 89.1
+ },
+ "rows": [
+  {
+   "case": "c1_compliant",
+   "title": "合规稿：只核不改",
+   "baseline": {
+    "ops": 16,
+    "manual_ops": 16,
+    "ctx_chars": 1779,
+    "machine_verdicts": 0,
+    "artifacts": 1,
+    "changelog_entries": 0,
+    "fidelity_categories": 0,
+    "model": "documented approximation, not measured"
+   },
+   "skill": {
+    "ops": 4,
+    "ctx_chars": 447,
+    "trace": [
+     {
+      "script": "tpl_parse.py",
+      "rc": 0,
+      "stdout_chars": 104
+     },
+     {
+      "script": "fit_check.py",
+      "rc": 0,
+      "stdout_chars": 106
+     },
+     {
+      "script": "tpl_fit.py",
+      "rc": 0,
+      "stdout_chars": 130
+     },
+     {
+      "script": "fit_check.py",
+      "rc": 0,
+      "stdout_chars": 107
+     }
+    ],
+    "machine_verdicts": 12,
+    "artifacts": 7,
+    "changelog_entries": 0,
+    "fidelity_categories": 6,
+    "pre": {
+     "target": "/tmp/bench_c1_compliant__x1maabc/ms_compliant.tex",
+     "checks": [
+      {
+       "key": "page.margin_top",
+       "requirement": "上边距",
+       "expected": 2.54,
+       "status": "pass",
+       "evidence": "geometry top=2.54cm vs spec 2.54cm",
+       "severity": "info"
+      },
+      {
+       "key": "page.margin_bottom",
+       "requirement": "下边距",
+       "expected": 2.54,
+       "status": "pass",
+       "evidence": "geometry bottom=2.54cm vs spec 2.54cm",
+       "severity": "info"
+      },
+      {
+       "key": "page.margin_left",
+       "requirement": "左边距",
+       "expected": 3.0,
+       "status": "pass",
+       "evidence": "geometry left=3.0cm vs spec 3.0cm",
+       "severity": "info"
+      },
+      {
+       "key": "page.margin_right",
+       "requirement": "右边距",
+       "expected": 3.0,
+       "status": "pass",
+       "evidence": "geometry right=3.0cm vs spec 3.0cm",
+       "severity": "info"
+      },
+      {
+       "key": "page.size",
+       "requirement": "page size",
+       "expected": "A4",
+       "status": "pass",
+       "evidence": "paper=a4paper vs spec A4",
+       "severity": "info"
+      },
+      {
+       "key": "body.font_size",
+       "requirement": "Chinese font size name",
+       "expected": "小四",
+       "status": "pass",
+       "evidence": "base font=12.0 vs spec 小四=12pt",
+       "severity": "info"
+      },
+      {
+       "key": "body.line_spacing",
+       "requirement": "line spacing",
+       "expected": 1.5,
+       "status": "pass",
+       "evidence": "linespread=1.5 vs spec 1.5",
+       "severity": "info"
+      },
+      {
+       "key": "page.columns",
+       "requirement": "columns",
+       "expected": 1,
+       "status": "pass",
+       "evidence": "twocolumn present=False",
+       "severity": "info"
+      },
+      {
+       "key": "refs.style",
+       "requirement": "reference style",
+       "expected": "IEEE",
+       "status": "pass",
+       "evidence": "manuscript style=IEEEtran vs spec IEEE",
+       "severity": "info"
+      },
+      {
+       "key": "caption.figure.position",
+       "requirement": "figure caption pos",
+       "expected": "below",
+       "status": "pass",
+       "evidence": "first figure caption below vs spec below",
+       "severity": "info"
+      },
+      {
+       "key": "caption.table.position",
+       "requirement": "table caption pos",
+       "expected": "above",
+       "status": "pass",
+       "evidence": "first table caption above vs spec above",
+       "severity": "info"
+      }
+     ],
+     "fidelity": [],
+     "compile": {
+      "attempted": false
+     },
+     "summary": {
+      "pass": 11
+     },
+     "conflict_precheck": [],
+     "unverified_items": [
+      {
+       "key": "page.count",
+       "expected": 12,
+       "reason": "no auto rule; verify manually"
+      },
+      {
+       "key": "table.three_line",
+       "expected": true,
+       "reason": "no auto rule; verify manually"
+      }
+     ],
+     "readiness": {
+      "ready": true,
+      "level": "partial",
+      "deliver": true,
+      "errors": [],
+      "warnings": [
+       "unverified:page.count",
+       "unverified:table.three_line"
+      ]
+     }
+    },
+    "post": {
+     "target": "/tmp/bench_c1_compliant__x1maabc/fitted.tex",
+     "checks": [
+      {
+       "key": "page.margin_top",
+       "requirement": "上边距",
+       "expected": 2.54,
+       "status": "pass",
+       "evidence": "geometry top=2.54cm vs spec 2.54cm",
+       "severity": "info"
+      },
+      {
+       "key": "page.margin_bottom",
+       "requirement": "下边距",
+       "expected": 2.54,
+       "status": "pass",
+       "evidence": "geometry bottom=2.54cm vs spec 2.54cm",
+       "severity": "info"
+      },
+      {
+       "key": "page.margin_left",
+       "requirement": "左边距",
+       "expected": 3.0,
+       "status": "pass",
+       "evidence": "geometry left=3.0cm vs spec 3.0cm",
+       "severity": "info"
+      },
+      {
+       "key": "page.margin_right",
+       "requirement": "右边距",
+       "expected": 3.0,
+       "status": "pass",
+       "evidence": "geometry right=3.0cm vs spec 3.0cm",
+       "severity": "info"
+      },
+      {
+       "key": "page.size",
+       "requirement": "page size",
+       "expected": "A4",
+       "status": "pass",
+       "evidence": "paper=a4paper vs spec A4",
+       "severity": "info"
+      },
+      {
+       "key": "body.font_size",
+       "requirement": "Chinese font size name",
+       "expected": "小四",
+       "status": "pass",
+       "evidence": "base font=12.0 vs spec 小四=12pt",
+       "severity": "info"
+      },
+      {
+       "key": "body.line_spacing",
+       "requirement": "line spacing",
+       "expected": 1.5,
+       "status": "pass",
+       "evidence": "linespread=1.5 vs spec 1.5",
+       "severity": "info"
+      },
+      {
+       "key": "page.columns",
+       "requirement": "columns",
+       "expected": 1,
+       "status": "pass",
+       "evidence": "twocolumn present=False",
+       "severity": "info"
+      },
+      {
+       "key": "refs.style",
+       "requirement": "reference style",
+       "expected": "IEEE",
+       "status": "pass",
+       "evidence": "manuscript style=IEEEtran vs spec IEEE",
+       "severity": "info"
+      },
+      {
+       "key": "caption.figure.position",
+       "requirement": "figure caption pos",
+       "expected": "below",
+       "status": "pass",
+       "evidence": "first figure caption below vs spec below",
+       "severity": "info"
+      },
+      {
+       "key": "caption.table.position",
+       "requirement": "table caption pos",
+       "expected": "above",
+       "status": "pass",
+       "evidence": "first table caption above vs spec above",
+       "severity": "info"
+      },
+      {
+       "key": "page.count",
+       "expected": 12,
+       "status": "pass",
+       "evidence": "compiled pages=2",
+       "severity": "info"
+      }
+     ],
+     "fidelity": [],
+     "compile": {
+      "attempted": true,
+      "compiler": "latexmk",
+      "ok": true,
+      "pages": 2,
+      "log_findings": [],
+      "pdf": "/tmp/bench_c1_compliant__x1maabc/fitted.pdf"
+     },
+     "summary": {
+      "pass": 12
+     },
+     "conflict_precheck": [],
+     "unverified_items": [
+      {
+       "key": "table.three_line",
+       "expected": true,
+       "reason": "no auto rule; verify manually"
+      }
+     ],
+     "readiness": {
+      "ready": true,
+      "level": "partial",
+      "deliver": true,
+      "errors": [],
+      "warnings": [
+       "unverified:table.three_line"
+      ]
+     }
+    },
+    "fit_applied": 0,
+    "second_run_applied": null
+   },
+   "lean": {
+    "ops": 2,
+    "ctx_chars": 260,
+    "rc": [
+     0,
+     0
+    ],
+    "artifacts": 6,
+    "pdf": true
+   },
+   "expect_failed": [],
+   "efficiency_better": true,
+   "lean_ok": true,
+   "verdict": "pass"
+  },
+  {
+   "case": "c2_badlayout",
+   "title": "坏版式稿：确定性改稿到可交付",
+   "baseline": {
+    "ops": 23,
+    "manual_ops": 23,
+    "ctx_chars": 1363,
+    "machine_verdicts": 0,
+    "artifacts": 1,
+    "changelog_entries": 0,
+    "fidelity_categories": 0,
+    "model": "documented approximation, not measured"
+   },
+   "skill": {
+    "ops": 5,
+    "ctx_chars": 582,
+    "trace": [
+     {
+      "script": "tpl_parse.py",
+      "rc": 0,
+      "stdout_chars": 104
+     },
+     {
+      "script": "fit_check.py",
+      "rc": 0,
+      "stdout_chars": 133
+     },
+     {
+      "script": "tpl_fit.py",
+      "rc": 0,
+      "stdout_chars": 130
+     },
+     {
+      "script": "tpl_fit.py",
+      "rc": 0,
+      "stdout_chars": 92
+     },
+     {
+      "script": "fit_check.py",
+      "rc": 0,
+      "stdout_chars": 123
+     }
+    ],
+    "machine_verdicts": 12,
+    "artifacts": 7,
+    "changelog_entries": 7,
+    "fidelity_categories": 6,
+    "pre": {
+     "target": "/tmp/bench_c2_badlayout_kzvzl0o0/ms_badlayout.tex",
+     "checks": [
+      {
+       "key": "page.margin_top",
+       "requirement": "上边距",
+       "expected": 2.54,
+       "status": "pass",
+       "evidence": "geometry top=1in vs spec 2.54cm (= 2.54cm vs 2.54cm)",
+       "severity": "info"
+      },
+      {
+       "key": "page.margin_bottom",
+       "requirement": "下边距",
+       "expected": 2.54,
+       "status": "pass",
+       "evidence": "geometry bottom=1in vs spec 2.54cm (= 2.54cm vs 2.54cm)",
+       "severity": "info"
+      },
+      {
+       "key": "page.margin_left",
+       "requirement": "左边距",
+       "expected": 3.0,
+       "status": "fail",
+       "evidence": "geometry left=1in vs spec 3.0cm (= 2.54cm vs 3cm)",
+       "severity": "error"
+      },
+      {
+       "key": "page.margin_right",
+       "requirement": "右边距",
+       "expected": 3.0,
+       "status": "fail",
+       "evidence": "geometry right=1in vs spec 3.0cm (= 2.54cm vs 3cm)",
+       "severity": "error"
+      },
+      {
+       "key": "page.size",
+       "requirement": "page size",
+       "expected": "A4",
+       "status": "fail",
+       "evidence": "paper=letterpaper vs spec A4",
+       "severity": "error"
+      },
+      {
+       "key": "body.font_size",
+       "requirement": "Chinese font size name",
+       "expected": "小四",
+       "status": "fail",
+       "evidence": "base font=10.0 vs spec 小四=12pt",
+       "severity": "error"
+      },
+      {
+       "key": "body.line_spacing",
+       "requirement": "line spacing",
+       "expected": 1.5,
+       "status": "fail",
+       "evidence": "linespread=1.0 vs spec 1.5",
+       "severity": "error"
+      },
+      {
+       "key": "page.columns",
+       "requirement": "columns",
+       "expected": 1,
+       "status": "fail",
+       "evidence": "twocolumn present=True",
+       "severity": "error"
+      },
+      {
+       "key": "refs.style",
+       "requirement": "reference style",
+       "expected": "IEEE",
+       "status": "fail",
+       "evidence": "manuscript style=plain vs spec IEEE",
+       "severity": "error"
+      },
+      {
+       "key": "caption.figure.position",
+       "requirement": "figure caption pos",
+       "expected": "below",
+       "status": "uncertain",
+       "evidence": "no figure env found",
+       "severity": "warning"
+      },
+      {
+       "key": "caption.table.position",
+       "requirement": "table caption pos",
+       "expected": "above",
+       "status": "pass",
+       "evidence": "first table caption above vs spec above",
+       "severity": "info"
+      }
+     ],
+     "fidelity": [],
+     "compile": {
+      "attempted": false
+     },
+     "summary": {
+      "pass": 3,
+      "fail": 7,
+      "uncertain": 1
+     },
+     "conflict_precheck": [],
+     "unverified_items": [
+      {
+       "key": "page.count",
+       "expected": 12,
+       "reason": "no auto rule; verify manually"
+      },
+      {
+       "key": "table.three_line",
+       "expected": true,
+       "reason": "no auto rule; verify manually"
+      }
+     ],
+     "readiness": {
+      "ready": false,
+      "level": "partial",
+      "deliver": true,
+      "errors": [
+       "page.margin_left",
+       "page.margin_right",
+       "page.size",
+       "body.font_size",
+       "body.line_spacing",
+       "page.columns",
+       "refs.style"
+      ],
+      "warnings": [
+       "caption.figure.position",
+       "unverified:page.count",
+       "unverified:table.three_line"
+      ]
+     }
+    },
+    "post": {
+     "target": "/tmp/bench_c2_badlayout_kzvzl0o0/fitted.tex",
+     "checks": [
+      {
+       "key": "page.margin_top",
+       "requirement": "上边距",
+       "expected": 2.54,
+       "status": "pass",
+       "evidence": "geometry top=2.54cm vs spec 2.54cm",
+       "severity": "info"
+      },
+      {
+       "key": "page.margin_bottom",
+       "requirement": "下边距",
+       "expected": 2.54,
+       "status": "pass",
+       "evidence": "geometry bottom=2.54cm vs spec 2.54cm",
+       "severity": "info"
+      },
+      {
+       "key": "page.margin_left",
+       "requirement": "左边距",
+       "expected": 3.0,
+       "status": "pass",
+       "evidence": "geometry left=3.0cm vs spec 3.0cm",
+       "severity": "info"
+      },
+      {
+       "key": "page.margin_right",
+       "requirement": "右边距",
+       "expected": 3.0,
+       "status": "pass",
+       "evidence": "geometry right=3.0cm vs spec 3.0cm",
+       "severity": "info"
+      },
+      {
+       "key": "page.size",
+       "requirement": "page size",
+       "expected": "A4",
+       "status": "pass",
+       "evidence": "paper=a4paper vs spec A4",
+       "severity": "info"
+      },
+      {
+       "key": "body.font_size",
+       "requirement": "Chinese font size name",
+       "expected": "小四",
+       "status": "pass",
+       "evidence": "base font=12.0 vs spec 小四=12pt",
+       "severity": "info"
+      },
+      {
+       "key": "body.line_spacing",
+       "requirement": "line spacing",
+       "expected": 1.5,
+       "status": "pass",
+       "evidence": "linespread=1.5 vs spec 1.5",
+       "severity": "info"
+      },
+      {
+       "key": "page.columns",
+       "requirement": "columns",
+       "expected": 1,
+       "status": "pass",
+       "evidence": "twocolumn present=False",
+       "severity": "info"
+      },
+      {
+       "key": "refs.style",
+       "requirement": "reference style",
+       "expected": "IEEE",
+       "status": "pass",
+       "evidence": "manuscript style=IEEEtran vs spec IEEE",
+       "severity": "info"
+      },
+      {
+       "key": "caption.figure.position",
+       "requirement": "figure caption pos",
+       "expected": "below",
+       "status": "uncertain",
+       "evidence": "no figure env found",
+       "severity": "warning"
+      },
+      {
+       "key": "caption.table.position",
+       "requirement": "table caption pos",
+       "expected": "above",
+       "status": "pass",
+       "evidence": "first table caption above vs spec above",
+       "severity": "info"
+      },
+      {
+       "key": "page.count",
+       "expected": 12,
+       "status": "pass",
+       "evidence": "compiled pages=1",
+       "severity": "info"
+      }
+     ],
+     "fidelity": [],
+     "compile": {
+      "attempted": true,
+      "compiler": "latexmk",
+      "ok": true,
+      "pages": 1,
+      "log_findings": [],
+      "pdf": "/tmp/bench_c2_badlayout_kzvzl0o0/fitted.pdf"
+     },
+     "summary": {
+      "pass": 11,
+      "uncertain": 1
+     },
+     "conflict_precheck": [],
+     "unverified_items": [
+      {
+       "key": "table.three_line",
+       "expected": true,
+       "reason": "no auto rule; verify manually"
+      }
+     ],
+     "readiness": {
+      "ready": true,
+      "level": "partial",
+      "deliver": true,
+      "errors": [],
+      "warnings": [
+       "caption.figure.position",
+       "unverified:table.three_line"
+      ]
+     }
+    },
+    "fit_applied": 7,
+    "second_run_applied": 0
+   },
+   "lean": {
+    "ops": 2,
+    "ctx_chars": 276,
+    "rc": [
+     0,
+     0
+    ],
+    "artifacts": 6,
+    "pdf": true
+   },
+   "expect_failed": [],
+   "efficiency_better": true,
+   "lean_ok": true,
+   "verdict": "pass"
+  },
+  {
+   "case": "c3_pkgconflict",
+   "title": "包冲突稿：冲突预检显式化",
+   "baseline": {
+    "ops": 16,
+    "manual_ops": 16,
+    "ctx_chars": 861,
+    "machine_verdicts": 0,
+    "artifacts": 1,
+    "changelog_entries": 0,
+    "fidelity_categories": 0,
+    "model": "documented approximation, not measured"
+   },
+   "skill": {
+    "ops": 2,
+    "ctx_chars": 225,
+    "trace": [
+     {
+      "script": "tpl_parse.py",
+      "rc": 0,
+      "stdout_chars": 106
+     },
+     {
+      "script": "fit_check.py",
+      "rc": 0,
+      "stdout_chars": 119
+     }
+    ],
+    "machine_verdicts": 11,
+    "artifacts": 2,
+    "changelog_entries": 0,
+    "fidelity_categories": 0,
+    "post": {
+     "target": "/tmp/bench_c3_pkgconflict_6_4iy1k3/ms_pkgconflict.tex",
+     "checks": [
+      {
+       "key": "page.margin_top",
+       "requirement": "上边距",
+       "expected": 2.54,
+       "status": "pass",
+       "evidence": "geometry top=2.54cm vs spec 2.54cm",
+       "severity": "info"
+      },
+      {
+       "key": "page.margin_bottom",
+       "requirement": "下边距",
+       "expected": 2.54,
+       "status": "pass",
+       "evidence": "geometry bottom=2.54cm vs spec 2.54cm",
+       "severity": "info"
+      },
+      {
+       "key": "page.margin_left",
+       "requirement": "左边距",
+       "expected": 3.0,
+       "status": "pass",
+       "evidence": "geometry left=3.0cm vs spec 3.0cm",
+       "severity": "info"
+      },
+      {
+       "key": "page.margin_right",
+       "requirement": "右边距",
+       "expected": 3.0,
+       "status": "pass",
+       "evidence": "geometry right=3.0cm vs spec 3.0cm",
+       "severity": "info"
+      },
+      {
+       "key": "page.size",
+       "requirement": "page size",
+       "expected": "A4",
+       "status": "pass",
+       "evidence": "paper=a4paper vs spec A4",
+       "severity": "info"
+      },
+      {
+       "key": "body.font_size",
+       "requirement": "Chinese font size name",
+       "expected": "小四",
+       "status": "pass",
+       "evidence": "base font=12.0 vs spec 小四=12pt",
+       "severity": "info"
+      },
+      {
+       "key": "body.line_spacing",
+       "requirement": "line spacing",
+       "expected": 1.5,
+       "status": "uncertain",
+       "evidence": "linespread=None vs spec 1.5",
+       "severity": "warning"
+      },
+      {
+       "key": "page.columns",
+       "requirement": "columns",
+       "expected": 1,
+       "status": "pass",
+       "evidence": "twocolumn present=False",
+       "severity": "info"
+      },
+      {
+       "key": "refs.style",
+       "requirement": "reference style",
+       "expected": "IEEE",
+       "status": "uncertain",
+       "evidence": "manuscript style=None vs spec IEEE",
+       "severity": "warning"
+      },
+      {
+       "key": "caption.figure.position",
+       "requirement": "figure caption pos",
+       "expected": "below",
+       "status": "uncertain",
+       "evidence": "no figure env found",
+       "severity": "warning"
+      },
+      {
+       "key": "caption.table.position",
+       "requirement": "table caption pos",
+       "expected": "above",
+       "status": "uncertain",
+       "evidence": "no table env found",
+       "severity": "warning"
+      }
+     ],
+     "fidelity": [],
+     "compile": {
+      "attempted": false
+     },
+     "summary": {
+      "pass": 7,
+      "uncertain": 4
+     },
+     "conflict_precheck": [
+      {
+       "packages": [
+        "biblatex",
+        "natbib"
+       ],
+       "note": "two citation backends"
+      },
+      {
+       "packages": [
+        "hyperref"
+       ],
+       "note": "hyperref loaded multiple times (option clash risk)"
+      }
+     ],
+     "unverified_items": [
+      {
+       "key": "page.count",
+       "expected": 12,
+       "reason": "no auto rule; verify manually"
+      },
+      {
+       "key": "table.three_line",
+       "expected": true,
+       "reason": "no auto rule; verify manually"
+      }
+     ],
+     "readiness": {
+      "ready": true,
+      "level": "partial",
+      "deliver": true,
+      "errors": [],
+      "warnings": [
+       "body.line_spacing",
+       "refs.style",
+       "caption.figure.position",
+       "caption.table.position",
+       "unverified:page.count",
+       "unverified:table.three_line"
+      ]
+     }
+    },
+    "pkg_conflicts": 2,
+    "conflict_precheck": 2
+   },
+   "lean": {
+    "ops": 2,
+    "ctx_chars": 231,
+    "rc": [
+     0,
+     0
+    ],
+    "artifacts": 5,
+    "pdf": false
+   },
+   "expect_failed": [],
+   "efficiency_better": true,
+   "lean_ok": true,
+   "verdict": "pass"
+  }
+ ]
+}

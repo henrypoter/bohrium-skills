@@ -1,0 +1,86 @@
+{
+ "fixture": "自拟短材料（非正式案例，仅演示与回归）",
+ "checks": [
+  {
+   "name": "解析:中文意见条数=3",
+   "pass": true,
+   "detail": "items=3 subs=3 mismatch=0"
+  },
+  {
+   "name": "回归:直双引号顺序配对,无误报误解",
+   "pass": true,
+   "detail": "mismatch=0（夹具两处引文均在基线中）"
+  },
+  {
+   "name": "回归:Major/Minor comment 解析=3条",
+   "pass": true,
+   "detail": "ids=['R1.1', 'R1.2', 'R2.1']"
+  },
+  {
+   "name": "正向:好样例 verify exit=0",
+   "pass": true,
+   "detail": "status=pass fail=0 warn=0"
+  },
+  {
+   "name": "正向:跨行锚点命中并回填行号",
+   "pass": true,
+   "detail": "locs=[{'anchor': '仅基于 1000 条数据、未报告方差', 'line': 8, 'heading': '结果'}, {'anchor': '在 1000 条随机数据上平均耗时 12 ms', 'line': 3, 'heading': '摘要'}, {'anchor': '采样比例为 5%', 'line': 6, 'heading': '方法'}]"
+  },
+  {
+   "name": "变异:漏回意见->coverage fail",
+   "pass": true,
+   "detail": "exit=1"
+  },
+  {
+   "name": "变异:虚构锚点->location fail",
+   "pass": true,
+   "detail": "exit=1"
+  },
+  {
+   "name": "变异:反驳缺缓冲语->rebuttal fail",
+   "pass": true,
+   "detail": "exit=1"
+  },
+  {
+   "name": "变异:只回R1.10->R1.1 coverage fail(编号边界)",
+   "pass": true,
+   "detail": "exit=1"
+  },
+  {
+   "name": "对照:手工信被核查出缺陷(exit=1)",
+   "pass": true,
+   "detail": "coverage=67% anchor=50%"
+  },
+  {
+   "name": "对照:matrix/trace 正常产出",
+   "pass": true,
+   "detail": "matrix rows=3 -> /tmp/tmp3o8eo5km/matrix.md | diff lines=14 -> /tmp/tmp3o8eo5km/changes.diff"
+  }
+ ],
+ "comparison": {
+  "manual_path": {
+   "opinion_coverage": 0.6666666666666666,
+   "anchor_verified": 0.5,
+   "machine_artifacts": 0,
+   "note": "模拟无矩阵/无机器核验的手工信；缺陷靠人工发现"
+  },
+  "kit_path": {
+   "opinion_coverage": 1.0,
+   "anchor_verified": 1.0,
+   "machine_artifacts": 5,
+   "artifacts": [
+    "comments_parsed.json",
+    "anchors.json",
+    "matrix.md",
+    "verify_report.json",
+    "changes.diff"
+   ],
+   "script_seconds": 1.136
+  }
+ },
+ "bounds": [
+  "只度量确定性可机核指标，不代表 LLM 端到端写作质量",
+  "手工信为自拟模拟基线，非基础 Agent 实测输出",
+  "夹具为短材料，长稿件/多轮返修的端到端结论以平台 harness 为准"
+ ]
+}

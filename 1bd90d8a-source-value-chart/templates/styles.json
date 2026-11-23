@@ -1,0 +1,15 @@
+{
+  "default": {"font_size": 8, "title_size": 9, "line_width": 1.0, "dpi": 300,
+    "figure_width_in": 3.5, "figure_height_in": 2.6,
+    "palette": ["#0072B2", "#E69F00", "#009E73", "#D55E00", "#CC79A7", "#56B4E9", "#F0E442", "#000000"],
+    "font_family": "sans-serif", "svg_fonttype": "none", "errorbar_capsize": 2.5, "transparent": false},
+  "nature_single": {"inherits": ["default"], "font_size": 7, "title_size": 8,
+    "line_width": 0.8, "figure_width_in": 3.5, "figure_height_in": 2.4, "errorbar_capsize": 2.0},
+  "nature_double": {"inherits": ["default"], "font_size": 7, "title_size": 8,
+    "line_width": 0.8, "figure_width_in": 7.1, "figure_height_in": 4.6, "errorbar_capsize": 2.0},
+  "acs_double": {"inherits": ["default"], "dpi": 600, "figure_width_in": 7.0, "figure_height_in": 4.5},
+  "cell_press": {"inherits": ["default"], "font_size": 6, "title_size": 7,
+    "line_width": 0.8, "figure_width_in": 3.35, "figure_height_in": 2.4},
+  "presentation": {"inherits": ["default"], "font_size": 12, "title_size": 14,
+    "line_width": 1.6, "dpi": 200, "figure_width_in": 8.0, "figure_height_in": 4.8, "errorbar_capsize": 3.0}
+}
