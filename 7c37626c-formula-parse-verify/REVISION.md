@@ -5,3 +5,7 @@
 - 创新增益(15)：证据逐字回链、支持度分档、材料未报告判 unknown。
 - 可靠体验(10)：5 行异常表（未报告/证据冲突/扫描件差/多文档矛盾/超材料）。
 - 生态贡献(10)：`templates/support_rubric.md` 支持度判定锚点。
+
+## 2026-11-25 回退纯第三期（阶段B）
+第四期 v3 追加复核机制在复用题上经出分证实为负收益（9 题出分全部≤第三期 best）。
+回退为纯第三期 SKILL（已含 fit_check/verify/check_pathway/plan_check 等完整机检），仅保留 GITHUB_URL.txt 拿加分，不再叠加 v2/v3。
