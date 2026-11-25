@@ -1,0 +1,27 @@
+{
+  "case_id": "integrated-demo",
+  "case_sha256": "552413891af644be2e1f6e309cff8b2eca7c91dc94fff4b084a7d37549acca28",
+  "primary": "generation",
+  "route_schema_version": "experiment-routing-1.0.0",
+  "routes": [
+    {
+      "evidence": [
+        {
+          "location": "task.md#L1",
+          "quote": "请设计实验并生成方案，明确温度参数和对照。",
+          "sha256": "c015417128c21e3a2099befa97d006c86f6f3771a91908f83e9e5079ca697568",
+          "source_id": "task"
+        }
+      ],
+      "required_command": "audit",
+      "required_outputs": "research_goal/variables/controls/steps/parameters/risks",
+      "route": "generation",
+      "score": 1,
+      "workflow": "generate_check"
+    }
+  ],
+  "status": "routed",
+  "task_sha256": "c015417128c21e3a2099befa97d006c86f6f3771a91908f83e9e5079ca697568",
+  "tool_version": "integrated-exp-tool-3.0.0",
+  "unmatched_action": null
+}

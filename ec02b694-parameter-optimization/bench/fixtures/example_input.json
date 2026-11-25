@@ -1,0 +1,19 @@
+{
+  "example_only": true,
+  "case_id": "parameter-demo",
+  "plan_version": "plan-v1",
+  "goal": "在预算内提高示例反应收率并降低杂质",
+  "hypothesis": "温度和时长共同影响收率与杂质",
+  "measurements": {
+    "yield": "产物质量除以理论产物质量，以 % 报告",
+    "impurity": "目标峰外杂质面积占总峰面积，以 % 报告"
+  },
+  "response_models": {
+    "status": "prospective_declared_surrogate_not_measurement",
+    "uncertainty_method": "示例给定点预测区间半宽，正式任务须由历史数据重估"
+  },
+  "uncertainty": {
+    "yield_half_width": 2,
+    "impurity_half_width": 0.5
+  }
+}

@@ -1,0 +1,54 @@
+{
+  "example_only": true,
+  "case_id": "feasibility-demo",
+  "plan_version": "plan-v1",
+  "goal": "比较温度对示例酶反应收率的影响",
+  "plan": {
+    "hypothesis": "50 C 相比 40 C 使收率提高至少 10%",
+    "temperature": 50
+  },
+  "inventory": {
+    "equipment": [
+      {
+        "id": "EQ-1",
+        "model": "T-80",
+        "precision": 0.1,
+        "unit": "C",
+        "temperature_min": 0,
+        "temperature_max": 80,
+        "step": 10,
+        "accessories": []
+      }
+    ],
+    "material": {
+      "id": "M-1",
+      "required_qty": 10,
+      "available_qty": 0,
+      "unit": "mL",
+      "lead_time_hours": 24,
+      "temperature_min": 20,
+      "temperature_max": 60,
+      "step": 10
+    },
+    "sample": {
+      "required": 6,
+      "available": 8,
+      "unit": "vial",
+      "source": "示例样本库 S-1",
+      "storage": "-20 C"
+    }
+  },
+  "constraints": {
+    "deadline_hours": 72,
+    "budget": 1000,
+    "currency": "CNY"
+  },
+  "ethics": {
+    "status": "approved",
+    "approval_id": "DEMO-E-1"
+  },
+  "safety": {
+    "status": "approved",
+    "approval_id": "DEMO-S-1"
+  }
+}

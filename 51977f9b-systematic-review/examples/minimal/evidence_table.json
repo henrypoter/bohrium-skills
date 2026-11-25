@@ -1,0 +1,326 @@
+{
+  "claims": [
+    {
+      "citations": [
+        {
+          "location": {
+            "page": 2,
+            "paragraph": 3,
+            "sentence": 1
+          },
+          "quote": "At 4 weeks, the mean recovery score was 8.2 in the Alpha group and 6.1 in the control group.",
+          "quote_sha256": "6ea3b1c7250921edc306430bcd00d871204e6d0afb246657ed63d1ff7f574a76",
+          "record_id": "R1",
+          "source_sha256": "cb3962ea5975f5863397027382a053e35969de9ca2da919e5c8acf8c4e5aec65",
+          "support": "direct"
+        }
+      ],
+      "id": "C1",
+      "kind": "material_fact",
+      "text": "在这项合成随机试验中，Alpha 组4周平均恢复评分为8.2，对照组为6.1。",
+      "theme": "T1"
+    },
+    {
+      "citations": [
+        {
+          "location": {
+            "page": 2,
+            "paragraph": 3,
+            "sentence": 1
+          },
+          "quote": "At 4 weeks, the mean recovery score was 8.2 in the Alpha group and 6.1 in the control group.",
+          "quote_sha256": "6ea3b1c7250921edc306430bcd00d871204e6d0afb246657ed63d1ff7f574a76",
+          "record_id": "R1",
+          "source_sha256": "cb3962ea5975f5863397027382a053e35969de9ca2da919e5c8acf8c4e5aec65",
+          "support": "direct"
+        },
+        {
+          "location": {
+            "page": 2,
+            "paragraph": 5,
+            "sentence": 1
+          },
+          "quote": "The outcome reporting plan was changed after enrollment without a prespecified rationale.",
+          "quote_sha256": "9342c65adce06dab2853ef13723dca061009fdcc9bcc5f2a70c92fa0d3845a40",
+          "record_id": "R1",
+          "source_sha256": "cb3962ea5975f5863397027382a053e35969de9ca2da919e5c8acf8c4e5aec65",
+          "support": "direct"
+        }
+      ],
+      "id": "C2",
+      "inference_rationale": "由组间评分事实推测短期获益，并受单研究与报告偏倚约束，不扩展到长期或其他人群。",
+      "kind": "inference",
+      "text": "仅就这项小型合成试验，Alpha 可能改善成人短期恢复；结果报告变更限制了确定性。",
+      "theme": "T1"
+    }
+  ],
+  "example_only": true,
+  "quality_appraisals": [
+    {
+      "claim_ids": [
+        "C1",
+        "C2"
+      ],
+      "impact_on_synthesis": "将 C2 限定为低确定性短期推断，不计算外推疗效。",
+      "items": [
+        {
+          "dimension_id": "randomization",
+          "evidence": {
+            "location": {
+              "page": 1,
+              "paragraph": 2,
+              "sentence": 1
+            },
+            "quote": "Forty-two adults were randomized to Alpha or control using a computer-generated sequence.",
+            "quote_sha256": "6200629eccea107accb0eaf5c9a3e7d441050ee2318ab8ee403152feaa8fae76",
+            "record_id": "R1",
+            "source_sha256": "cb3962ea5975f5863397027382a053e35969de9ca2da919e5c8acf8c4e5aec65",
+            "support": "direct"
+          },
+          "judgement": "yes"
+        },
+        {
+          "dimension_id": "attrition",
+          "evidence": {
+            "location": {
+              "page": 2,
+              "paragraph": 4,
+              "sentence": 1
+            },
+            "quote": "Three participants were lost to follow-up.",
+            "quote_sha256": "45851d815a0d2b2930369097872773d3251c713ff1eb4d883c2beb9f9a88ebeb",
+            "record_id": "R1",
+            "source_sha256": "cb3962ea5975f5863397027382a053e35969de9ca2da919e5c8acf8c4e5aec65",
+            "support": "direct"
+          },
+          "judgement": "yes"
+        },
+        {
+          "dimension_id": "reporting",
+          "evidence": {
+            "location": {
+              "page": 2,
+              "paragraph": 5,
+              "sentence": 1
+            },
+            "quote": "The outcome reporting plan was changed after enrollment without a prespecified rationale.",
+            "quote_sha256": "9342c65adce06dab2853ef13723dca061009fdcc9bcc5f2a70c92fa0d3845a40",
+            "record_id": "R1",
+            "source_sha256": "cb3962ea5975f5863397027382a053e35969de9ca2da919e5c8acf8c4e5aec65",
+            "support": "direct"
+          },
+          "judgement": "no"
+        }
+      ],
+      "overall": {
+        "max_score": 3,
+        "normalized_score": 0.6666666666666666,
+        "rating": "moderate",
+        "score": 2
+      },
+      "record_id": "R1",
+      "scale_id": "SYNT-RCT",
+      "scale_version": "1.0"
+    }
+  ],
+  "screening_decisions": [
+    {
+      "criterion_ids": [
+        "I-POP",
+        "I-DESIGN"
+      ],
+      "decided_at": "2026-01-01T10:05:00Z",
+      "decision": "include",
+      "evidence": {
+        "location": {
+          "page": 1,
+          "paragraph": 1,
+          "sentence": 1
+        },
+        "quote": "In this randomized trial, 42 adults received Alpha or control.",
+        "quote_sha256": "0816e132a812883b09a6d9155030bb27dbe291ad61d0aef7a81ef39ed6eb0772",
+        "record_id": "R1",
+        "source_sha256": "cb3962ea5975f5863397027382a053e35969de9ca2da919e5c8acf8c4e5aec65",
+        "support": "direct"
+      },
+      "id": "D1",
+      "protocol_version": "P1",
+      "reason_codes": [
+        "I-POP",
+        "I-DESIGN"
+      ],
+      "record_id": "R1",
+      "reviewer": "reviewer-a",
+      "stage": "title_abstract"
+    },
+    {
+      "criterion_ids": [
+        "I-POP",
+        "I-DESIGN"
+      ],
+      "decided_at": "2026-01-01T10:06:00Z",
+      "decision": "include",
+      "evidence": {
+        "location": {
+          "page": 1,
+          "paragraph": 1,
+          "sentence": 1
+        },
+        "quote": "In this randomized trial, 42 adults received Alpha or control.",
+        "quote_sha256": "0816e132a812883b09a6d9155030bb27dbe291ad61d0aef7a81ef39ed6eb0772",
+        "record_id": "R1",
+        "source_sha256": "cb3962ea5975f5863397027382a053e35969de9ca2da919e5c8acf8c4e5aec65",
+        "support": "direct"
+      },
+      "id": "D2",
+      "protocol_version": "P1",
+      "reason_codes": [
+        "I-POP",
+        "I-DESIGN"
+      ],
+      "record_id": "R1",
+      "reviewer": "reviewer-a",
+      "stage": "full_text"
+    },
+    {
+      "criterion_ids": [
+        "E-POP"
+      ],
+      "decided_at": "2026-01-01T10:07:00Z",
+      "decision": "exclude",
+      "evidence": {
+        "location": {
+          "page": 1,
+          "paragraph": 2,
+          "sentence": 1
+        },
+        "quote": "Participants were 12-17 years old and were randomized to Alpha or control.",
+        "quote_sha256": "c883e8a442bbfbd8e0bd4c98d37fd883188691093bdd221f9df5f859432135bf",
+        "record_id": "R2",
+        "source_sha256": "6731b946038c37dc98101219ab90eead81caf0e5ebb8adadacf68fa99d53c328",
+        "support": "direct"
+      },
+      "id": "D3",
+      "protocol_version": "P1",
+      "reason_codes": [
+        "E-POP"
+      ],
+      "record_id": "R2",
+      "reviewer": "reviewer-a",
+      "stage": "title_abstract"
+    },
+    {
+      "criterion_ids": [
+        "I-DESIGN"
+      ],
+      "decided_at": "2026-01-01T10:07:30Z",
+      "decision": "include",
+      "evidence": {
+        "location": {
+          "page": 1,
+          "paragraph": 2,
+          "sentence": 1
+        },
+        "quote": "Participants were 12-17 years old and were randomized to Alpha or control.",
+        "quote_sha256": "c883e8a442bbfbd8e0bd4c98d37fd883188691093bdd221f9df5f859432135bf",
+        "record_id": "R2",
+        "source_sha256": "6731b946038c37dc98101219ab90eead81caf0e5ebb8adadacf68fa99d53c328",
+        "support": "direct"
+      },
+      "id": "D4",
+      "protocol_version": "P1",
+      "reason_codes": [
+        "I-DESIGN"
+      ],
+      "record_id": "R2",
+      "reviewer": "reviewer-b",
+      "stage": "title_abstract"
+    },
+    {
+      "adjudicates": [
+        "D3",
+        "D4"
+      ],
+      "criterion_ids": [
+        "E-POP"
+      ],
+      "decided_at": "2026-01-01T10:08:00Z",
+      "decision": "exclude",
+      "evidence": {
+        "location": {
+          "page": 1,
+          "paragraph": 2,
+          "sentence": 1
+        },
+        "quote": "Participants were 12-17 years old and were randomized to Alpha or control.",
+        "quote_sha256": "c883e8a442bbfbd8e0bd4c98d37fd883188691093bdd221f9df5f859432135bf",
+        "record_id": "R2",
+        "source_sha256": "6731b946038c37dc98101219ab90eead81caf0e5ebb8adadacf68fa99d53c328",
+        "support": "direct"
+      },
+      "id": "D5",
+      "protocol_version": "P1",
+      "reason_codes": [
+        "E-POP"
+      ],
+      "record_id": "R2",
+      "resolves_disagreement": true,
+      "reviewer": "adjudicator",
+      "stage": "title_abstract"
+    },
+    {
+      "criterion_ids": [
+        "DEDUP"
+      ],
+      "decided_at": "2026-01-01T10:04:00Z",
+      "decision": "exclude",
+      "evidence": {
+        "location": {
+          "page": 1,
+          "paragraph": 1,
+          "sentence": 1
+        },
+        "quote": "Alpha intervention improves recovery in adults: a randomized trial",
+        "quote_sha256": "ef5553c413e3dc8809d6e843bb7c9aa921f78f468b86a6e842d8e8afc2c8edea",
+        "record_id": "R3",
+        "source_sha256": "cb3962ea5975f5863397027382a053e35969de9ca2da919e5c8acf8c4e5aec65",
+        "support": "direct"
+      },
+      "id": "D6",
+      "protocol_version": "P1",
+      "reason_codes": [
+        "DUP"
+      ],
+      "record_id": "R3",
+      "reviewer": "reviewer-a",
+      "stage": "dedup"
+    },
+    {
+      "criterion_ids": [
+        "E-DESIGN"
+      ],
+      "decided_at": "2026-01-01T10:09:00Z",
+      "decision": "exclude",
+      "evidence": {
+        "location": {
+          "page": 1,
+          "paragraph": 2,
+          "sentence": 1
+        },
+        "quote": "This single-arm case series followed 20 adults for 52 weeks without a randomized control group.",
+        "quote_sha256": "b774fae827eb5acf28c594416c3c6de0ee685d1f2e1d56a67efe7f7c97092a90",
+        "record_id": "R4",
+        "source_sha256": "74c88ded22a93a4e7c0f407ef78db5bb9135a42ac30fee963da50d71624e4c15",
+        "support": "direct"
+      },
+      "id": "D7",
+      "protocol_version": "P1",
+      "reason_codes": [
+        "E-DESIGN"
+      ],
+      "record_id": "R4",
+      "reviewer": "reviewer-a",
+      "stage": "title_abstract"
+    }
+  ]
+}

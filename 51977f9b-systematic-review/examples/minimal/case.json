@@ -1,0 +1,12 @@
+{
+  "case_id": "synthetic-minimal-v1",
+  "task": "Synthetic interface example only; not an organizer case or answer.",
+  "output_contract": {
+    "fields": {
+      "case_id": "string",
+      "claims": "array",
+      "records": "array",
+      "uncertainty": "array"
+    }
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "schema_version": "2.0.0",
+  "corpus_sha256": "REPLACE_WITH_CORPUS_SHA256",
+  "metadata": {
+    "title": "COPY_SOURCE_TITLE_VERBATIM",
+    "authors": [],
+    "journal": null,
+    "year": null,
+    "doi": null
+  },
+  "paragraphs": [
+    {
+      "id": "B0001_REPLACE_WITH_REAL_ID_AND_COPY_ALL_BLOCKS_IN_ORDER",
+      "target": "REPLACE_WITH_ACTUAL_TRANSLATION"
+    }
+  ],
+  "glossary": [
+    {
+      "source": "REPLACE_WITH_SOURCE_TERM",
+      "source_variants": [],
+      "target": "REPLACE_WITH_FIXED_TARGET",
+      "first_target": "OPTIONAL_FIRST_FULL_FORM",
+      "target_variants": [],
+      "occurrence_policy": "at_least_once_per_source_paragraph"
+    }
+  ],
+  "semantic_review": {
+    "status": "not_checked",
+    "paragraph_ids": [],
+    "notes": "记录实际语义复核；若未复核不得写 reviewed"
+  }
+}

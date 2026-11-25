@@ -1,0 +1,9 @@
+{
+  "example_only": true,
+  "limits": {
+    "temperature": [
+      {"min": 0, "max": 80, "step": 10, "unit": "C", "source": "示例设备 T-80 规格", "mutex_with": []},
+      {"min": 20, "max": 60, "step": 10, "unit": "C", "source": "示例材料 M-1 规格", "mutex_with": []}
+    ]
+  }
+}

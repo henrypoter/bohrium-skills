@@ -1,0 +1,27 @@
+{
+  "example_only": true,
+  "problem_version": "router-problem-v1",
+  "parameters": {
+    "temperature": {"values": [40, 50, 60], "unit": "C"},
+    "duration": {"values": [1, 2], "unit": "h"}
+  },
+  "limits": {
+    "temperature": {"min": 40, "max": 60, "step": 10, "unit": "C", "source": "示例设备规格"},
+    "duration": {"min": 1, "max": 2, "step": 1, "unit": "h", "source": "示例 SOP"}
+  },
+  "constraints": [
+    {"id": "load", "coefficients": {"temperature": 1, "duration": 10}, "op": "<=", "value": 75, "source": "示例通量约束"}
+  ],
+  "responses": {
+    "yield": {"direction": "maximize", "weight": 0.7, "unit": "%", "acceptable_min": 50,
+      "model": {"intercept": 20, "coefficients": {"temperature": 0.6, "duration": 2}}},
+    "impurity": {"direction": "minimize", "weight": 0.3, "unit": "%", "acceptable_max": 15,
+      "model": {"intercept": 5, "coefficients": {"temperature": 0.1, "duration": 0.5}}}
+  },
+  "costs": {
+    "time_hours": {"max": 5, "model": {"intercept": 1, "coefficients": {"temperature": 0.02, "duration": 0.5}}},
+    "money": {"max": 60, "model": {"intercept": 20, "coefficients": {"temperature": 0.5, "duration": 5}}},
+    "samples": {"max": 6, "model": {"intercept": 3, "coefficients": {}}}
+  },
+  "search": {"strategy": "exhaustive_grid", "max_evaluations": 20}
+}

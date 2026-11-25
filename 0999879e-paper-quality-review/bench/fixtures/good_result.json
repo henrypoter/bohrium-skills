@@ -1,30 +1,151 @@
 {
-  "case_id": "case-001",
+  "result_schema_version": "2.0.0",
+  "tool_version": "3.0.0",
+  "case_id": "synthetic-example-only",
   "status": "issues",
-  "document": {"file": "sample_paper.txt", "pages": 1, "char_count": 320, "full_text_extracted": true},
-  "claims": [
-    {"id": "C1", "text": "药物 A 对所有高血压患者均有效", "type": "author", "location": "摘要", "scope": "无限制的全称结论"},
-    {"id": "C2", "text": "Smith 等在 1000 例患者中证实药物 A 可使血压降至正常", "type": "citation", "location": "讨论", "scope": "转述被引文献主张"}
+  "manuscript_version": {
+    "file": "sample_paper.txt",
+    "source_id": "manuscript_text",
+    "file_sha256": "341a1aa16760a71129a95c0dd6ef99f95a4769a6b56688491141965c9f5bd328",
+    "text_sha256": "341a1aa16760a71129a95c0dd6ef99f95a4769a6b56688491141965c9f5bd328",
+    "extractor": "UTF-8 plain-text fixture reader v1"
+  },
+  "issues": [
+    {
+      "id": "Q-001",
+      "category": "argument",
+      "type": "insufficient_evidence",
+      "severity": "major",
+      "status": "confirmed",
+      "location": {
+        "source_id": "manuscript_text",
+        "source_sha256": "341a1aa16760a71129a95c0dd6ef99f95a4769a6b56688491141965c9f5bd328",
+        "page": 1,
+        "line_start": 4,
+        "line_end": 4,
+        "paragraph": 2,
+        "section": "摘要",
+        "sentence_id": "s00003",
+        "char_start": 63,
+        "char_end": 81
+      },
+      "quote": "证明药物 A 对所有高血压患者均有效",
+      "quote_sha256": "5f0d2afb842d30ba3752dfbfe02df6b69a17fda94ebd302c0ef6f02204592887",
+      "claim": "A 30-patient uncontrolled before/after study does not establish universal efficacy for all hypertension patients.",
+      "evidence": [
+        {
+          "role": "primary",
+          "location": {
+            "source_id": "manuscript_text",
+            "source_sha256": "341a1aa16760a71129a95c0dd6ef99f95a4769a6b56688491141965c9f5bd328",
+            "page": 1,
+            "line_start": 4,
+            "line_end": 4,
+            "paragraph": 2,
+            "section": "摘要",
+            "sentence_id": "s00003",
+            "char_start": 63,
+            "char_end": 81
+          },
+          "quote": "证明药物 A 对所有高血压患者均有效",
+          "quote_sha256": "5f0d2afb842d30ba3752dfbfe02df6b69a17fda94ebd302c0ef6f02204592887"
+        },
+        {
+          "role": "sample_context",
+          "location": {
+            "source_id": "manuscript_text",
+            "source_sha256": "341a1aa16760a71129a95c0dd6ef99f95a4769a6b56688491141965c9f5bd328",
+            "page": 1,
+            "line_start": 4,
+            "line_end": 4,
+            "paragraph": 2,
+            "section": "摘要",
+            "sentence_id": "s00003",
+            "char_start": 24,
+            "char_end": 36
+          },
+          "quote": "本研究纳入 30 例患者",
+          "quote_sha256": "6d34b02edf1141105b3b80e1551b5e4d6662fa93dd610a251325ab21744bb238"
+        },
+        {
+          "role": "design_context",
+          "location": {
+            "source_id": "manuscript_text",
+            "source_sha256": "341a1aa16760a71129a95c0dd6ef99f95a4769a6b56688491141965c9f5bd328",
+            "page": 1,
+            "line_start": 7,
+            "line_end": 7,
+            "paragraph": 3,
+            "section": "方法",
+            "sentence_id": "s00005",
+            "char_start": 90,
+            "char_end": 110
+          },
+          "quote": "采用单组前后对照设计，未设安慰剂对照组。",
+          "quote_sha256": "f139906b899d9074fa189694c7c4741f8eb36de7d5fd55618345628f5e0c819e"
+        }
+      ],
+      "basis": [
+        {
+          "kind": "manuscript_crosscheck",
+          "source": "bench/fixtures/sample_paper.txt",
+          "locator": "s00003",
+          "statement": "Universal causal efficacy exceeds the supplied sample and uncontrolled design; the supported conclusion must be limited to observed participants."
+        }
+      ],
+      "fix": {
+        "action": "replace",
+        "target": "s00003",
+        "instruction": "Restrict the efficacy statement to the observed 30-patient sample and remove the universal causal claim.",
+        "suggested_text": "在本 30 例单组前后对照样本中，药物 A 治疗后血压下降。"
+      }
+    }
   ],
-  "findings": [
-    {"id": "F1", "category": "logic", "severity": "critical", "claim_id": "C1",
-     "issue": "由 30 例单组前后对照外推为对所有患者有效，结论超出数据范围",
-     "quote": "证明药物 A 对所有高血压患者均有效",
-     "location": "摘要/第2句",
-     "evidence": "样本 30 例且无对照组，无法支持全称因果结论",
-     "type": "insufficient_evidence", "fix": "将结论降为：药物 A 在本 30 例样本中与血压下降相关",
-     "confidence": "confirmed"},
-    {"id": "F2", "category": "citation", "severity": "major", "claim_id": "C2",
-     "issue": "被引文献实际为 20 例 pilot study，本文转述为 1000 例",
-     "quote": "Smith 等 (2020) 在 1000 例患者中证实",
-     "location": "讨论/第1句",
-     "evidence": "参考文献[1] 标题为 20 patients 的 pilot study，与正文 1000 例不符",
-     "type": "fact_error", "fix": "将 1000 例改为 20 例，并删除'降至正常'的过度转述",
-     "confidence": "confirmed"}
+  "checked_scope": {
+    "fact": {
+      "status": "checked",
+      "search_scope": "all extracted sentences; no external factual claims independently verified"
+    },
+    "citation": {
+      "status": "partial",
+      "reason": "bibliography title is present but cited full text is not supplied"
+    },
+    "design": {
+      "status": "checked",
+      "search_scope": "methods and affected abstract/discussion conclusions"
+    },
+    "statistics": {
+      "status": "checked",
+      "search_scope": "abstract, methods and results statistical reporting"
+    },
+    "argument": {
+      "status": "checked",
+      "search_scope": "hypothesis, methods, results and conclusion chain"
+    },
+    "compliance": {
+      "status": "not_applicable",
+      "reason": "synthetic methods-only quality fixture has no target venue or human-subject compliance task"
+    }
+  },
+  "gain": {
+    "status": "not_measured",
+    "reason": "synthetic minimal example; no official baseline or independent adjudication"
+  },
+  "unchecked": [
+    "Cited full text not supplied; semantic support by Smith et al. not checked."
   ],
-  "checklist_coverage": {"fact": 1, "citation": 1, "method": 0, "statistics": 0, "logic": 1, "compliance": 0},
-  "unchecked": ["图表未提供"],
-  "sources": ["sample_paper.txt"],
-  "uncertainty": [],
-  "change_log": ["extract 全文成功", "schema 校验通过"]
+  "sources": [
+    {
+      "source_id": "manuscript_text",
+      "path_or_url": "bench/fixtures/sample_paper.txt",
+      "role": "synthetic manuscript fixture",
+      "sha256": "341a1aa16760a71129a95c0dd6ef99f95a4769a6b56688491141965c9f5bd328"
+    }
+  ],
+  "uncertainty": [
+    "This is an interface fixture, not a formal test answer."
+  ],
+  "change_log": [
+    "Generated from actual fixture text with review_tool.span; subject to verify and schema."
+  ]
 }

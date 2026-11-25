@@ -1,28 +1,63 @@
 {
-  "case_id": "case-001",
+  "schema_version": "2.0.0",
+  "skill_version": "2.0.0",
+  "case_id": "SYNTHETIC-EXAMPLE-NOT-OFFICIAL",
   "status": "issues",
-  "data": {"files": ["sample_data.csv"], "source_version": "v1", "rows_before": 8, "rows_after": 6},
-  "steps": [
-    {"id": "S1", "action": "去除完全重复记录", "rule": "按 sample_id+measure 完全重复时保留首条", "field": "sample_id", "input_count": 8, "output_count": 7, "changed": 1},
-    {"id": "S2", "action": "缺失值标记", "rule": "未检测/录入缺失(-999)不参与均值，单独计数", "field": "measure", "input_count": 7, "output_count": 7, "changed": 0}
+  "questions": [
+    {
+      "id": "Q1",
+      "answer": "示例：treat 组在 unit=mg/L、按 sample_id 去重且空值为缺失时，measure 均值为 12.8。",
+      "evidence": [
+        {
+          "artifact": "sample_data.csv",
+          "location": "column=measure; filter group=treat,unit=mg/L; rows S01-S03",
+          "quote": "S01,treat,12.5,mg/L,\nS02,treat,13.1,mg/L,\nS03,treat,,mg/L,未检测",
+          "sha256": "ac7321ad37f92043f7c17c140b37ddebe28485160dbe60c5dfcec1c4be8f767e"
+        }
+      ]
+    }
   ],
-  "results": [
-    {"id": "R1", "label": "treat 组均值", "value": 12.8, "unit": "mg/L", "source": "measure 字段 treat 组", "ci": [12.0, 13.6]},
-    {"id": "R2", "label": "control 组均值", "value": 8.6, "unit": "mg/L", "source": "measure 字段 control 组", "ci": [7.9, 9.3]}
+  "aggregates": [
+    {"id": "treat_mean", "column": "measure", "op": "mean", "value": 12.8, "where": {"group": "treat", "unit": "mg/L"}, "drop_duplicates": ["sample_id"]},
+    {"id": "control_mean", "column": "measure", "op": "mean", "value": 8.6, "where": {"group": "control", "unit": "mg/L"}, "drop_duplicates": ["sample_id"], "missing_values": ["", "-999"]},
+    {"id": "control_n", "column": "measure", "op": "count", "value": 2, "where": {"group": "control", "unit": "mg/L"}, "drop_duplicates": ["sample_id"], "missing_values": ["", "-999"]}
   ],
-  "quality": {
-    "missing_by_field": {"measure": 2},
-    "duplicates": 1,
-    "outliers": 1,
-    "assumption_checks": ["样本量 <30，未做正态性检验，改用非参数检验"]
+  "figures": [],
+  "queries": [],
+  "runs": [],
+  "coverage": {
+    "cleaning": {"status": "issues", "evidence": "1 个重复 sample_id；S07 单位待确认，未静默换算"},
+    "statistics": {"status": "pass", "evidence": "3 个聚合由 recheck 重算"},
+    "visualization": {"status": "not_checked", "reason": "本最小示例只演示执行与数值复算，正式任务若要求图则必须补齐"},
+    "execution": {"status": "not_checked", "reason": "静态示例未执行子进程；正式案例由 run 生成 runs 日志"},
+    "query": {"status": "not_checked", "reason": "输入为 CSV 而非数据库"}
   },
-  "artifacts": [
-    {"path": "/app/output/cleaned_table.csv", "type": "cleaned_table", "description": "去重后的清洗表"},
-    {"path": "/app/output/analysis.py", "type": "code", "description": "分析脚本(含种子与依赖)"}
+  "data_dictionary": {
+    "sample_id": "合成样本编号",
+    "group": "合成分组标记",
+    "measure": "合成测量值",
+    "unit": "measure 的单位；μg/L 与 mg/L 不自动混算"
+  },
+  "lineage": {
+    "snapshot": "synthetic-v1",
+    "tables": ["sample_data.csv"],
+    "filters": ["unit=mg/L", "按 group 分组"],
+    "join_keys": [],
+    "source_sha256": "ac7321ad37f92043f7c17c140b37ddebe28485160dbe60c5dfcec1c4be8f767e",
+    "command": "python3 scripts/data_tool.py recheck bench/fixtures/good_result.json --csv bench/fixtures/sample_data.csv"
+  },
+  "gain": {
+    "protocol_version": "1.0.0",
+    "same_input": true,
+    "same_permissions": true,
+    "baseline": {"status": "not_checked", "quality": {"accuracy": null}, "efficiency": {"rework_rounds": null}, "evidence": []},
+    "skill": {"status": "not_checked", "quality": {"accuracy": null}, "efficiency": {"rework_rounds": null}, "evidence": []},
+    "note": "平台对照未提供时不填估计值；SYNTHETIC-BENCH 仅验证记录协议。"
+  },
+  "unchecked": ["S07 的 μg/L 是否换算为 mg/L 需数据字典依据"],
+  "sources": [
+    {"path": "sample_data.csv", "sha256": "ac7321ad37f92043f7c17c140b37ddebe28485160dbe60c5dfcec1c4be8f767e", "location": "whole file"}
   ],
-  "checks": ["去重后行数 6 与报告一致", "缺失值 2 条已单独计数未参与均值"],
-  "unchecked": ["单位不一致的 S07 未纳入均值，待确认换算"],
-  "sources": ["sample_data.csv", "数据字典 data_dict.md"],
-  "uncertainty": ["S07 单位 μg/L 需确认是否换算为 mg/L"],
-  "change_log": ["inspect 探查发现 1 重复 + 2 缺失 + 1 单位不一致"]
+  "uncertainty": ["这是合成最小调用示例，不是正式案例答案或平台榜单结果。"],
+  "change_log": ["v2.0.0：加入版本、哈希、显式去重/缺失口径、覆盖状态和公平对照协议。"]
 }

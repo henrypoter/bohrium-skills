@@ -1,0 +1,328 @@
+{
+  "bench_version": "3.0.0",
+  "passed": 64,
+  "total": 64,
+  "all_green": true,
+  "checks": [
+    {
+      "name": "fetch 正向: 本地真实 HTTP 字节快照零误杀",
+      "pass": true,
+      "detail_on_failure": ""
+    },
+    {
+      "name": "fetch 正向: ETag/URL/时间版本轨迹齐全",
+      "pass": true,
+      "detail_on_failure": ""
+    },
+    {
+      "name": "fetch 变异: HTTP401->login_expired 且拒绝正文",
+      "pass": true,
+      "detail_on_failure": ""
+    },
+    {
+      "name": "fetch 变异: HTTP429->rate_limited 并有界恢复",
+      "pass": true,
+      "detail_on_failure": ""
+    },
+    {
+      "name": "fetch 变异: 跨域重定向停止",
+      "pass": true,
+      "detail_on_failure": ""
+    },
+    {
+      "name": "fetch 变异: 超时可识别并给恢复动作",
+      "pass": true,
+      "detail_on_failure": ""
+    },
+    {
+      "name": "stamp 正向: 浏览器快照同构元数据可复跑抽取",
+      "pass": true,
+      "detail_on_failure": ""
+    },
+    {
+      "name": "stamp 变异: 空快照拒绝伪造版本",
+      "pass": true,
+      "detail_on_failure": ""
+    },
+    {
+      "name": "extract 正向: 真实 HTTP 页面正文抽取零误杀",
+      "pass": true,
+      "detail_on_failure": ""
+    },
+    {
+      "name": "extract 正向: 导航/推荐/参考文献不混入正文",
+      "pass": true,
+      "detail_on_failure": ""
+    },
+    {
+      "name": "extract 正向: 章节/图注/表注/表格/公式齐全",
+      "pass": true,
+      "detail_on_failure": ""
+    },
+    {
+      "name": "extract 正向: quote/dom/anchor/offset/hash 逐项可定位",
+      "pass": true,
+      "detail_on_failure": ""
+    },
+    {
+      "name": "extract 正向: 示例导航中的 sign in 不误判登录失效",
+      "pass": true,
+      "detail_on_failure": ""
+    },
+    {
+      "name": "extract 正向: 公式 TeX 与表格行列原样保留",
+      "pass": true,
+      "detail_on_failure": ""
+    },
+    {
+      "name": "extract 正向: 无 citation 元数据时作者回退且脚注不内联重复",
+      "pass": true,
+      "detail_on_failure": ""
+    },
+    {
+      "name": "extract 变异: login_expired 被标 failed",
+      "pass": true,
+      "detail_on_failure": ""
+    },
+    {
+      "name": "extract 变异: paywall 被标 failed",
+      "pass": true,
+      "detail_on_failure": ""
+    },
+    {
+      "name": "extract 变异: dynamic_render_failed 被标 failed",
+      "pass": true,
+      "detail_on_failure": ""
+    },
+    {
+      "name": "extract 变异: abstract_only 被标 failed",
+      "pass": true,
+      "detail_on_failure": ""
+    },
+    {
+      "name": "extract 变异: missing_article_element 被标 failed",
+      "pass": true,
+      "detail_on_failure": ""
+    },
+    {
+      "name": "extract 变异: 分页未合并不得 complete",
+      "pass": true,
+      "detail_on_failure": ""
+    },
+    {
+      "name": "extract 变异: 懒加载占位资源标缺口",
+      "pass": true,
+      "detail_on_failure": ""
+    },
+    {
+      "name": "extract 变异: 快照哈希不符拒绝抽取",
+      "pass": true,
+      "detail_on_failure": ""
+    },
+    {
+      "name": "align 正向: 全量对齐/术语/公式/表格零误杀",
+      "pass": true,
+      "detail_on_failure": ""
+    },
+    {
+      "name": "align 正向: 每段输出原始定位且语义能力不夸大",
+      "pass": true,
+      "detail_on_failure": ""
+    },
+    {
+      "name": "align 正向: source_variants 同义词仍统一译法",
+      "pass": true,
+      "detail_on_failure": ""
+    },
+    {
+      "name": "align 变异: 漏段必命中",
+      "pass": true,
+      "detail_on_failure": ""
+    },
+    {
+      "name": "align 变异: 段落换位必命中",
+      "pass": true,
+      "detail_on_failure": ""
+    },
+    {
+      "name": "align 变异: 重复段落必命中",
+      "pass": true,
+      "detail_on_failure": ""
+    },
+    {
+      "name": "align 变异: 错版语料必命中",
+      "pass": true,
+      "detail_on_failure": ""
+    },
+    {
+      "name": "align 变异: 公式破损必命中",
+      "pass": true,
+      "detail_on_failure": ""
+    },
+    {
+      "name": "align 变异: 数字改变必命中",
+      "pass": true,
+      "detail_on_failure": ""
+    },
+    {
+      "name": "align 变异: 单位改变必命中",
+      "pass": true,
+      "detail_on_failure": ""
+    },
+    {
+      "name": "align 变异: 表格行列缺失必命中",
+      "pass": true,
+      "detail_on_failure": ""
+    },
+    {
+      "name": "align 变异: 术语漂移必命中",
+      "pass": true,
+      "detail_on_failure": ""
+    },
+    {
+      "name": "align 变异: 首次出现未使用全称必命中",
+      "pass": true,
+      "detail_on_failure": ""
+    },
+    {
+      "name": "align 变异: 作者改写必命中",
+      "pass": true,
+      "detail_on_failure": ""
+    },
+    {
+      "name": "align 变异: 凭空 DOI 必命中",
+      "pass": true,
+      "detail_on_failure": ""
+    },
+    {
+      "name": "align 变异: 空译文必命中",
+      "pass": true,
+      "detail_on_failure": ""
+    },
+    {
+      "name": "trace 正向: 完整 DAG/轨迹/权限零误杀",
+      "pass": true,
+      "detail_on_failure": ""
+    },
+    {
+      "name": "resume 正向: 全完成不重复执行",
+      "pass": true,
+      "detail_on_failure": ""
+    },
+    {
+      "name": "schema 正向: 版本/定位/gain/产物零误杀",
+      "pass": true,
+      "detail_on_failure": ""
+    },
+    {
+      "name": "schema 正向: 第一步登录失败的诚实 null 不被误杀",
+      "pass": true,
+      "detail_on_failure": ""
+    },
+    {
+      "name": "audit 正向: 原 HTML 重算+逐段字段+文件哈希零误杀",
+      "pass": true,
+      "detail_on_failure": ""
+    },
+    {
+      "name": "trace 变异: 不存在依赖必命中",
+      "pass": true,
+      "detail_on_failure": ""
+    },
+    {
+      "name": "trace 变异: DAG 成环必命中",
+      "pass": true,
+      "detail_on_failure": ""
+    },
+    {
+      "name": "resume 变异: 失败点可续且已完成不重跑",
+      "pass": true,
+      "detail_on_failure": ""
+    },
+    {
+      "name": "resume 变异: 下游不被失败上游错误放行",
+      "pass": true,
+      "detail_on_failure": ""
+    },
+    {
+      "name": "trace 变异: 失败缺续跑点必命中",
+      "pass": true,
+      "detail_on_failure": ""
+    },
+    {
+      "name": "trace 变异: 重复幂等事件必命中",
+      "pass": true,
+      "detail_on_failure": ""
+    },
+    {
+      "name": "trace 变异: 跨站权限缺失必命中",
+      "pass": true,
+      "detail_on_failure": ""
+    },
+    {
+      "name": "schema 变异: 版本字段缺失必命中",
+      "pass": true,
+      "detail_on_failure": ""
+    },
+    {
+      "name": "schema 变异: quote/hash 不符必命中",
+      "pass": true,
+      "detail_on_failure": ""
+    },
+    {
+      "name": "schema 变异: 引文类型错误结构化返回而非崩溃",
+      "pass": true,
+      "detail_on_failure": ""
+    },
+    {
+      "name": "schema 变异: 非同输入伪增益必命中",
+      "pass": true,
+      "detail_on_failure": ""
+    },
+    {
+      "name": "audit 变异: 交付译文与已校验双语不符必命中",
+      "pass": true,
+      "detail_on_failure": ""
+    },
+    {
+      "name": "audit 变异: 原始页面改变后重算哈希必命中",
+      "pass": true,
+      "detail_on_failure": ""
+    },
+    {
+      "name": "audit 变异: 产物文件哈希伪造必命中",
+      "pass": true,
+      "detail_on_failure": ""
+    },
+    {
+      "name": "compare 正向: 同输入同权限质量/效率算术零误杀",
+      "pass": true,
+      "detail_on_failure": ""
+    },
+    {
+      "name": "compare 正向: 证据文件哈希与不冒充官方榜单",
+      "pass": true,
+      "detail_on_failure": ""
+    },
+    {
+      "name": "compare 变异: 权限不同拒绝比较",
+      "pass": true,
+      "detail_on_failure": ""
+    },
+    {
+      "name": "compare 变异: 页面版本不同拒绝比较",
+      "pass": true,
+      "detail_on_failure": ""
+    },
+    {
+      "name": "compare 变异: 不可能计数拒绝比较",
+      "pass": true,
+      "detail_on_failure": ""
+    },
+    {
+      "name": "compare 变异: 布尔计数不能伪装整数",
+      "pass": true,
+      "detail_on_failure": ""
+    }
+  ]
+}

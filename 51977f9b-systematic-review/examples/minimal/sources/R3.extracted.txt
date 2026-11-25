@@ -1,0 +1,7 @@
+Title: Alpha intervention improves recovery in adults: a randomized trial
+DOI: 10.0000/synthetic.r1
+Abstract: In this randomized trial, 42 adults received Alpha or control.
+Methods page 1 paragraph 2: Forty-two adults were randomized to Alpha or control using a computer-generated sequence.
+Results page 2 paragraph 3 sentence 1: At 4 weeks, the mean recovery score was 8.2 in the Alpha group and 6.1 in the control group.
+Results page 2 paragraph 4: Three participants were lost to follow-up.
+Discussion page 2 paragraph 5: The outcome reporting plan was changed after enrollment without a prespecified rationale.

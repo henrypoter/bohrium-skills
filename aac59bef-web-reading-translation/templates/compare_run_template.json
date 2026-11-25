@@ -1,0 +1,26 @@
+{
+  "case_id": "SAME_CASE_ID_IN_BASELINE_AND_SKILL",
+  "run_id": "REPLACE_WITH_ONE_UNIQUE_ACTUAL_RUN_ID",
+  "source_sha256": "SAME_ACTUAL_SNAPSHOT_SHA256_IN_BOTH_RUNS",
+  "permissions": [
+    "http:read",
+    "filesystem:write"
+  ],
+  "totals": {
+    "expected_body_blocks": 0,
+    "extracted_body_blocks": 0,
+    "translated_body_blocks": 0,
+    "quote_verified_blocks": 0,
+    "protected_tokens_total": 0,
+    "protected_token_violations": 0,
+    "glossary_checks": 0,
+    "glossary_consistent_checks": 0,
+    "manual_actions": 0,
+    "repeated_fetches": 0,
+    "elapsed_seconds": 1
+  },
+  "evidence": {
+    "result_path": "REPLACE_WITH_ACTUAL_RESULT_JSON",
+    "log_path": "REPLACE_WITH_ACTUAL_JSON_CONTAINING_RUN_LOG"
+  }
+}

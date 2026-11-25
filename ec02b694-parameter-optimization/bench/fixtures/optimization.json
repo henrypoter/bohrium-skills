@@ -1,0 +1,167 @@
+{
+  "evaluated_count": 6,
+  "feasible_candidates": [
+    {
+      "costs": {
+        "money": "55",
+        "samples": "3",
+        "time_hours": "2.7"
+      },
+      "desirability": {
+        "impurity": "0",
+        "yield": "1"
+      },
+      "index": 2,
+      "parameters": {
+        "duration": "1",
+        "temperature": "60"
+      },
+      "responses": {
+        "impurity": "11.5",
+        "yield": "58"
+      },
+      "score": "0.7"
+    },
+    {
+      "costs": {
+        "money": "55",
+        "samples": "3",
+        "time_hours": "3"
+      },
+      "desirability": {
+        "impurity": "0.5",
+        "yield": "0.3333333333333333333333333333"
+      },
+      "index": 4,
+      "parameters": {
+        "duration": "2",
+        "temperature": "50"
+      },
+      "responses": {
+        "impurity": "11",
+        "yield": "54"
+      },
+      "score": "0.3833333333333333333333333333"
+    },
+    {
+      "costs": {
+        "money": "50",
+        "samples": "3",
+        "time_hours": "2.5"
+      },
+      "desirability": {
+        "impurity": "1",
+        "yield": "0"
+      },
+      "index": 1,
+      "parameters": {
+        "duration": "1",
+        "temperature": "50"
+      },
+      "responses": {
+        "impurity": "10.5",
+        "yield": "52"
+      },
+      "score": "0.3"
+    }
+  ],
+  "feasible_count": 3,
+  "model_status": "explicit_declared_models_not_measurements",
+  "optimization_schema_version": "bounded-grid-optimization-1.0.0",
+  "pareto_indices": [
+    2,
+    4,
+    1
+  ],
+  "problem_sha256": "d75bff00299ae00c37fe921889afa5f9d21bb2ceeb155ecc961c357ab179e92b",
+  "problem_version": "problem-v1",
+  "recommended": {
+    "costs": {
+      "money": "55",
+      "samples": "3",
+      "time_hours": "2.7"
+    },
+    "desirability": {
+      "impurity": "0",
+      "yield": "1"
+    },
+    "index": 2,
+    "parameters": {
+      "duration": "1",
+      "temperature": "60"
+    },
+    "responses": {
+      "impurity": "11.5",
+      "yield": "58"
+    },
+    "score": "0.7"
+  },
+  "rejected_candidates": [
+    {
+      "costs": {
+        "money": "45",
+        "samples": "3",
+        "time_hours": "2.3"
+      },
+      "index": 0,
+      "parameters": {
+        "duration": "1",
+        "temperature": "40"
+      },
+      "rejection_reasons": [
+        "response_min:yield"
+      ],
+      "responses": {
+        "impurity": "9.5",
+        "yield": "46"
+      }
+    },
+    {
+      "costs": {
+        "money": "50",
+        "samples": "3",
+        "time_hours": "2.8"
+      },
+      "index": 3,
+      "parameters": {
+        "duration": "2",
+        "temperature": "40"
+      },
+      "rejection_reasons": [
+        "response_min:yield"
+      ],
+      "responses": {
+        "impurity": "10",
+        "yield": "48"
+      }
+    },
+    {
+      "costs": {
+        "money": "60",
+        "samples": "3",
+        "time_hours": "3.2"
+      },
+      "index": 5,
+      "parameters": {
+        "duration": "2",
+        "temperature": "60"
+      },
+      "rejection_reasons": [
+        "constraint:load"
+      ],
+      "responses": {
+        "impurity": "12",
+        "yield": "60"
+      }
+    }
+  ],
+  "search": {
+    "initial_design": "all_declared_finite_domain_points",
+    "next_round_rule": "none_after_complete_grid",
+    "stopping_rule": "evaluated_count==domain_size",
+    "strategy": "exhaustive_grid"
+  },
+  "status": "complete",
+  "stopping_reason": "exhaustive_grid_complete",
+  "tool_version": "parameter-exp-tool-3.0.0"
+}

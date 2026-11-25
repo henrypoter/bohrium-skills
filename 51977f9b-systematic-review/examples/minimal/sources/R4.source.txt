@@ -1,0 +1,3 @@
+Title: Alpha recovery after 52 weeks: a single-arm case series
+DOI: 10.0000/synthetic.r4
+Abstract page 1 paragraph 2: This single-arm case series followed 20 adults for 52 weeks without a randomized control group.

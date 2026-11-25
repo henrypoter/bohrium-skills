@@ -1,30 +1,138 @@
 {
-  "case_id": "case-001",
-  "status": "issues",
-  "document": {"file": "sample_paper.txt", "pages": 1, "char_count": 320, "full_text_extracted": true},
-  "claims": [
-    {"id": "C1", "text": "药物 A 对所有高血压患者均有效", "type": "author", "location": "摘要", "scope": "无限制的全称结论"},
-    {"id": "C2", "text": "Smith 等在 1000 例患者中证实药物 A 可使血压降至正常", "type": "citation", "location": "讨论", "scope": "转述被引文献主张"}
+  "result_schema_version": "2.0.0",
+  "tool_version": "3.0.0",
+  "case_id": "synthetic-example-only",
+  "status": "partial",
+  "manuscript_version": {
+    "file": "sample_paper.txt",
+    "source_id": "manuscript_text",
+    "file_sha256": "3b366f9fda1e7eba10addc0075aa9efe77fa3f26f0e148d9ffb28bf38d0747bc",
+    "text_sha256": "3b366f9fda1e7eba10addc0075aa9efe77fa3f26f0e148d9ffb28bf38d0747bc",
+    "extractor": "UTF-8 plain-text fixture reader v1"
+  },
+  "issues": [
+    {
+      "id": "PRIV-001",
+      "category": "privacy",
+      "type": "normative_issue",
+      "severity": "major",
+      "status": "needs_review",
+      "detection": "presence",
+      "compliance_status": "not_established_from_supplied_material",
+      "location": {
+        "source_id": "manuscript_text",
+        "source_sha256": "3b366f9fda1e7eba10addc0075aa9efe77fa3f26f0e148d9ffb28bf38d0747bc",
+        "page": 1,
+        "line_start": 4,
+        "line_end": 4,
+        "paragraph": 2,
+        "section": "方法",
+        "sentence_id": "s00004",
+        "char_start": 69,
+        "char_end": 71
+      },
+      "quote": "张三",
+      "quote_sha256": "1d841bc0ee98309cb7916670b7f0fdef5f4c35150711a41405ef3633b56322cf",
+      "claim": "A direct patient name is present; a general consent sentence does not establish permission to publish the name.",
+      "evidence": [
+        {
+          "role": "primary",
+          "location": {
+            "source_id": "manuscript_text",
+            "source_sha256": "3b366f9fda1e7eba10addc0075aa9efe77fa3f26f0e148d9ffb28bf38d0747bc",
+            "page": 1,
+            "line_start": 4,
+            "line_end": 4,
+            "paragraph": 2,
+            "section": "方法",
+            "sentence_id": "s00004",
+            "char_start": 69,
+            "char_end": 71
+          },
+          "quote": "张三",
+          "quote_sha256": "1d841bc0ee98309cb7916670b7f0fdef5f4c35150711a41405ef3633b56322cf"
+        },
+        {
+          "role": "consent_context",
+          "location": {
+            "source_id": "manuscript_text",
+            "source_sha256": "3b366f9fda1e7eba10addc0075aa9efe77fa3f26f0e148d9ffb28bf38d0747bc",
+            "page": 1,
+            "line_start": 4,
+            "line_end": 4,
+            "paragraph": 2,
+            "section": "方法",
+            "sentence_id": "s00003",
+            "char_start": 22,
+            "char_end": 64
+          },
+          "quote": "本示例研究经示例伦理委员会批准（EXAMPLE-001），全体受试者均签署知情同意。",
+          "quote_sha256": "e29b9324445fad56dd039ac46669db6351687e93f65e12f34888bed92ce5afe3"
+        }
+      ],
+      "basis": [
+        {
+          "kind": "deterministic_rule",
+          "source": "scripts/review_tool.py",
+          "locator": "privacy.labeled_name",
+          "statement": "A labeled direct name requires deidentification or source-linked permission for the intended disclosure."
+        }
+      ],
+      "fix": {
+        "action": "deidentify",
+        "target": "s00004",
+        "instruction": "Replace the patient name with a random study subject code and remove the name from shared outputs.",
+        "suggested_text": "患者编号：SUBJ-001。"
+      },
+      "handling": "synthetic identifier; for real cases keep evidence controlled and do not upload"
+    }
   ],
-  "findings": [
-    {"id": "F1", "category": "logic", "severity": "critical", "claim_id": "C1",
-     "issue": "由 30 例单组前后对照外推为对所有患者有效，结论超出数据范围",
-     "quote": "证明药物 A 对所有高血压患者均有效",
-     "location": "摘要/第2句",
-     "evidence": "样本 30 例且无对照组，无法支持全称因果结论",
-     "type": "insufficient_evidence", "fix": "将结论降为：药物 A 在本 30 例样本中与血压下降相关",
-     "confidence": "confirmed"},
-    {"id": "F2", "category": "citation", "severity": "major", "claim_id": "C2",
-     "issue": "被引文献实际为 20 例 pilot study，本文转述为 1000 例",
-     "quote": "Smith 等 (2020) 在 1000 例患者中证实",
-     "location": "讨论/第1句",
-     "evidence": "参考文献[1] 标题为 20 patients 的 pilot study，与正文 1000 例不符",
-     "type": "fact_error", "fix": "将 1000 例改为 20 例，并删除'降至正常'的过度转述",
-     "confidence": "confirmed"}
+  "checked_scope": {
+    "integrity": {
+      "status": "not_applicable",
+      "reason": "synthetic fixture contains no integrity comparison material"
+    },
+    "citation": {
+      "status": "not_applicable",
+      "reason": "synthetic fixture contains no citations"
+    },
+    "privacy": {
+      "status": "checked",
+      "search_scope": "all extracted sentences with privacy scanner plus manual context review"
+    },
+    "copyright": {
+      "status": "checked",
+      "search_scope": "explicit figure provenance paragraph"
+    },
+    "ethics": {
+      "status": "checked",
+      "search_scope": "supplied ethics/consent statement only; approval record authenticity not checked"
+    },
+    "submission": {
+      "status": "not_checked",
+      "reason": "no actual target journal guide supplied"
+    }
+  },
+  "gain": {
+    "status": "not_measured",
+    "reason": "synthetic minimal example; no official baseline or independent adjudication"
+  },
+  "unchecked": [
+    "Target journal guide absent; submission requirements not checked.",
+    "Approval record and disclosure authorization not independently verified."
   ],
-  "checklist_coverage": {"fact": 1, "citation": 1, "method": 0, "statistics": 0, "logic": 1, "compliance": 0},
-  "unchecked": ["图表未提供"],
-  "sources": ["sample_paper.txt"],
-  "uncertainty": [],
-  "change_log": ["extract 全文成功", "schema 校验通过"]
+  "sources": [
+    {
+      "source_id": "manuscript_text",
+      "path_or_url": "bench/fixtures/sample_paper.txt",
+      "role": "synthetic manuscript fixture",
+      "sha256": "3b366f9fda1e7eba10addc0075aa9efe77fa3f26f0e148d9ffb28bf38d0747bc"
+    }
+  ],
+  "uncertainty": [
+    "This is an interface fixture, not a formal test answer."
+  ],
+  "change_log": [
+    "Generated from actual fixture text with review_tool.span; subject to verify and schema."
+  ]
 }

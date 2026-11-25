@@ -1,97 +1,312 @@
 {
- "case_id": "case-001",
- "status": "issues",
- "research_goal": {
-  "objective": "测药物A对某细胞增殖的影响",
-  "hypothesis": "药物A在10-100 μM范围内剂量依赖抑制细胞增殖",
-  "constraints": [
-   "预算5万",
-   "4周内完成"
+  "example_only": true,
+  "case_id": "integrated-demo",
+  "status": "pass",
+  "plan_version": "plan-v1",
+  "result_schema_version": "integrated-result-3.0.0",
+  "tool_version": "integrated-exp-tool-3.0.0",
+  "input_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "permissions_digest": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+  "routing": {
+    "case_id": "integrated-demo",
+    "case_sha256": "552413891af644be2e1f6e309cff8b2eca7c91dc94fff4b084a7d37549acca28",
+    "primary": "generation",
+    "route_schema_version": "experiment-routing-1.0.0",
+    "routes": [
+      {
+        "evidence": [
+          {
+            "location": "task.md#L1",
+            "quote": "请设计实验并生成方案，明确温度参数和对照。",
+            "sha256": "c015417128c21e3a2099befa97d006c86f6f3771a91908f83e9e5079ca697568",
+            "source_id": "task"
+          }
+        ],
+        "required_command": "audit",
+        "required_outputs": "research_goal/variables/controls/steps/parameters/risks",
+        "route": "generation",
+        "score": 1,
+        "workflow": "generate_check"
+      }
+    ],
+    "status": "routed",
+    "task_sha256": "c015417128c21e3a2099befa97d006c86f6f3771a91908f83e9e5079ca697568",
+    "tool_version": "integrated-exp-tool-3.0.0",
+    "unmatched_action": null
+  },
+  "research_goal": {
+    "objective": "生成一个温度可检验、预算可复核的示例方案",
+    "hypothesis": "50 C 相比 40 C 使收率提高至少 10%",
+    "constraints": [
+      "预算 1000 CNY",
+      "24 h 内"
+    ]
+  },
+  "variables": [
+    {
+      "id": "V1",
+      "name": "temperature",
+      "type": "independent",
+      "operational_definition": "反应器设定温度",
+      "unit": "C",
+      "range": "40/50/60"
+    },
+    {
+      "id": "V2",
+      "name": "yield",
+      "type": "dependent",
+      "operational_definition": "产物质量除以理论产物质量",
+      "unit": "%",
+      "range": "0-100"
+    }
+  ],
+  "controls": [
+    {
+      "id": "C1",
+      "type": "gradient",
+      "purpose": "40 C 比较组",
+      "confounder_excluded": "除温度外的处理差异"
+    }
+  ],
+  "steps": [
+    {
+      "id": "S1",
+      "action": "平衡和加样",
+      "equipment": "T-60",
+      "material": "M-1",
+      "duration": "4 h",
+      "parameter_range": "50 C"
+    },
+    {
+      "id": "S2",
+      "action": "反应和检测",
+      "equipment": "T-60",
+      "material": "M-1",
+      "duration": "12 h",
+      "parameter_range": "50 C"
+    }
+  ],
+  "resources": {
+    "equipment": [
+      {
+        "id": "EQ1",
+        "availability": "available",
+        "model": "T-60",
+        "precision": 0.1,
+        "unit": "C",
+        "required_accessories": [],
+        "inventory_ref": "EQ1"
+      }
+    ],
+    "materials": [
+      {
+        "id": "M1",
+        "availability": "available",
+        "required_qty": 10,
+        "available_qty": 20,
+        "lead_time_hours": 0,
+        "unit": "mL"
+      }
+    ],
+    "sample": {
+      "availability": "available",
+      "required": 6,
+      "available": 8,
+      "unit": "vial",
+      "source": "示例样本库",
+      "storage": "-20 C"
+    },
+    "cost_estimate": {
+      "currency": "CNY",
+      "line_items": [
+        {
+          "id": "C1",
+          "quantity": 2,
+          "unit_cost": 100,
+          "subtotal": 200
+        },
+        {
+          "id": "C2",
+          "quantity": 1,
+          "unit_cost": 50,
+          "subtotal": 50
+        }
+      ],
+      "total": 250,
+      "budget": 1000,
+      "within_budget": true
+    },
+    "time_estimate": {
+      "steps": [
+        {
+          "id": "S1",
+          "equipment_hours": 2,
+          "labor_hours": 3,
+          "wait_hours": 1,
+          "turnaround_hours": 0,
+          "duration_hours": 4,
+          "parallel_group": "G1"
+        },
+        {
+          "id": "S2",
+          "equipment_hours": 4,
+          "labor_hours": 2,
+          "wait_hours": 0,
+          "turnaround_hours": 8,
+          "duration_hours": 12,
+          "parallel_group": "G2"
+        }
+      ],
+      "elapsed_hours": 16,
+      "deadline_hours": 24,
+      "within_deadline": true
+    },
+    "ethics": {
+      "status": "not_required",
+      "basis": "无人体/动物材料"
+    },
+    "safety": {
+      "status": "approved",
+      "approval_id": "DEMO-S1"
+    }
+  },
+  "parameters": [
+    {
+      "name": "temperature",
+      "value": 50,
+      "unit": "C",
+      "derived_min": 40,
+      "derived_max": 60,
+      "evidence": [
+        {
+          "source_id": "case",
+          "location": "#/temperature",
+          "quote": "50",
+          "sha256": "552413891af644be2e1f6e309cff8b2eca7c91dc94fff4b084a7d37549acca28"
+        }
+      ]
+    }
+  ],
+  "risks": [
+    {
+      "id": "R1",
+      "failure_mode": "参数越界",
+      "trigger": "温度不在 40-60 C",
+      "consequence": "设备或材料约束破坏",
+      "mitigation": "取消越界点并重跑有限域",
+      "stop_rule": "交集为空则停止"
+    }
+  ],
+  "judgments": [
+    {
+      "id": "J1",
+      "claim": "50 C 有原始字段定位且假设可与 40 C 比较",
+      "evidence": [
+        {
+          "source_id": "case",
+          "location": "#/hypothesis",
+          "quote": "50 C 相比 40 C 使收率提高至少 10%",
+          "sha256": "552413891af644be2e1f6e309cff8b2eca7c91dc94fff4b084a7d37549acca28"
+        }
+      ],
+      "confidence": "high"
+    }
+  ],
+  "exception_register": [
+    {
+      "code": "unsupported_input",
+      "signal": "五类路由均无匹配或格式不可解析",
+      "action": "primary=unsupported，停止生成并请求明确任务类型",
+      "disposition": "manual",
+      "owner": "任务提交人",
+      "linked_fields": [
+        "routing.primary",
+        "status"
+      ]
+    },
+    {
+      "code": "tool_error",
+      "signal": "命令返回非零且 error 字段存在",
+      "action": "保存已写产物与错误码，受影响输出标 not_checked",
+      "disposition": "downgrade",
+      "owner": "工作流维护者",
+      "linked_fields": [
+        "status",
+        "unchecked"
+      ]
+    },
+    {
+      "code": "permission_denied",
+      "signal": "源文件或设备访问返回 permission denied",
+      "action": "停止越权访问，保留权限哈希并交管理员",
+      "disposition": "stop",
+      "owner": "权限管理员",
+      "linked_fields": [
+        "permissions_digest",
+        "status"
+      ]
+    },
+    {
+      "code": "missing_data",
+      "signal": "当前路由必填字段缺失或空值",
+      "action": "缺项写 not_checked，不默认满足",
+      "disposition": "label",
+      "owner": "材料提供者",
+      "linked_fields": [
+        "unchecked"
+      ]
+    },
+    {
+      "code": "execution_failed",
+      "signal": "算术、模型或输出写入未完成",
+      "action": "status=failed/partial，不重装成功，不删除已有审计记录",
+      "disposition": "downgrade",
+      "owner": "执行人",
+      "linked_fields": [
+        "status",
+        "change_log"
+      ]
+    }
+  ],
+  "expert_confirmation": [
+    "正式安全边界",
+    "模型外推限制"
+  ],
+  "gain": {
+    "status": "not_run",
+    "reason": "示例不冒充平台基础 Agent 对照",
+    "design": {
+      "same_case_id": "integrated-demo",
+      "same_input_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "same_permissions": true,
+      "repetitions": 3
+    },
+    "quality": {},
+    "efficiency": {}
+  },
+  "unchecked": [],
+  "sources": [
+    {
+      "source_id": "case",
+      "version": "example-v1",
+      "path": "example_input.json",
+      "sha256": "552413891af644be2e1f6e309cff8b2eca7c91dc94fff4b084a7d37549acca28"
+    },
+    {
+      "source_id": "task",
+      "version": "task-v1",
+      "path": "task.md",
+      "sha256": "c015417128c21e3a2099befa97d006c86f6f3771a91908f83e9e5079ca697568"
+    }
+  ],
+  "uncertainty": [
+    "示例仅演示生成路由；其他路由由独立命令和变异 bench 覆盖"
+  ],
+  "change_log": [
+    {
+      "from": null,
+      "to": "plan-v1",
+      "reason": "最小示例"
+    }
   ]
- },
- "variables": [
-  {
-   "id": "V1",
-   "name": "药物A浓度",
-   "type": "independent",
-   "operational_definition": "培养液中药物A终浓度(μM)",
-   "unit": "μM",
-   "range": "0/10/30/100"
-  },
-  {
-   "id": "V2",
-   "name": "细胞存活率",
-   "type": "dependent",
-   "operational_definition": "CCK-8 吸光度归一化到空白组",
-   "unit": "%",
-   "range": "0-100"
-  }
- ],
- "controls": [
-  {
-   "id": "C1",
-   "type": "negative",
-   "purpose": "空白对照组",
-   "confounder_excluded": "溶剂DMSO效应"
-  },
-  {
-   "id": "C2",
-   "type": "positive",
-   "purpose": "已知抑制剂的阳性对照",
-   "confounder_excluded": "实验体系是否响应"
-  }
- ],
- "steps": [
-  {
-   "id": "S1",
-   "action": "铺板",
-   "equipment": "96孔板",
-   "material": "细胞悬液",
-   "duration": "0.5h",
-   "parameter_range": "5000细胞/孔"
-  }
- ],
- "resources": {
-  "equipment": [
-   "酶标仪"
-  ],
-  "materials": [
-   "CCK-8"
-  ],
-  "sample": "细胞株X",
-  "time_estimate": "2周",
-  "cost_estimate": "约1.2万"
- },
- "risks": [
-  {
-   "id": "R1",
-   "failure_mode": "无信号(细胞未贴壁)",
-   "trigger": "吸光度<0.1",
-   "consequence": "数据不可用",
-   "mitigation": "复孔+重复三次",
-   "stop_rule": "重复仍无信号则查细胞状态"
-  }
- ],
- "judgments": [
-  {
-   "id": "J1",
-   "claim": "选CCK-8测增殖",
-   "evidence": "文献常用且线性范围匹配",
-   "source": "文献[1]",
-   "confidence": "high"
-  }
- ],
- "expert_confirmation": [
-  "药物A溶解度需实验员确认"
- ],
- "unchecked": [],
- "sources": [
-  "文献[1]"
- ],
- "uncertainty": [
-  "剂量上限未覆盖临床浓度"
- ],
- "change_log": [
-  "初版方案生成"
- ]
 }

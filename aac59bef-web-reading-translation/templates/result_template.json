@@ -1,0 +1,74 @@
+{
+  "case_id": "REPLACE_FROM_CASE",
+  "status": "partial",
+  "schema_version": "2.0.0",
+  "skill_version": "3.0.0",
+  "tool_version": "3.0.0",
+  "run_id": "REPLACE_UNIQUE_RUN_ID",
+  "generated_at": "REPLACE_ISO_8601",
+  "input": {
+    "case_path": "/input/case.json",
+    "task_path": "/input/task.md",
+    "case_sha256": "REPLACE_ACTUAL_64_HEX",
+    "task_sha256": "REPLACE_ACTUAL_64_HEX"
+  },
+  "source": {
+    "url": null,
+    "fetched_at": null,
+    "snapshot_path": null,
+    "snapshot_sha256": null,
+    "page_version": null,
+    "root_dom_path": null
+  },
+  "corpus_sha256": null,
+  "full_text_sha256": null,
+  "extraction_status": "failed",
+  "paragraphs": [],
+  "machine_verification": {
+    "status": "failed",
+    "errors": ["REPLACE_WITH_REAL_MACHINE_ERROR_OR_EMPTY_LIST"],
+    "warnings": [],
+    "source_blocks": 0,
+    "aligned_blocks": 0,
+    "missing_blocks": [],
+    "protected_token_violations": 0,
+    "glossary_checks": 0,
+    "glossary_consistent_checks": 0,
+    "semantic_fidelity": "not_checked_by_tool"
+  },
+  "workflow": [
+    {
+      "id": "W1",
+      "step": "抓取并锁定页面版本",
+      "depends_on": [],
+      "input": "REPLACE_URL",
+      "output": "REPLACE_OR_NOT_CREATED",
+      "state": "pending"
+    }
+  ],
+  "state": {
+    "completed_steps": [],
+    "failed_step": null,
+    "resume_point": "W1"
+  },
+  "data_passing": [],
+  "failures": [],
+  "run_log": [],
+  "gain": {
+    "status": "not_measured",
+    "reason": "仅在没有真实基础 Agent 同输入同权限双跑时使用",
+    "baseline": null,
+    "skill": null
+  },
+  "artifacts": [],
+  "unchecked": [
+    {
+      "item": "REPLACE_WITH_UNCHECKED_SCOPE",
+      "reason": "REPLACE_WITH_CONCRETE_REASON",
+      "status": "not_checked"
+    }
+  ],
+  "sources": [],
+  "uncertainty": [],
+  "change_log": []
+}

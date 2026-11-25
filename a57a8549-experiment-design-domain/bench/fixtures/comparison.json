@@ -1,0 +1,90 @@
+{
+  "comparison_schema_version": "plan-comparison-1.0.0",
+  "comparison_version": "comparison-v1",
+  "eligible_count": 3,
+  "evaluated_count": 3,
+  "input_sha256": "854839c08d66647daa9b0c0a8a9e4d49ff1786d6533159c296e5030bd7fff27e",
+  "ranking": [
+    {
+      "desirability": {
+        "cost": "0",
+        "yield": "1"
+      },
+      "id": "B",
+      "metrics": {
+        "cost": "80",
+        "yield": "90"
+      },
+      "plan_version": "B-v2",
+      "score": "0.7"
+    },
+    {
+      "desirability": {
+        "cost": "0.6",
+        "yield": "0.5"
+      },
+      "id": "A",
+      "metrics": {
+        "cost": "50",
+        "yield": "80"
+      },
+      "plan_version": "A-v1",
+      "score": "0.53"
+    },
+    {
+      "desirability": {
+        "cost": "1",
+        "yield": "0"
+      },
+      "id": "C",
+      "metrics": {
+        "cost": "30",
+        "yield": "70"
+      },
+      "plan_version": "C-v1",
+      "score": "0.3"
+    }
+  ],
+  "recommended": {
+    "desirability": {
+      "cost": "0",
+      "yield": "1"
+    },
+    "id": "B",
+    "metrics": {
+      "cost": "80",
+      "yield": "90"
+    },
+    "plan_version": "B-v2",
+    "score": "0.7"
+  },
+  "rejected": [],
+  "sensitivity": [
+    {
+      "delta": "-0.1",
+      "stable": true,
+      "top_id": "B",
+      "varied_metric": "yield"
+    },
+    {
+      "delta": "0.1",
+      "stable": true,
+      "top_id": "B",
+      "varied_metric": "yield"
+    },
+    {
+      "delta": "-0.1",
+      "stable": true,
+      "top_id": "B",
+      "varied_metric": "cost"
+    },
+    {
+      "delta": "0.1",
+      "stable": true,
+      "top_id": "B",
+      "varied_metric": "cost"
+    }
+  ],
+  "status": "complete",
+  "tool_version": "integrated-exp-tool-3.0.0"
+}

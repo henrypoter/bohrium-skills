@@ -1,0 +1,40 @@
+schema_version: "1.0"
+skill_version: "3.0.0"
+runtime:
+  python: ">=3.9"
+  third_party_python_dependencies: []
+  network_required_for_local_bench: false
+  network_required_for_live_fetch: true
+required_resources:
+  - name: python3
+    purpose: "全部 fetch/stamp/extract/align/trace/resume/schema/audit/compare 与 bench；仅用标准库"
+  - name: user_authorized_http_read
+    purpose: "仅 fetch 用户指定的公开或已授权网页；无权限时按失败记录降级"
+optional_preinstalled_resources:
+  - name: browser
+    observed_evaluation_contract: "Chromium 141.0.7390.37 / Playwright 1.56.0（若由平台提供）"
+    purpose: "仅动态页面正常浏览、滚动、分页和保存真实最终 DOM；本提交不导入 playwright，也不绕过登录/付费墙/验证码"
+provided_input:
+  - /input/case.json
+  - /input/task.md
+runtime_paths:
+  work: /app/work
+  output: /app/output
+  installed_skill: /skills/weekly-skill
+bundled_resources:
+  scripts:
+    - scripts/webread.py
+    - scripts/auto_tool.py
+  templates:
+    - templates/flow_spec.md
+    - templates/translation_template.json
+    - templates/result_template.json
+    - templates/compare_run_template.json
+  bench:
+    - bench/bench_run.py
+    - bench/fixtures/article.html
+limits:
+  default_http_timeout_seconds: 20
+  default_max_response_bytes: 8000000
+  external_translation_api: false
+  automatic_semantic_correctness_proof: false

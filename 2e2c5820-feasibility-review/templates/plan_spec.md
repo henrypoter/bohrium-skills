@@ -1,40 +1,73 @@
-# 方案规格表（plan_spec.md）
+# 版本化可行性审查模板
 
-## 1. 六要素检查表（缺一项即不完整）
+> 本模板是字段清单，不是答案。所有事实必须来自当前案例；未知填 `not_checked + reason`。
 
-| 要素 | 最低要求 | 常见错法 |
-|-|-|-|
-| 假设与变量 | 假设可被推翻；变量有操作定义+单位+范围 | 写"研究X的机制"；变量只有名字 |
-| 对照组 | 每组说明排除哪类混杂 | 只有空白组；对照与目标不匹配 |
-| 设备材料 | 型号/量程/规格/试剂货号 | 只写"离心机" |
-| 时间成本 | 分步时长+并行关系+样本量+预算 | 只给总天数 |
-| 参数范围 | 每参数 value/unit/min/max + 依据来源 | 参数无单位；依据写"经验" |
-| 风险与异常 | 每风险 trigger + mitigation + stop_rule | 只写"注意安全" |
+## A. 版本与证据
 
-## 2. 参数表（逐行填）
+- case_id / plan_version / result_schema_version / tool_version：
+- input_digest / permissions_digest（64 位 SHA-256）：
+- sources：source_id / version / path / sha256 / text_path（需要时）
+- 每条 evidence：source_id / location / quote / sha256
 
-| 参数 | 建议值 | 单位 | 允许区间 | 依据来源 | 越界处置 |
+## B. 七类检查（每类恰好一次）
+
+| category | status | target | conclusion / not_checked reason | conditions | evidence |
 |-|-|-|-|-|-|
-| temperature | 75 | C | 20–90 | 设备手册 p12 | 降至 60 并延长孵育 |
-| dose | 50 | uM | 0–100 | 预实验 P-03 | 分档递增 |
+| 假设与变量 | | | | | |
+| 对照组 | | | | | |
+| 设备材料 | | | | | |
+| 时间成本 | | | | | |
+| 参数范围 | | | | | |
+| 风险与异常 | | | | | |
+| 伦理与安全 | | | | | |
 
-核验命令：`python3 scripts/exp_tool.py params result.json --spec limits.json`
-`limits.json` 格式：
-```json
-{"limits": {"temperature": {"min": 4, "max": 80, "unit": "C"}}}
-```
+总体：feasible / conditionally_feasible / infeasible / partial；有条件可行条件必须能验收、有责任人。
 
-## 3. 风险矩阵（按后果与概率排优先级）
+## C. 设备、材料与样本
 
-| 风险 | 触发信号 | 后果 | 缓解 | 止损点 |
-|-|-|-|-|-|
-| 无信号 | 吸光度 < 0.1 | 数据不可用 | 复孔+重复三次 | 三次仍无信号则停并查细胞状态 |
-| 污染 | 培养基浑浊 | 整批作废 | 加双抗+空白对照 | 空白组也浑浊则整批弃 |
+| ID | 类型 | 需求型号/规格/精度/附件 | 清单定位 | available/outsource/purchase/unavailable/not_checked | 数量/货期/保存 | 处置 |
+|-|-|-|-|-|-|-|
+| | | | | | | |
 
-## 4. 交付前自检
+样本：required / available / unit / source / storage / ethics_ref；缺口=`max(0,required-available)`。
 
-- [ ] `check` 的 `missing_elements` 为空
-- [ ] 每个参数都能在 `limits.json` 中找到限值来源
-- [ ] 每个风险三件套齐全
-- [ ] 需专家确认的事项已列入 `expert_confirmation`
-- [ ] 无设备参数/预算时写 `unknown`，未编造型号与价格
+## D. 预算与排期
+
+| cost id | quantity | unit_cost | subtotal=quantity×unit_cost | currency | 来源 |
+|-|-|-|-|-|-|
+| | | | | | |
+
+total=Σsubtotal；budget=；remaining=budget-total；within_budget=真值。
+
+| step | equipment_hours | labor_hours | wait_hours | turnaround_hours | duration | parallel_group |
+|-|-|-|-|-|-|-|
+| | | | | | max(equipment,labor)+wait+turnaround | |
+
+`elapsed_hours=max(purchase lead_time_hours)+Σ_group(max step duration)`；deadline 与余量必须实算。
+
+## E. 参数多源可行域
+
+| name | unit | 来源A min/max/step | 来源B min/max/step | derived_min=max(min) | derived_max=min(max) | value | 步进/互斥 | evidence |
+|-|-|-|-|-|-|-|-|-|-|
+| | | | | | | | | |
+
+机检：`python3 scripts/exp_tool.py params result.json --spec limits.json`。
+
+## F. 异常与审批
+
+至少登记题面六异常（缺页、参数缺失、设备不明、伦理未定、自相矛盾、超长文档）和设备故障、批次差异、样本不足、参数越界。每条写 signal/action/disposition/owner/linked_checks，不得只写“注意”。
+
+| code | signal | action | disposition | owner | linked_checks |
+|-|-|-|-|-|-|
+| | | | downgrade/label/manual/stop | | |
+
+伦理/安全状态：approved / pending / not_required / not_checked；pending/not_checked 必须给 action 并禁止启动相关步骤。
+
+## G. 基础 Agent 对照与交付
+
+- 同 case_id / input_digest / permissions_digest / rubric / repetitions：
+- 质量：七类覆盖、定位判断、异常覆盖（baseline vs Skill）：
+- 效率：runtime、返工、补材料轮次；无真实 telemetry 写 not_measured：
+- unchecked / uncertainty / expert_confirmation / change_log：
+
+交付前必须 `audit + resources + params + verify` 全绿；运行 `python3 bench/bench_run.py`，当前基线为 33/33。

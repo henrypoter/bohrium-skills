@@ -1,0 +1,21 @@
+{
+  "spec_version": "2.0.0",
+  "case_id": "SYNTHETIC-EXAMPLE-NOT-OFFICIAL",
+  "id": "EXAMPLE-F1",
+  "data": "bench/fixtures/sample_data.csv",
+  "source_sha256": "ac7321ad37f92043f7c17c140b37ddebe28485160dbe60c5dfcec1c4be8f767e",
+  "output_dir": "/app/output",
+  "chart": "bar",
+  "purpose": "comparison",
+  "title": "Synthetic comparison",
+  "where": {"unit": "mg/L"},
+  "drop_duplicates": ["sample_id"],
+  "missing_values": ["", "-999"],
+  "x": {"column": "group", "label": "Treatment group", "unit": ""},
+  "y": {"column": "measure", "label": "Concentration", "unit": "mg/L"},
+  "error": "sem",
+  "significance": [],
+  "requirements": {"panel": "a", "scale_bar": false, "colorbar": false},
+  "min_font_pt": 7,
+  "export": {"width_mm": 85, "height_mm": 60, "dpi": 300}
+}

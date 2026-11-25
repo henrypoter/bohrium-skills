@@ -1,0 +1,56 @@
+{
+  "schema_version": "2.0.0",
+  "skill_version": "2.0.0",
+  "case_id": "SYNTHETIC-EXAMPLE-NOT-OFFICIAL",
+  "status": "issues",
+  "questions": [
+    {
+      "id": "Q1",
+      "answer": "示例：只演示结果结构；实际图件与数字必须由 render+audit 现场生成。",
+      "evidence": [
+        {"artifact": "sample_data.csv", "location": "columns=group,measure,unit; all rows", "sha256": "ac7321ad37f92043f7c17c140b37ddebe28485160dbe60c5dfcec1c4be8f767e"}
+      ]
+    }
+  ],
+  "figures": [
+    {
+      "id": "EXAMPLE-F1",
+      "manifest": "/app/output/EXAMPLE-F1-manifest.json",
+      "manifest_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "svg": "/app/output/EXAMPLE-F1.svg",
+      "png": "/app/output/EXAMPLE-F1.png",
+      "figure_data": "/app/output/EXAMPLE-F1-figure-data.csv",
+      "caption": "示例图注：运行时由 render 写入真实 n、误差定义和缺失排除。",
+      "source_sha256": "ac7321ad37f92043f7c17c140b37ddebe28485160dbe60c5dfcec1c4be8f767e"
+    }
+  ],
+  "lineage": {
+    "snapshot": "synthetic-v1",
+    "tables": ["sample_data.csv"],
+    "source_sha256": "ac7321ad37f92043f7c17c140b37ddebe28485160dbe60c5dfcec1c4be8f767e",
+    "commands": ["python3 scripts/visual_tool.py render figure-spec.json", "python3 scripts/visual_tool.py audit result.json"],
+    "plot_spec": "/app/output/figure-spec.json",
+    "code": "/app/output/visual_tool.py"
+  },
+  "gain": {
+    "protocol_version": "1.0.0",
+    "same_input": true,
+    "same_permissions": true,
+    "baseline": {"status": "not_checked", "quality": {"figure_correctness": null}, "efficiency": {"redraw_rounds": null}, "evidence": []},
+    "skill": {"status": "not_checked", "quality": {"figure_correctness": null}, "efficiency": {"redraw_rounds": null}, "evidence": []},
+    "note": "无平台基础臂不得填估计增益。"
+  },
+  "coverage": {
+    "cleaning": {"status": "pass", "evidence": "where/drop_duplicates/missing_values 由 spec 固化"},
+    "statistics": {"status": "pass", "evidence": "均值、SD/SEM 来自源行复算"},
+    "chart_selection": {"status": "pass", "evidence": "recommend 命令"},
+    "encoding": {"status": "pass", "evidence": "轴、图例、颜色和形状映射由 audit 重绘"},
+    "annotation": {"status": "pass", "evidence": "运行时 caption"},
+    "readability": {"status": "issues", "evidence": "此静态结构示例未附真实图件，不能宣称可读性通过"},
+    "export": {"status": "not_checked", "reason": "此 JSON 只演示合同；运行 render 后才核验真实 PNG DPI/SVG"}
+  },
+  "unchecked": ["静态示例的占位图件路径不能用于正式交付；正式结果须 audit 全绿"],
+  "sources": [{"path": "sample_data.csv", "sha256": "ac7321ad37f92043f7c17c140b37ddebe28485160dbe60c5dfcec1c4be8f767e"}],
+  "uncertainty": ["这是合成最小结构示例，不是正式案例答案、榜单成绩或实际渲染产物。"],
+  "change_log": ["v2.0.0：从错配数据库题完全改写为数据可视化结果契约。"]
+}

@@ -1,97 +1,96 @@
 {
- "case_id": "case-001",
- "status": "issues",
- "research_goal": {
-  "objective": "测药物A对某细胞增殖的影响",
-  "hypothesis": "药物A在10-100 μM范围内剂量依赖抑制细胞增殖",
-  "constraints": [
-   "预算5万",
-   "4周内完成"
-  ]
- },
- "variables": [
-  {
-   "id": "V1",
-   "name": "药物A浓度",
-   "type": "independent",
-   "operational_definition": "培养液中药物A终浓度(μM)",
-   "unit": "μM",
-   "range": "0/10/30/100"
+  "example_only": true,
+  "case_id": "feasibility-demo",
+  "status": "issues",
+  "plan_version": "plan-v1",
+  "result_schema_version": "feasibility-result-3.0.0",
+  "tool_version": "feasibility-exp-tool-3.0.0",
+  "input_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "permissions_digest": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+  "research_goal": {
+    "objective": "比较温度对示例酶反应收率的影响",
+    "hypothesis": "50 C 相比 40 C 使收率提高至少 10%",
+    "constraints": ["72 h 内", "预算 1000 CNY"]
   },
-  {
-   "id": "V2",
-   "name": "细胞存活率",
-   "type": "dependent",
-   "operational_definition": "CCK-8 吸光度归一化到空白组",
-   "unit": "%",
-   "range": "0-100"
-  }
- ],
- "controls": [
-  {
-   "id": "C1",
-   "type": "negative",
-   "purpose": "空白对照组",
-   "confounder_excluded": "溶剂DMSO效应"
+  "variables": [
+    {"id": "V1", "name": "temperature", "type": "independent", "operational_definition": "反应器设定温度", "unit": "C", "range": "40-60"},
+    {"id": "V2", "name": "yield", "type": "dependent", "operational_definition": "产物质量除以理论产物质量", "unit": "%", "range": "0-100"}
+  ],
+  "controls": [
+    {"id": "C1", "type": "negative", "purpose": "无酶背景", "confounder_excluded": "非酶促反应"}
+  ],
+  "steps": [
+    {"id": "S1", "action": "平衡与加样", "equipment": "T-80", "material": "M-1", "duration": "4 h", "parameter_range": "50 C"},
+    {"id": "S2", "action": "反应与检测", "equipment": "T-80", "material": "M-1", "duration": "12 h", "parameter_range": "50 C"}
+  ],
+  "resources": {
+    "equipment": [
+      {"id": "EQ-1", "requirement": "控温反应", "model": "T-80", "precision": 0.1, "unit": "C", "required_accessories": [], "inventory_ref": "EQ-1", "availability": "available", "evidence": [{"source_id": "input", "location": "#/inventory/equipment/0/model", "quote": "T-80", "sha256": "89470b942a482113c514af106f8948a1fcbf8dbaaa81e759520747366d5e195a"}]}
+    ],
+    "materials": [
+      {"id": "M-1", "required_qty": 10, "available_qty": 0, "unit": "mL", "lead_time_hours": 24, "availability": "purchase", "evidence": [{"source_id": "input", "location": "#/inventory/material/required_qty", "quote": "10", "sha256": "89470b942a482113c514af106f8948a1fcbf8dbaaa81e759520747366d5e195a"}]}
+    ],
+    "sample": {"required": 6, "available": 8, "unit": "vial", "source": "示例样本库 S-1", "storage": "-20 C", "availability": "available", "ethics_ref": "DEMO-E-1"},
+    "cost_estimate": {
+      "currency": "CNY", "line_items": [
+        {"id": "COST-1", "quantity": 2, "unit_cost": 100, "subtotal": 200},
+        {"id": "COST-2", "quantity": 1, "unit_cost": 50, "subtotal": 50}
+      ], "total": 250, "budget": 1000, "within_budget": true
+    },
+    "time_estimate": {
+      "steps": [
+        {"id": "S1", "equipment_hours": 2, "labor_hours": 3, "wait_hours": 1, "turnaround_hours": 0, "duration_hours": 4, "parallel_group": "G1"},
+        {"id": "S2", "equipment_hours": 4, "labor_hours": 2, "wait_hours": 0, "turnaround_hours": 8, "duration_hours": 12, "parallel_group": "G2"}
+      ],
+      "elapsed_hours": 40, "deadline_hours": 72, "within_deadline": true
+    },
+    "ethics": {"status": "approved", "approval_id": "DEMO-E-1"},
+    "safety": {"status": "approved", "approval_id": "DEMO-S-1"}
   },
-  {
-   "id": "C2",
-   "type": "positive",
-   "purpose": "已知抑制剂的阳性对照",
-   "confounder_excluded": "实验体系是否响应"
-  }
- ],
- "steps": [
-  {
-   "id": "S1",
-   "action": "铺板",
-   "equipment": "96孔板",
-   "material": "细胞悬液",
-   "duration": "0.5h",
-   "parameter_range": "5000细胞/孔"
-  }
- ],
- "resources": {
-  "equipment": [
-   "酶标仪"
+  "parameters": [
+    {"name": "temperature", "value": 50, "unit": "C", "derived_min": 20, "derived_max": 60, "evidence": [{"source_id": "input", "location": "#/plan/temperature", "quote": "50", "sha256": "89470b942a482113c514af106f8948a1fcbf8dbaaa81e759520747366d5e195a"}]}
   ],
-  "materials": [
-   "CCK-8"
+  "risks": [
+    {"id": "R1", "failure_mode": "parameter_out_of_range", "trigger": "设定值不在 20-60 C", "consequence": "材料或设备超限", "mitigation": "取消该点并回到交集内选点", "stop_rule": "无可行交集则停止并转人工"}
   ],
-  "sample": "细胞株X",
-  "time_estimate": "2周",
-  "cost_estimate": "约1.2万"
- },
- "risks": [
-  {
-   "id": "R1",
-   "failure_mode": "无信号(细胞未贴壁)",
-   "trigger": "吸光度<0.1",
-   "consequence": "数据不可用",
-   "mitigation": "复孔+重复三次",
-   "stop_rule": "重复仍无信号则查细胞状态"
-  }
- ],
- "judgments": [
-  {
-   "id": "J1",
-   "claim": "选CCK-8测增殖",
-   "evidence": "文献常用且线性范围匹配",
-   "source": "文献[1]",
-   "confidence": "high"
-  }
- ],
- "expert_confirmation": [
-  "药物A溶解度需实验员确认"
- ],
- "unchecked": [],
- "sources": [
-  "文献[1]"
- ],
- "uncertainty": [
-  "剂量上限未覆盖临床浓度"
- ],
- "change_log": [
-  "初版方案生成"
- ]
+  "judgments": [
+    {"id": "J1", "claim": "50 C 落在设备与材料交集内", "evidence": [{"source_id": "input", "location": "#/plan/temperature", "quote": "50", "sha256": "89470b942a482113c514af106f8948a1fcbf8dbaaa81e759520747366d5e195a"}], "confidence": "high"}
+  ],
+  "feasibility": {
+    "overall": "conditionally_feasible",
+    "conditions": ["采购 M-1 到货后方可启动；预计采购等待 24 h"],
+    "checks": [
+      {"check_id": "K1", "category": "假设与变量", "status": "pass", "target": "#/plan/hypothesis", "conclusion": "假设含比较方向和阈值", "evidence": [{"source_id": "input", "location": "#/plan/hypothesis", "quote": "50 C 相比 40 C 使收率提高至少 10%", "sha256": "89470b942a482113c514af106f8948a1fcbf8dbaaa81e759520747366d5e195a"}]},
+      {"check_id": "K2", "category": "对照组", "status": "pass", "target": "#/plan/hypothesis", "conclusion": "40 C 比较组可排除温度外差异", "evidence": [{"source_id": "input", "location": "#/plan/hypothesis", "quote": "50 C 相比 40 C 使收率提高至少 10%", "sha256": "89470b942a482113c514af106f8948a1fcbf8dbaaa81e759520747366d5e195a"}]},
+      {"check_id": "K3", "category": "设备材料", "status": "conditional", "target": "#/inventory/material", "conditions": ["M-1 到货并核对批次"], "conclusion": "设备到位，材料需采购", "evidence": [{"source_id": "input", "location": "#/inventory/material/required_qty", "quote": "10", "sha256": "89470b942a482113c514af106f8948a1fcbf8dbaaa81e759520747366d5e195a"}]},
+      {"check_id": "K4", "category": "时间成本", "status": "pass", "target": "#/constraints", "conclusion": "40 h 不超过 72 h；250 不超过 1000 CNY", "evidence": [{"source_id": "input", "location": "#/constraints/deadline_hours", "quote": "72", "sha256": "89470b942a482113c514af106f8948a1fcbf8dbaaa81e759520747366d5e195a"}]},
+      {"check_id": "K5", "category": "参数范围", "status": "pass", "target": "#/plan/temperature", "conclusion": "设备与材料交集为 20-60 C，推荐 50 C", "evidence": [{"source_id": "input", "location": "#/plan/temperature", "quote": "50", "sha256": "89470b942a482113c514af106f8948a1fcbf8dbaaa81e759520747366d5e195a"}]},
+      {"check_id": "K6", "category": "风险与异常", "status": "pass", "target": "#/plan/temperature", "conclusion": "越界有取消点和停机转人工动作", "evidence": [{"source_id": "input", "location": "#/plan/temperature", "quote": "50", "sha256": "89470b942a482113c514af106f8948a1fcbf8dbaaa81e759520747366d5e195a"}]},
+      {"check_id": "K7", "category": "伦理与安全", "status": "pass", "target": "#/ethics/status", "conclusion": "示例审批状态为 approved；正式任务仍需核验原表单", "evidence": [{"source_id": "input", "location": "#/ethics/status", "quote": "approved", "sha256": "89470b942a482113c514af106f8948a1fcbf8dbaaa81e759520747366d5e195a"}]}
+    ]
+  },
+  "exception_register": [
+    {"code": "plan_missing_pages", "signal": "目录页码不连续或引用页缺失", "action": "受影响检查标 not_checked 并索取缺页", "disposition": "downgrade", "owner": "方案负责人", "linked_checks": ["假设与变量"]},
+    {"code": "missing_parameters", "signal": "参数缺 value/unit/min/max", "action": "参数检查标 not_checked，禁止当作满足", "disposition": "label", "owner": "实验负责人", "linked_checks": ["参数范围"]},
+    {"code": "unknown_equipment", "signal": "型号、精度或附件无法匹配清单", "action": "设备四态改 not_checked 并发人工核验", "disposition": "manual", "owner": "设备管理员", "linked_checks": ["设备材料"]},
+    {"code": "ethics_undetermined", "signal": "审批号缺失或状态 pending", "action": "总体降级 partial，审批前不得启动相关步骤", "disposition": "stop", "owner": "伦理联系人", "linked_checks": ["伦理与安全"]},
+    {"code": "internal_contradiction", "signal": "同一参数或版本在两处不一致", "action": "列出两处定位，冻结结论并交版本负责人", "disposition": "manual", "owner": "版本负责人", "linked_checks": ["参数范围"]},
+    {"code": "oversized_document", "signal": "分页/哈希清单存在未处理分块", "action": "保留已核验部分，未处理页标 not_checked", "disposition": "downgrade", "owner": "审查人", "linked_checks": ["假设与变量"]},
+    {"code": "device_failure", "signal": "设备状态 fault 或校准过期", "action": "改 unavailable，评估外协；无替代则停止", "disposition": "downgrade", "owner": "设备管理员", "linked_checks": ["设备材料"]},
+    {"code": "material_batch_variation", "signal": "货号相同但批次/COA 关键规格改变", "action": "隔离新批次并重核参数交集", "disposition": "manual", "owner": "试剂管理员", "linked_checks": ["设备材料", "参数范围"]},
+    {"code": "insufficient_sample", "signal": "available 减 required 小于零", "action": "标 infeasible，减少点须重新审批统计功效", "disposition": "manual", "owner": "样本负责人", "linked_checks": ["时间成本"]},
+    {"code": "parameter_out_of_range", "signal": "推荐值不在反推交集或不满足步进", "action": "剔除推荐点；交集为空则停止并交人工", "disposition": "stop", "owner": "实验负责人", "linked_checks": ["参数范围", "风险与异常"]}
+  ],
+  "expert_confirmation": ["材料新批次 COA", "正式伦理与安全批件"],
+  "gain": {
+    "status": "not_run", "reason": "示例不冒充平台基础 Agent 对照；正式运行须提供同输入基线或诚实标 not_run",
+    "design": {"same_case_id": "feasibility-demo", "same_input_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "same_permissions": true, "repetitions": 3},
+    "quality": {}, "efficiency": {}
+  },
+  "unchecked": [],
+  "sources": [
+    {"source_id": "input", "version": "example-v1", "path": "example_input.json", "sha256": "89470b942a482113c514af106f8948a1fcbf8dbaaa81e759520747366d5e195a"}
+  ],
+  "uncertainty": ["示例仅演示接口，不代表正式实验安全批准"],
+  "change_log": [{"from": null, "to": "plan-v1", "reason": "最小示例"}]
 }

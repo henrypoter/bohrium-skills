@@ -1,92 +1,123 @@
 ---
 name: feasibility-review
-description: 实验方案可行性评估：六要素齐备、参数逐项核对设备量程、风险带触发与止损、方案可版本化复核
+description: 对版本化实验方案做七类可行性审查；机检设备材料四态、样本/预算/排期算术、参数量程交集、十类异常绑定及原文SHA-256定位。
 ---
 
 # 实验方案可行性评估
 
-把研究目标转成**能排期、能执行、能被同行评审**的方案：假设可检验、变量可测、对照能排除混杂、参数在设备允许范围内、风险有预案。
+## 何时使用 / 边界
 
-不适用：替代实验人员承担安全与伦理审查、替代统计分析、代写论文。
+读取实际 `/input/case.json`、`/input/task.md` 及随案方案、设备清单、采购/预约、SOP、审批材料，对**每一个输入方案版本**审查：假设与变量、对照组、设备材料、时间成本、参数范围、风险与异常、伦理与安全。适用于组织方声明的 prospective planning scenario；不把示例价格、预约、审批或未来标签当作真实实验室事实。
 
-## 调用
+不代替伦理委员会、安全负责人、设备管理员作批准，不执行实验、不做文献综述或统计分析。未提供的信息写 `not_checked + reason`，绝不默认满足；至少先写一份诚实的 `/app/output/result.json`，再增量补充。无第三方依赖，仅需 Python 3.8+ 标准库。
 
-- 输入：`/input/case.json`、`/input/task.md`、设备/材料清单与约束
-- 输出：`/app/output/result.json` + 方案正文
-- 工具：`scripts/exp_tool.py`（`check` / `params` / `schema`）
-- 模板：`templates/plan_spec.md`（六要素检查表 + 参数表 + 风险矩阵）
+## 输入、输出与版本
 
-## 工作流
+- 输入标识：原样保留 `case_id`；`plan_version` 区分方案版本，不能覆盖历史版本。
+- 结果版本：固定 `result_schema_version=feasibility-result-3.0.0` 与 `tool_version=feasibility-exp-tool-3.0.0`。
+- 输入指纹：`input_digest`、`permissions_digest` 均为实际输入/权限清单规范化 JSON 的 SHA-256（64 位小写 hex）。
+- 输出：`/app/output/result.json`，保留原 `output_contract` 字段，并增加七类 `feasibility.checks`、`exception_register`、`sources`、`gain`。可另写审查表，但不得用正文替代 JSON。
+- 每条实质判断的 `evidence[]` 必须有 `source_id / location / quote / sha256`。`sources[]` 登记 `source_id / version / path / sha256`。JSON 定位用 `#/a/b/0`，字符串逐字一致，非字符串用紧凑排序 JSON；文本引用必须是源文本逐字子串。PDF 可登记实际页码定位，并用真实提取文本 `text_path` 验引文；不得从文件名猜内容。
 
-### 0. 目标 → 可检验假设
-写 `research_goal.hypothesis`：**可被数据推翻**的陈述（含方向、比较对象、阈或范围）。"研究 X 的机制"不是假设；"X 在 A 条件下使 Y 上升 ≥20%"才是。
+## 执行闭环
 
-### 1. 变量：给操作定义，不给名词
-每个变量必须有 `operational_definition`（怎么测）、`unit`、`range`，并标 `type`（independent/dependent/confounder）。混杂因素要单独列出，不要藏在自变量里。
-
-### 2. 对照：说明排除哪类混杂
-每个对照写 `confounder_excluded`。没有"排除什么"的对照等于没设对照。
-
-### 3. 步骤 / 设备 / 材料 / 时间
-步骤绑定设备型号与耗材规格；写清 `time_estimate`（可分步时长与并行关系）与成本估算。**可替代与不可替代项要标出来**（试剂缺货时的替代路径）。
-
-### 4. 参数：逐项核对量程，不只看"看起来合理"
-写 `parameters`：`name / value / unit / min / max`。然后用设备与材料限值核验：
 ```bash
-python3 scripts/exp_tool.py params result.json --spec limits.json
-```
-`limits.json` 里放设备手册/材料耐温/安全阈值。脚本会抓三类问题：**超出上限、单位不一致、spec 未声明限值（须补来源）**。参数依据注明来自设备手册/预实验/文献。
-
-### 5. 风险与异常：三件套缺一不可
-每个风险必须有 `trigger`（什么信号触发）、`mitigation`（怎么救）、`stop_rule`（何时止损）。只写"注意安全"不算。
-
-### 6. 六要素自检
-```bash
-python3 scripts/exp_tool.py check result.json
-```
-输出 `missing_elements` 与逐项错误（假设缺失、变量缺操作定义/单位、对照未说明混杂、风险三件套缺项、判断缺证据来源、参数越自述区间）。全部清零再接下一步。
-
-### 7. 增益对照
-同目标、同资源约束，基础 Agent vs 本 Skill 各跑一次，报：六要素完整度、需人工修改条目数、评审返工轮次。
-
-### 8. 异常处置
-| 异常 | 动作 |
-|-|-|
-| 无设备参数/预算 | 该要素标 `unknown` 并给出"需确认清单"，**不编造型号与价格** |
-| 约束冲突（时间窗 vs 样本量） | 列出冲突双方与取舍空间，给两个可行方案供选择，不悄悄牺牲一方 |
-| 依赖不可用（试剂缺货/设备排期满） | 给替代路径与预计影响，标为 `blocked` 而非"已完成" |
-| 参数无可行解 | 说明冲突的参数对与放宽方向，转人工决策 |
-| 生成内容不确定 | 写明哪些是文献依据、哪些是经验推断，标 `confidence` |
-| 安全/伦理未明确 | 单列进 `expert_confirmation`，不自行放行 |
-
-### 9. 诚实输出
-```bash
-python3 scripts/exp_tool.py schema /app/output/result.json
+SKILL_DIR=/skills/weekly-skill
+R=/app/output/result.json
+python3 "$SKILL_DIR/scripts/exp_tool.py" audit "$R"
+python3 "$SKILL_DIR/scripts/exp_tool.py" resources "$R"
+python3 "$SKILL_DIR/scripts/exp_tool.py" params "$R" --spec /app/work/limits.json
+python3 "$SKILL_DIR/scripts/exp_tool.py" verify "$R" --source-root /app/work/source_snapshot
+python3 "$SKILL_DIR/scripts/exp_tool.py" schema "$R"
 ```
 
-## result.json 契约
+所有机检通过才可声明 `status=pass`。有超支、超时、缺样、越界或未决审批时不得放行；有缺材料但审查过程完整可以是 `issues`，有未检查项必须 `partial`，工具未跑通则 `failed/partial` 并记录真实错误。
+
+### 1. 建立可复核的七类检查
+
+每类必须且只有一次：`check_id / category / status / target / conclusion / evidence`。状态为 `pass|fail|conditional|not_checked`；`not_checked` 必须有 `reason`，`conditional` 必须有可执行 `conditions`。`target` 精确到章节、参数或清单行。
+
+1. **假设与变量**：目标是否可证伪；变量写操作定义、类型、单位、范围；缺失不是“满足”。
+2. **对照组**：逐组写 `confounder_excluded`，核对能否排除目标混杂。
+3. **设备材料**：型号、量程、精度、附件、耗材规格逐项对齐；每项状态只用 `available / outsource / purchase / unavailable`，未知用 `not_checked` 并说明原因。
+4. **时间成本**：拆设备占用、人工、等待、检测周转、采购等待和并行组，核对样本来源/数量/保存与预算。
+5. **参数范围**：设备、材料、安全多源限制取交集；推荐值、反推上下限、步进、单位与互斥均可重算。
+6. **风险与异常**：触发信号、降级/替代动作、止损点与转人工负责人；绑定到检查类别。
+7. **伦理与安全**：动物、人体样本、危险试剂、个人数据逐项核对；`pending/not_checked` 必须有动作且不能自行放行。
+
+`feasibility.overall` 只允许 `feasible / conditionally_feasible / infeasible / partial`。“有条件可行”必须把每项条件写成责任人可执行的交付物，例如“M-1 到货并核对 COA 后启动 S2”，不能只写“建议进一步确认”。
+
+### 2. 资源、时间、预算与样本真算
+
+`resources` 命令机检：
+
+- 设备四态和可用设备的型号/精度/附件；材料需求量、库存、采购货期；样本 `required/available/unit/source/storage`。
+- 成本逐行 `subtotal=quantity*unit_cost`，`total=Σsubtotal`，并核对 `within_budget`；单位与币种必须显式。
+- 单步 `duration=max(equipment_hours,labor_hours)+wait_hours+turnaround_hours`；同一 `parallel_group` 取最长，各组求和；采购步骤前置等待取所有 `purchase` 材料最长 `lead_time_hours`。`elapsed_hours=采购最长等待+Σ并行组关键路径`。
+- 样本缺口、预算余额、工期余量从输入重算；算术失败给具体字段定位，不用“大致合理”。
+
+### 3. 参数量程反推
+
+`/app/work/limits.json` 只从实际设备手册、材料规格、安全阈值提取，同名参数可用数组放多条约束：
+
+```json
+{"limits":{"temperature":[
+  {"min":0,"max":80,"step":10,"unit":"C","source":"设备清单#/limits/temperature"},
+  {"min":20,"max":60,"step":10,"unit":"C","source":"材料清单#/thermal_limit"}
+]}}
+```
+
+对应结果参数写 `name/value/unit/derived_min/derived_max/evidence`。脚本计算 `max(all min)` 与 `min(all max)`，核对推荐值和 `(value-min)%step==0`；缺来源、单位不一致、空交集、互斥和 NaN 均拒绝。它只做确定性算术，不推断未给出的单位换算或安全阈值。
+
+### 4. 异常处置与绑定（逐条必填）
+
+`exception_register` 每条必须有 `code / signal / action / disposition / owner / linked_checks`。`disposition` 只用 `downgrade|label|manual|stop`；`linked_checks` 绑定上述七类之一或多项。
+
+| code / 题面失败情形 | 识别信号 | 具体动作与绑定 |
+|-|-|-|
+| `plan_missing_pages` 方案缺页 | 页码断档、引用页不存在 | 受影响检查 `not_checked`，索取缺页，降级总体；绑定假设与变量 |
+| `missing_parameters` 参数缺失 | 缺 value/unit/min/max | 参数标 `not_checked`，禁止判满足；绑定参数范围 |
+| `unknown_equipment` 设备信息不明 | 型号/精度/附件无法对清单 | 设备改 `not_checked`，交设备管理员；绑定设备材料 |
+| `ethics_undetermined` 伦理状态未定 | 审批号缺失或 pending | 停止相关步骤，总体降级并列审批材料；绑定伦理与安全 |
+| `internal_contradiction` 方案自相矛盾 | 同版本同参数两处冲突 | 列出两处定位，冻结结论，交版本负责人；绑定参数范围 |
+| `oversized_document` 超长文档 | 分块清单有未处理页/哈希 | 保留已核验部分，其余标 `not_checked`；绑定假设与变量 |
+| `device_failure` 设备故障 | fault、校准过期或不可用 | 改 `unavailable`，核外协；无替代停止；绑定设备材料 |
+| `material_batch_variation` 材料批次差异 | 批次/COA 规格改变 | 隔离新批次，重算量程交集，交试剂负责人；绑定设备材料+参数范围 |
+| `insufficient_sample` 样本量不足 | `available-required<0` | 判条件不满足，扩样或重审设计；不得擅自减样本；绑定时间成本 |
+| `parameter_out_of_range` 参数越界 | 不在交集或不满足步进 | 剔除点；空交集停止并转人工；绑定参数范围+风险与异常 |
+
+### 5. 同输入基础 Agent 对照
+
+平台不提供基线文件时，`gain.status=not_run` 并写原因，质量/效率值为空，**不编分数**。有同权限基线时：
+
+```bash
+python3 "$SKILL_DIR/scripts/exp_tool.py" gain /app/work/baseline_result.json "$R" --out /app/output/result_with_gain.json
+```
+
+命令强制 `case_id/input_digest/permissions_digest` 相同，否则非零退出。`gain.design` 记录同输入、同权限、同七类口径和重复次数；`quality` 实测七类检查覆盖数、带定位判断数、十类异常覆盖数；`efficiency` 仅在双方 `telemetry` 真有同一计时口径时记录 runtime、返工轮次、补材料轮次，否则 `not_measured`。单次pair记`repetitions=1`，三次重复需分别保存三份真实记录，不能复制成三次。
+
+## 输出骨架（在原有 output_contract 上扩展）
 
 ```json
 {
-  "case_id": "", "status": "pass|issues|partial|failed", "plan_version": "plan-v1.0",
-  "research_goal": {"objective": "", "hypothesis": "", "constraints": []},
-  "variables": [{"id": "V1", "name": "", "type": "independent|dependent|confounder",
-                 "operational_definition": "", "unit": "", "range": ""}],
-  "controls": [{"id": "C1", "type": "blank|positive|negative|gradient", "purpose": "",
-                "confounder_excluded": ""}],
-  "steps": [{"id": "S1", "action": "", "equipment": "", "material": "", "duration": "", "parameter_range": ""}],
-  "resources": {"equipment": [], "materials": [], "sample": "", "time_estimate": "", "cost_estimate": ""},
-  "parameters": [{"name": "temperature", "value": 75, "unit": "C", "min": 20, "max": 90, "source": "设备手册 p12"}],
-  "risks": [{"id": "R1", "failure_mode": "", "trigger": "", "consequence": "", "mitigation": "", "stop_rule": ""}],
-  "judgments": [{"id": "J1", "claim": "", "evidence": "", "source": "", "confidence": ""}],
-  "expert_confirmation": [],
-  "gain": {"baseline_completeness": null, "skill_completeness": null, "rework_rounds_saved": null},
-  "unchecked": [], "sources": [], "uncertainty": [], "change_log": []
+  "case_id":"", "status":"partial", "plan_version":"plan-v1",
+  "result_schema_version":"feasibility-result-3.0.0", "tool_version":"feasibility-exp-tool-3.0.0",
+  "input_digest":"64-hex", "permissions_digest":"64-hex",
+  "research_goal":{}, "variables":[], "controls":[], "steps":[], "resources":{}, "parameters":[],
+  "risks":[], "judgments":[], "expert_confirmation":[], "unchecked":[],
+  "sources":[], "uncertainty":[], "change_log":[],
+  "feasibility":{"overall":"partial","conditions":[],"checks":[]},
+  "exception_register":[],
+  "gain":{"status":"not_run","reason":"","design":{"same_case_id":"","same_input_digest":"","same_permissions":true,"repetitions":1},"quality":{},"efficiency":{}}
 }
 ```
 
-## 底线
-假设可检验、对照说明排除什么、参数不越量程、风险有止损点、需专家确认的单列。缺设备/预算就写 unknown，不编造。
+完整**合成最小示例而非正式答案**见 `bench/fixtures/good_result.json`，输入见 `example_input.json`；模板见 `templates/plan_spec.md`，命令细节见 `docs/README.md`。
 
-## 本课题聚焦
-本题聚焦**可行性与资源核验**：设备型号/精度/附件与现有条件比对（已具备/可外协/需采购/不具备四态）、耗材货期、样本量与来源、伦理审批级别与时长。审查意见要落到方案的具体章节与清单行，「有条件可行」必须写清是哪些条件。
+## 自检与适用限制
+
+```bash
+python3 /skills/weekly-skill/bench/bench_run.py
+```
+
+bench 对每个命令执行正向零误杀和变异必命中，包括哈希/引文篡改、超支、错排期、样本不足、空交集、步进、NaN、不公平对照。脚本证明确定性检查行为，不证明科学方案天然正确；连续参数、复杂资源日历、非线性能耗、缺失传感器数据需要专家或专用系统复核。离线环境不声称查到了实时库存、价格或审批状态。

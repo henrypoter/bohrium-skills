@@ -1,0 +1,744 @@
+{
+  "artifacts": [
+    {
+      "media_type": "text/markdown",
+      "path": "review.md",
+      "sha256": "6ace966847eff1d8225b98c4900a5eca04c30181803ffd5add03c0e4e2964a77"
+    },
+    {
+      "media_type": "application/json",
+      "path": "evidence_table.json",
+      "sha256": "657f218d75e6761f42221a726c55c8bdc62ec628d0829a88ce2383468a57adde"
+    }
+  ],
+  "case_id": "synthetic-minimal-v1",
+  "change_log": [
+    {
+      "actor": "adjudicator",
+      "at": "2026-01-01T10:08:00Z",
+      "field": "decisions.R2",
+      "new": "D5 exclude E-POP",
+      "old": "D3/D4 disagreement",
+      "reason": "预注册人群排除条款优先"
+    }
+  ],
+  "claims": [
+    {
+      "citations": [
+        {
+          "location": {
+            "page": 2,
+            "paragraph": 3,
+            "sentence": 1
+          },
+          "quote": "At 4 weeks, the mean recovery score was 8.2 in the Alpha group and 6.1 in the control group.",
+          "quote_sha256": "6ea3b1c7250921edc306430bcd00d871204e6d0afb246657ed63d1ff7f574a76",
+          "record_id": "R1",
+          "source_sha256": "cb3962ea5975f5863397027382a053e35969de9ca2da919e5c8acf8c4e5aec65",
+          "support": "direct"
+        }
+      ],
+      "id": "C1",
+      "kind": "material_fact",
+      "text": "在这项合成随机试验中，Alpha 组4周平均恢复评分为8.2，对照组为6.1。",
+      "theme": "T1"
+    },
+    {
+      "citations": [],
+      "id": "C2",
+      "inference_rationale": "由组间评分事实推测短期获益，并受单研究与报告偏倚约束，不扩展到长期或其他人群。",
+      "kind": "inference",
+      "text": "仅就这项小型合成试验，Alpha 可能改善成人短期恢复；结果报告变更限制了确定性。",
+      "theme": "T1"
+    }
+  ],
+  "conflict_assessment": {
+    "note": "仅一篇纳入研究，研究间一致性不可判断。",
+    "status": "not_checked"
+  },
+  "conflicts": [],
+  "counts": {
+    "duplicates": 1,
+    "excluded": 2,
+    "included": 1,
+    "records_raw": 4,
+    "records_unique": 3,
+    "undecided": 0
+  },
+  "decisions": [
+    {
+      "criterion_ids": [
+        "I-POP",
+        "I-DESIGN"
+      ],
+      "decided_at": "2026-01-01T10:05:00Z",
+      "decision": "include",
+      "evidence": {
+        "location": {
+          "page": 1,
+          "paragraph": 1,
+          "sentence": 1
+        },
+        "quote": "In this randomized trial, 42 adults received Alpha or control.",
+        "quote_sha256": "0816e132a812883b09a6d9155030bb27dbe291ad61d0aef7a81ef39ed6eb0772",
+        "record_id": "R1",
+        "source_sha256": "cb3962ea5975f5863397027382a053e35969de9ca2da919e5c8acf8c4e5aec65",
+        "support": "direct"
+      },
+      "id": "D1",
+      "protocol_version": "P1",
+      "reason_codes": [
+        "I-POP",
+        "I-DESIGN"
+      ],
+      "record_id": "R1",
+      "reviewer": "reviewer-a",
+      "stage": "title_abstract"
+    },
+    {
+      "criterion_ids": [
+        "I-POP",
+        "I-DESIGN"
+      ],
+      "decided_at": "2026-01-01T10:06:00Z",
+      "decision": "include",
+      "evidence": {
+        "location": {
+          "page": 1,
+          "paragraph": 1,
+          "sentence": 1
+        },
+        "quote": "In this randomized trial, 42 adults received Alpha or control.",
+        "quote_sha256": "0816e132a812883b09a6d9155030bb27dbe291ad61d0aef7a81ef39ed6eb0772",
+        "record_id": "R1",
+        "source_sha256": "cb3962ea5975f5863397027382a053e35969de9ca2da919e5c8acf8c4e5aec65",
+        "support": "direct"
+      },
+      "id": "D2",
+      "protocol_version": "P1",
+      "reason_codes": [
+        "I-POP",
+        "I-DESIGN"
+      ],
+      "record_id": "R1",
+      "reviewer": "reviewer-a",
+      "stage": "full_text"
+    },
+    {
+      "criterion_ids": [
+        "E-POP"
+      ],
+      "decided_at": "2026-01-01T10:07:00Z",
+      "decision": "exclude",
+      "evidence": {
+        "location": {
+          "page": 1,
+          "paragraph": 2,
+          "sentence": 1
+        },
+        "quote": "Participants were 12-17 years old and were randomized to Alpha or control.",
+        "quote_sha256": "c883e8a442bbfbd8e0bd4c98d37fd883188691093bdd221f9df5f859432135bf",
+        "record_id": "R2",
+        "source_sha256": "6731b946038c37dc98101219ab90eead81caf0e5ebb8adadacf68fa99d53c328",
+        "support": "direct"
+      },
+      "id": "D3",
+      "protocol_version": "P1",
+      "reason_codes": [],
+      "record_id": "R2",
+      "reviewer": "reviewer-a",
+      "stage": "title_abstract"
+    },
+    {
+      "criterion_ids": [
+        "I-DESIGN"
+      ],
+      "decided_at": "2026-01-01T10:07:30Z",
+      "decision": "include",
+      "evidence": {
+        "location": {
+          "page": 1,
+          "paragraph": 2,
+          "sentence": 1
+        },
+        "quote": "Participants were 12-17 years old and were randomized to Alpha or control.",
+        "quote_sha256": "c883e8a442bbfbd8e0bd4c98d37fd883188691093bdd221f9df5f859432135bf",
+        "record_id": "R2",
+        "source_sha256": "6731b946038c37dc98101219ab90eead81caf0e5ebb8adadacf68fa99d53c328",
+        "support": "direct"
+      },
+      "id": "D4",
+      "protocol_version": "P1",
+      "reason_codes": [
+        "I-DESIGN"
+      ],
+      "record_id": "R2",
+      "reviewer": "reviewer-b",
+      "stage": "title_abstract"
+    },
+    {
+      "adjudicates": [
+        "D3",
+        "D4"
+      ],
+      "criterion_ids": [
+        "E-POP"
+      ],
+      "decided_at": "2026-01-01T10:08:00Z",
+      "decision": "exclude",
+      "evidence": {
+        "location": {
+          "page": 1,
+          "paragraph": 2,
+          "sentence": 1
+        },
+        "quote": "Participants were 12-17 years old and were randomized to Alpha or control.",
+        "quote_sha256": "c883e8a442bbfbd8e0bd4c98d37fd883188691093bdd221f9df5f859432135bf",
+        "record_id": "R2",
+        "source_sha256": "6731b946038c37dc98101219ab90eead81caf0e5ebb8adadacf68fa99d53c328",
+        "support": "direct"
+      },
+      "id": "D5",
+      "protocol_version": "P1",
+      "reason_codes": [
+        "E-POP"
+      ],
+      "record_id": "R2",
+      "resolves_disagreement": true,
+      "reviewer": "adjudicator",
+      "stage": "title_abstract"
+    },
+    {
+      "criterion_ids": [
+        "DEDUP"
+      ],
+      "decided_at": "2026-01-01T10:04:00Z",
+      "decision": "exclude",
+      "evidence": {
+        "location": {
+          "page": 1,
+          "paragraph": 1,
+          "sentence": 1
+        },
+        "quote": "Alpha intervention improves recovery in adults: a randomized trial",
+        "quote_sha256": "ef5553c413e3dc8809d6e843bb7c9aa921f78f468b86a6e842d8e8afc2c8edea",
+        "record_id": "R3",
+        "source_sha256": "cb3962ea5975f5863397027382a053e35969de9ca2da919e5c8acf8c4e5aec65",
+        "support": "direct"
+      },
+      "id": "D6",
+      "protocol_version": "P1",
+      "reason_codes": [
+        "DUP"
+      ],
+      "record_id": "R3",
+      "reviewer": "reviewer-a",
+      "stage": "dedup"
+    },
+    {
+      "criterion_ids": [
+        "E-DESIGN"
+      ],
+      "decided_at": "2026-01-01T10:09:00Z",
+      "decision": "exclude",
+      "evidence": {
+        "location": {
+          "page": 1,
+          "paragraph": 2,
+          "sentence": 1
+        },
+        "quote": "This single-arm case series followed 20 adults for 52 weeks without a randomized control group.",
+        "quote_sha256": "b774fae827eb5acf28c594416c3c6de0ee685d1f2e1d56a67efe7f7c97092a90",
+        "record_id": "R4",
+        "source_sha256": "74c88ded22a93a4e7c0f407ef78db5bb9135a42ac30fee963da50d71624e4c15",
+        "support": "direct"
+      },
+      "id": "D7",
+      "protocol_version": "P1",
+      "reason_codes": [
+        "E-DESIGN"
+      ],
+      "record_id": "R4",
+      "reviewer": "reviewer-a",
+      "stage": "title_abstract"
+    }
+  ],
+  "duplicates": [
+    {
+      "duplicate_ids": [
+        "R3"
+      ],
+      "evidence": [
+        {
+          "field": "doi",
+          "record_id": "R1",
+          "value": "10.0000/synthetic.r1"
+        },
+        {
+          "field": "doi",
+          "record_id": "R3",
+          "value": "10.0000/synthetic.r1"
+        }
+      ],
+      "match_basis": {
+        "method": "doi",
+        "normalized_value": "10.0000/synthetic.r1"
+      },
+      "survivor_id": "R1"
+    }
+  ],
+  "exceptions": [
+    {
+      "action": "将二者以 OR 纳入 Q1，保留检索式原文",
+      "affected_ids": [
+        "Q1"
+      ],
+      "disposition": "术语歧义通过显式同义词控制",
+      "signal": "Alpha 与 α 为同一干预的两种写法",
+      "status": "resolved",
+      "type": "terminology_ambiguity"
+    },
+    {
+      "action": "按 exclusion 优先并由 adjudicator 生成 D5，回链 D3/D4",
+      "affected_ids": [
+        "D3",
+        "D4",
+        "D5"
+      ],
+      "disposition": "保留双方记录，不静默覆盖",
+      "signal": "D3 与 D4 对 R2 给出相反判定",
+      "status": "resolved",
+      "type": "criterion_conflict"
+    },
+    {
+      "action": "仅据摘要排除非随机单臂设计；不评价其疗效或全文质量",
+      "affected_ids": [
+        "R4",
+        "G1"
+      ],
+      "disposition": "设计排除可判；其余标界",
+      "signal": "R4 availability.full_text=false",
+      "status": "degraded",
+      "type": "full_text_unavailable"
+    }
+  ],
+  "excluded": [
+    {
+      "final_decision_id": "D5",
+      "id": "R2",
+      "screening_reason_codes": [
+        "E-POP"
+      ]
+    },
+    {
+      "final_decision_id": "D7",
+      "id": "R4",
+      "screening_reason_codes": [
+        "E-DESIGN"
+      ]
+    }
+  ],
+  "gain": {
+    "comparison_status": "not_run",
+    "reason": "baseline role only"
+  },
+  "included": [
+    {
+      "final_decision_id": "D2",
+      "id": "R1",
+      "screening_reason_codes": [
+        "I-POP",
+        "I-DESIGN"
+      ]
+    }
+  ],
+  "not_checked": [
+    "研究间一致性及发表偏倚。"
+  ],
+  "protocol": {
+    "conflict_policy": "DUP > exclusion > inclusion；同层双人分歧由 adjudicator 依据条款裁决并回链判定ID。",
+    "created_at": "2026-01-01T09:50:00Z",
+    "criteria_sha256": "4f5119e9c843bec2cd560adcb6273e7c13f2df2b2d713d25fefd5d7b3ad5067f",
+    "version": "P1"
+  },
+  "quality_appraisals": [],
+  "quality_scales": [
+    {
+      "design_types": [
+        "randomized_trial"
+      ],
+      "dimensions": [
+        {
+          "id": "randomization",
+          "prompt": "是否清楚报告随机分配？",
+          "scores": {
+            "no": 0,
+            "unclear": 0,
+            "yes": 1
+          }
+        },
+        {
+          "id": "attrition",
+          "prompt": "是否说明失访且数量有限？",
+          "scores": {
+            "no": 0,
+            "unclear": 0,
+            "yes": 1
+          }
+        },
+        {
+          "id": "reporting",
+          "prompt": "是否避免无预设理由的结果报告变更？",
+          "scores": {
+            "no": 0,
+            "unclear": 0,
+            "yes": 1
+          }
+        }
+      ],
+      "id": "SYNT-RCT",
+      "rating_thresholds": [
+        {
+          "min": 0.8,
+          "rating": "high"
+        },
+        {
+          "min": 0.5,
+          "rating": "moderate"
+        },
+        {
+          "min": 0,
+          "rating": "low"
+        }
+      ],
+      "version": "1.0"
+    }
+  ],
+  "records": [
+    {
+      "authors": [
+        "Synthetic Author"
+      ],
+      "availability": {
+        "full_text": true
+      },
+      "doi": "10.0000/synthetic.r1",
+      "id": "R1",
+      "source": {
+        "extractor": "plain-text-copy",
+        "extractor_version": "1.0",
+        "path": "sources/R1.source.txt",
+        "sha256": "cb3962ea5975f5863397027382a053e35969de9ca2da919e5c8acf8c4e5aec65",
+        "text_path": "sources/R1.extracted.txt",
+        "text_sha256": "cb3962ea5975f5863397027382a053e35969de9ca2da919e5c8acf8c4e5aec65"
+      },
+      "title": "Alpha intervention improves recovery in adults: a randomized trial",
+      "year": 2025
+    },
+    {
+      "authors": [
+        "Synthetic Author"
+      ],
+      "availability": {
+        "full_text": true
+      },
+      "doi": "10.0000/synthetic.r2",
+      "id": "R2",
+      "source": {
+        "extractor": "plain-text-copy",
+        "extractor_version": "1.0",
+        "path": "sources/R2.source.txt",
+        "sha256": "6731b946038c37dc98101219ab90eead81caf0e5ebb8adadacf68fa99d53c328",
+        "text_path": "sources/R2.extracted.txt",
+        "text_sha256": "6731b946038c37dc98101219ab90eead81caf0e5ebb8adadacf68fa99d53c328"
+      },
+      "title": "Alpha intervention in adolescents: a randomized trial",
+      "year": 2025
+    },
+    {
+      "authors": [
+        "Synthetic Author"
+      ],
+      "availability": {
+        "full_text": true
+      },
+      "doi": "10.0000/synthetic.r3",
+      "id": "R3",
+      "source": {
+        "extractor": "plain-text-copy",
+        "extractor_version": "1.0",
+        "path": "sources/R3.source.txt",
+        "sha256": "cb3962ea5975f5863397027382a053e35969de9ca2da919e5c8acf8c4e5aec65",
+        "text_path": "sources/R3.extracted.txt",
+        "text_sha256": "cb3962ea5975f5863397027382a053e35969de9ca2da919e5c8acf8c4e5aec65"
+      },
+      "title": "Alpha intervention improves recovery in adults: a randomized trial",
+      "year": 2025
+    },
+    {
+      "authors": [
+        "Synthetic Author"
+      ],
+      "availability": {
+        "full_text": false
+      },
+      "doi": "10.0000/synthetic.r4",
+      "id": "R4",
+      "source": {
+        "extractor": "plain-text-copy",
+        "extractor_version": "1.0",
+        "path": "sources/R4.source.txt",
+        "sha256": "74c88ded22a93a4e7c0f407ef78db5bb9135a42ac30fee963da50d71624e4c15",
+        "text_path": "sources/R4.extracted.txt",
+        "text_sha256": "74c88ded22a93a4e7c0f407ef78db5bb9135a42ac30fee963da50d71624e4c15"
+      },
+      "title": "Alpha recovery after 52 weeks: a single-arm case series",
+      "year": 2025
+    }
+  ],
+  "research_gaps": [
+    {
+      "bounded_to": "Q1 命中的4条合成记录及预定 RCT 标准",
+      "evidence": {
+        "claim_ids": [
+          "C2"
+        ],
+        "excluded_record_ids": [
+          "R4"
+        ],
+        "query_ids": [],
+        "reason_codes": [
+          "E-DESIGN"
+        ]
+      },
+      "id": "G1",
+      "kind": "evidence_of_absence",
+      "not_claimed": "不声称所有数据库或真实领域不存在长期证据",
+      "statement": "提供的合成语料中没有可纳入的成人长期（52周）随机对照证据。"
+    }
+  ],
+  "research_question": {
+    "elements": [
+      {
+        "concept": "adults",
+        "controlled_terms": [],
+        "id": "P",
+        "synonyms": [
+          "adult",
+          "18 years or older"
+        ]
+      },
+      {
+        "concept": "Alpha",
+        "controlled_terms": [],
+        "id": "I",
+        "synonyms": [
+          "α"
+        ]
+      },
+      {
+        "concept": "control",
+        "controlled_terms": [],
+        "id": "C",
+        "synonyms": [
+          "comparator"
+        ]
+      },
+      {
+        "concept": "recovery score",
+        "controlled_terms": [],
+        "id": "O",
+        "synonyms": [
+          "recovery"
+        ]
+      }
+    ],
+    "framework": "PICO",
+    "text": "提供的合成语料中，Alpha 对成人短期恢复评分有何效果？"
+  },
+  "run": {
+    "checkpoints": [
+      {
+        "output_path": "result.example.json",
+        "status": "completed",
+        "step": "protocol"
+      },
+      {
+        "output_path": "result.example.json",
+        "status": "completed",
+        "step": "screening"
+      },
+      {
+        "output_path": "review.md",
+        "status": "completed",
+        "step": "synthesis"
+      }
+    ],
+    "elapsed_seconds": 60,
+    "finished_at": "2026-01-01T10:20:00Z",
+    "input": {
+      "case": {
+        "path": "case.json",
+        "sha256": "89eb25a8d577b2acff6d62f731ab905c25591bfc6e4953da5a33c0510528a836"
+      },
+      "task": {
+        "path": "task.md",
+        "sha256": "3302f787f2c400a1ea4b26d08586207675dbb9dee39038853c70b026daaa5ce7"
+      }
+    },
+    "manual_rework_items": 4,
+    "model_requests": 7,
+    "permissions": "read synthetic input; write example directory only",
+    "run_id": "baseline-synthetic-v1",
+    "started_at": "2026-01-01T10:00:00Z",
+    "tool_version": "2.0.0"
+  },
+  "schema_version": "2.0.0",
+  "screening_criteria": [
+    {
+      "criterion": "成人随机对照研究对象",
+      "effective_version": "P1",
+      "id": "I-POP",
+      "operational_test": "研究明确纳入年龄>=18岁的参与者",
+      "priority": 10,
+      "reason_code": "I-POP",
+      "stage": "both",
+      "type": "include"
+    },
+    {
+      "criterion": "比较 Alpha 与对照的随机设计",
+      "effective_version": "P1",
+      "id": "I-DESIGN",
+      "operational_test": "明确说明随机分配且设有对照组",
+      "priority": 20,
+      "reason_code": "I-DESIGN",
+      "stage": "both",
+      "type": "include"
+    },
+    {
+      "criterion": "非成人研究",
+      "effective_version": "P1",
+      "id": "E-POP",
+      "operational_test": "全体参与者年龄<18岁",
+      "priority": 90,
+      "reason_code": "E-POP",
+      "stage": "both",
+      "type": "exclude"
+    },
+    {
+      "criterion": "非随机或無对照设计",
+      "effective_version": "P1",
+      "id": "E-DESIGN",
+      "operational_test": "未随机分配或没有对照组",
+      "priority": 80,
+      "reason_code": "E-DESIGN",
+      "stage": "both",
+      "type": "exclude"
+    },
+    {
+      "criterion": "同一研究的重复题录",
+      "effective_version": "P1",
+      "id": "DEDUP",
+      "operational_test": "规范化DOI相同；无DOI时题名+第一作者+年相同且人工核对",
+      "priority": 100,
+      "reason_code": "DUP",
+      "stage": "dedup",
+      "type": "dedup"
+    }
+  ],
+  "search": {
+    "databases": [
+      {
+        "fields": [
+          "title",
+          "abstract",
+          "full_text"
+        ],
+        "interface": "local-manifest-v1",
+        "name": "Provided corpus"
+      }
+    ],
+    "queries": [
+      {
+        "database": "Provided corpus",
+        "fields": [
+          "title",
+          "abstract"
+        ],
+        "filters": {
+          "date_from": null,
+          "date_to": "2026-01-01",
+          "languages": [
+            "en"
+          ]
+        },
+        "id": "Q1",
+        "intent": "覆盖干预、人群和结局；起始日期不限以保留提供语料。",
+        "query": "(alpha OR α) AND (adult OR adults) AND (recovery OR \"recovery score\")",
+        "result_count": 4,
+        "run_at": "2026-01-01T10:01:00Z"
+      }
+    ]
+  },
+  "skill_version": "2.0.0",
+  "sources": [
+    {
+      "extractor": "plain-text-copy",
+      "extractor_version": "1.0",
+      "path": "sources/R1.source.txt",
+      "record_id": "R1",
+      "sha256": "cb3962ea5975f5863397027382a053e35969de9ca2da919e5c8acf8c4e5aec65",
+      "text_path": "sources/R1.extracted.txt",
+      "text_sha256": "cb3962ea5975f5863397027382a053e35969de9ca2da919e5c8acf8c4e5aec65"
+    },
+    {
+      "extractor": "plain-text-copy",
+      "extractor_version": "1.0",
+      "path": "sources/R2.source.txt",
+      "record_id": "R2",
+      "sha256": "6731b946038c37dc98101219ab90eead81caf0e5ebb8adadacf68fa99d53c328",
+      "text_path": "sources/R2.extracted.txt",
+      "text_sha256": "6731b946038c37dc98101219ab90eead81caf0e5ebb8adadacf68fa99d53c328"
+    },
+    {
+      "extractor": "plain-text-copy",
+      "extractor_version": "1.0",
+      "path": "sources/R3.source.txt",
+      "record_id": "R3",
+      "sha256": "cb3962ea5975f5863397027382a053e35969de9ca2da919e5c8acf8c4e5aec65",
+      "text_path": "sources/R3.extracted.txt",
+      "text_sha256": "cb3962ea5975f5863397027382a053e35969de9ca2da919e5c8acf8c4e5aec65"
+    },
+    {
+      "extractor": "plain-text-copy",
+      "extractor_version": "1.0",
+      "path": "sources/R4.source.txt",
+      "record_id": "R4",
+      "sha256": "74c88ded22a93a4e7c0f407ef78db5bb9135a42ac30fee963da50d71624e4c15",
+      "text_path": "sources/R4.extracted.txt",
+      "text_sha256": "74c88ded22a93a4e7c0f407ef78db5bb9135a42ac30fee963da50d71624e4c15"
+    }
+  ],
+  "status": "issues",
+  "themes": [
+    {
+      "claim_ids": [
+        "C1",
+        "C2"
+      ],
+      "derived_from": [
+        "R1"
+      ],
+      "id": "T1",
+      "induction_note": "两条论断均由 R1 的结果与讨论段落编码聚合；未使用预设主题外推。",
+      "name": "短期恢复效果与报告偏倚"
+    }
+  ],
+  "uncertainty": [
+    "单一小型合成研究，不能估计真实领域效应或全球召回率。",
+    "R4 无全文，仅用于摘要级设计排除。"
+  ],
+  "unchecked": [
+    "研究间冲突：只有一篇纳入研究，无法判断。"
+  ]
+}

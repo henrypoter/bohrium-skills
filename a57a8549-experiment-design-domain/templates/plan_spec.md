@@ -1,40 +1,72 @@
-# 方案规格表（plan_spec.md）
+# 实验方案设计总课题模板
 
-## 1. 六要素检查表（缺一项即不完整）
+> 先选当前触发行，再填相应分表；未触发分表不伪造内容。示例值不得复制到正式结果。
 
-| 要素 | 最低要求 | 常见错法 |
-|-|-|-|
-| 假设与变量 | 假设可被推翻；变量有操作定义+单位+范围 | 写"研究X的机制"；变量只有名字 |
-| 对照组 | 每组说明排除哪类混杂 | 只有空白组；对照与目标不匹配 |
-| 设备材料 | 型号/量程/规格/试剂货号 | 只写"离心机" |
-| 时间成本 | 分步时长+并行关系+样本量+预算 | 只给总天数 |
-| 参数范围 | 每参数 value/unit/min/max + 依据来源 | 参数无单位；依据写"经验" |
-| 风险与异常 | 每风险 trigger + mitigation + stop_rule | 只写"注意安全" |
+## 0. 分诊与版本（所有任务必填）
 
-## 2. 参数表（逐行填）
+- case_id / plan_version / result_schema_version / tool_version：
+- input_digest / permissions_digest：
+- task SHA-256 / case SHA-256：
 
-| 参数 | 建议值 | 单位 | 允许区间 | 依据来源 | 越界处置 |
+| route | primary? | workflow | matched location | verbatim quote | required command/output |
 |-|-|-|-|-|-|
-| temperature | 75 | C | 20–90 | 设备手册 p12 | 降至 60 并延长孵育 |
-| dose | 50 | uM | 0–100 | 预实验 P-03 | 分档递增 |
+| generation/comparison/feasibility/parameter/interpretation | | | task.md#L 或 case pointer | | |
 
-核验命令：`python3 scripts/exp_tool.py params result.json --spec limits.json`
-`limits.json` 格式：
-```json
-{"limits": {"temperature": {"min": 4, "max": 80, "unit": "C"}}}
+无命中：unsupported + 澄清动作。共同字段：variables(type/operational_definition/unit/range)、controls(confounder_excluded)、steps、resources、parameters、risks(trigger/mitigation/stop_rule)、judgments/evidence、sources、unchecked、uncertainty、expert_confirmation、change_log。
+
+## A. generation
+
+- hypothesis（比较对象、方向、阈值）： 
+- 设备/材料/步骤/对照/参数/资源： 
+- 量程核验：`params result.json --spec limits.json`。
+
+## B. comparison
+
+- comparison_version：
+- 候选：id / plan_version / 同口径 metrics / 证据：
+
+| metric | direction | weight | hard min/max | unit | 来源 |
+|-|-|-|-|-|-|
+| | | | | | |
+
+命令：`compare comparison_input.json --out comparison.json`。保存 ranking/rejected/recommended/sensitivity；说明每次 ±delta 的 top 是否变化，不能隐去硬拒绝。
+
+## C. feasibility
+
+七类检查恰好一次：假设变量、对照、设备材料、时间成本、参数范围、风险异常、伦理安全；每行 status/target/conclusion/evidence，not_checked reason 或 conditional conditions。
+
+| resource ID | 四态/not_checked | 型号/精度/附件/规格 | 需求/库存/货期 | source location |
+|-|-|-|-|-|
+| | | | | |
+
+成本：quantity×unit_cost=subtotal，total=Σsubtotal，budget/remaining 真算。样本 required/available/unit/source/storage。排期每步 equipment/labor/wait/turnaround/parallel_group；总工期含最长采购货期。
+
+有条件可行验收条件、责任人、伦理/安全动作。附加十异常逐条写 signal/action/disposition/owner/linked_fields。
+
+## D. parameter
+
+problem：parameters(values/unit)、limits(min/max/step/unit/source)、线性 constraints、responses(direction/weight/unit/model/acceptable)、costs(time_hours/money/samples,max/model)、search(max_evaluations)。
+
+响应定义：measurement_method / acceptable_variation / model_ref / uncertainty(method,value) / evidence。运行：
+
+```bash
+python3 scripts/exp_tool.py optimize problem.json --out optimization.json
+python3 scripts/exp_tool.py replay problem.json result.json
+python3 scripts/exp_tool.py params result.json --spec problem.json
 ```
 
-## 3. 风险矩阵（按后果与概率排优先级）
+保存所有 feasible/rejected、拒绝码、score、Pareto、recommended、evaluated_count、stop_reason。无可行解 recommended=null；不可静默截断。
 
-| 风险 | 触发信号 | 后果 | 缓解 | 止损点 |
-|-|-|-|-|-|
-| 无信号 | 吸光度 < 0.1 | 数据不可用 | 复孔+重复三次 | 三次仍无信号则停并查细胞状态 |
-| 污染 | 培养基浑浊 | 整批作废 | 加双抗+空白对照 | 空白组也浑浊则整批弃 |
+## E. interpretation
 
-## 4. 交付前自检
+输入：dataset_version / unit / absolute_residual_threshold / observations(id,x,y) / 数据证据。输出 intercept/slope/R²、每点 predicted/residual、MAD、阈值、flagged IDs。
 
-- [ ] `check` 的 `missing_elements` 为空
-- [ ] 每个参数都能在 `limits.json` 中找到限值来源
-- [ ] 每个风险三件套齐全
-- [ ] 需专家确认的事项已列入 `expert_confirmation`
-- [ ] 无设备参数/预算时写 `unknown`，未编造型号与价格
+异常动作：核对原始记录和仪器并独立重测；不自动删除、不将拟合当因果。阈值=`max(absolute_residual_threshold,2*MAD)`，严格大于才标异常。
+
+## F. 异常、增益与交付
+
+每个结果覆盖 unsupported_input/tool_error/permission_denied/missing_data/execution_failed；当前路由追加专属异常，所有条目绑定真实字段。
+
+基础 Agent 对照：同 case_id/input_digest/permissions_digest/rubric/repetitions；质量记所需交付段、专属输出、定位判断、异常覆盖；效率无双方真实 telemetry 写 not_measured。
+
+交付：`audit + verify`，以及当前路由所需命令全绿。开发 bench：`python3 bench/bench_run.py`，当前 48/48。

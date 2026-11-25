@@ -1,0 +1,76 @@
+{
+  "absolute_anomaly_threshold": "173.5714285714285714285714287",
+  "coefficients": {
+    "intercept": "-138.8571428571428571428571429",
+    "slope": "54.07142857142857142857142857"
+  },
+  "dataset_version": "observed-demo-v1",
+  "flagged_anomalies": [
+    "O7"
+  ],
+  "follow_up": [
+    {
+      "action": "核对原始记录和仪器状态并独立重测；不自动删除异常点，不直接给因果结论",
+      "signal": "observation_id in flagged_anomalies"
+    }
+  ],
+  "input_sha256": "341d3b0658384f52fcdff7864556be846f8142dcb4d078e2a35e9f8c69d271c3",
+  "interpretation_schema_version": "residual-interpretation-1.0.0",
+  "mad": "86.78571428571428571428571433",
+  "model_status": "descriptive_linear_fit_not_causal",
+  "n": 7,
+  "r2": "0.3928264911049202623554960846",
+  "residuals": [
+    {
+      "id": "O1",
+      "observed_y": "2",
+      "predicted_y": "-84.78571428571428571428571433",
+      "residual": "86.78571428571428571428571433",
+      "x": "1"
+    },
+    {
+      "id": "O2",
+      "observed_y": "4",
+      "predicted_y": "-30.7142857142857142857142858",
+      "residual": "34.7142857142857142857142858",
+      "x": "2"
+    },
+    {
+      "id": "O3",
+      "observed_y": "6",
+      "predicted_y": "23.3571428571428571428571428",
+      "residual": "-17.3571428571428571428571428",
+      "x": "3"
+    },
+    {
+      "id": "O4",
+      "observed_y": "8",
+      "predicted_y": "77.4285714285714285714285714",
+      "residual": "-69.4285714285714285714285714",
+      "x": "4"
+    },
+    {
+      "id": "O5",
+      "observed_y": "10",
+      "predicted_y": "131.4999999999999999999999999",
+      "residual": "-121.4999999999999999999999999",
+      "x": "5"
+    },
+    {
+      "id": "O6",
+      "observed_y": "12",
+      "predicted_y": "185.5714285714285714285714285",
+      "residual": "-173.5714285714285714285714285",
+      "x": "6"
+    },
+    {
+      "id": "O7",
+      "observed_y": "500",
+      "predicted_y": "239.6428571428571428571428571",
+      "residual": "260.3571428571428571428571429",
+      "x": "7"
+    }
+  ],
+  "tool_version": "integrated-exp-tool-3.0.0",
+  "unit": "%"
+}

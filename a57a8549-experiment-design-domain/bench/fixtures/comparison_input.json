@@ -1,0 +1,14 @@
+{
+  "example_only": true,
+  "comparison_version": "comparison-v1",
+  "candidates": [
+    {"id": "A", "plan_version": "A-v1", "metrics": {"yield": 80, "cost": 50}},
+    {"id": "B", "plan_version": "B-v2", "metrics": {"yield": 90, "cost": 80}},
+    {"id": "C", "plan_version": "C-v1", "metrics": {"yield": 70, "cost": 30}}
+  ],
+  "metrics": {
+    "yield": {"direction": "maximize", "weight": 0.7, "min": 60},
+    "cost": {"direction": "minimize", "weight": 0.3, "max": 90}
+  },
+  "sensitivity": {"weight_delta": 0.1}
+}

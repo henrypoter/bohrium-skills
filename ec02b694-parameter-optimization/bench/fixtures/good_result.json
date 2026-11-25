@@ -1,97 +1,490 @@
 {
- "case_id": "case-001",
- "status": "issues",
- "research_goal": {
-  "objective": "测药物A对某细胞增殖的影响",
-  "hypothesis": "药物A在10-100 μM范围内剂量依赖抑制细胞增殖",
-  "constraints": [
-   "预算5万",
-   "4周内完成"
+  "example_only": true,
+  "case_id": "parameter-demo",
+  "status": "issues",
+  "plan_version": "plan-v1",
+  "result_schema_version": "parameter-result-3.0.0",
+  "tool_version": "parameter-exp-tool-3.0.0",
+  "input_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "permissions_digest": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+  "research_goal": {
+    "objective": "在预算内提高示例反应收率并降低杂质",
+    "hypothesis": "温度和时长共同影响收率与杂质",
+    "constraints": [
+      "机时不超过 5 h",
+      "费用不超过 60 CNY",
+      "样本不超过 3 个"
+    ]
+  },
+  "variables": [
+    {
+      "id": "V1",
+      "name": "temperature",
+      "type": "independent",
+      "operational_definition": "反应器设定温度",
+      "unit": "C",
+      "range": "40/50/60"
+    },
+    {
+      "id": "V2",
+      "name": "duration",
+      "type": "independent",
+      "operational_definition": "达到设定温度后的保持时长",
+      "unit": "h",
+      "range": "1/2"
+    },
+    {
+      "id": "V3",
+      "name": "yield",
+      "type": "dependent",
+      "operational_definition": "产物质量除以理论产物质量",
+      "unit": "%",
+      "range": "0-100"
+    }
+  ],
+  "controls": [
+    {
+      "id": "C1",
+      "type": "negative",
+      "purpose": "无催化剂背景",
+      "confounder_excluded": "非目标催化反应"
+    }
+  ],
+  "steps": [
+    {
+      "id": "S1",
+      "action": "按候选点执行反应并测量两个响应",
+      "equipment": "示例控温反应器",
+      "material": "示例试剂",
+      "duration": "按 time_hours",
+      "parameter_range": "仅推荐可行候选"
+    }
+  ],
+  "resources": {
+    "equipment": [
+      "示例控温反应器"
+    ],
+    "materials": [
+      "示例试剂"
+    ],
+    "sample": "3 个已纳入样本预算",
+    "time_estimate": "2.7 h",
+    "cost_estimate": "55 CNY"
+  },
+  "parameters": [
+    {
+      "name": "temperature",
+      "value": 60,
+      "unit": "C",
+      "derived_min": 40,
+      "derived_max": 60,
+      "evidence": [
+        {
+          "source_id": "problem",
+          "location": "#/parameters/temperature/values/2",
+          "quote": "60",
+          "sha256": "36ee6ecd1d6ec073f6b42ec67dc2d8b7b1cf0eec7b1d0868248e59991133f984"
+        }
+      ]
+    },
+    {
+      "name": "duration",
+      "value": 1,
+      "unit": "h",
+      "derived_min": 1,
+      "derived_max": 2,
+      "evidence": [
+        {
+          "source_id": "problem",
+          "location": "#/parameters/duration/values/0",
+          "quote": "1",
+          "sha256": "36ee6ecd1d6ec073f6b42ec67dc2d8b7b1cf0eec7b1d0868248e59991133f984"
+        }
+      ]
+    }
+  ],
+  "response_metrics": [
+    {
+      "name": "yield",
+      "unit": "%",
+      "measurement_method": "产物质量除以理论产物质量，以 % 报告",
+      "direction": "maximize",
+      "acceptable_variation": "重复测量差不超过 2 个百分点",
+      "model_ref": "problem.responses.yield.model（声明代理模型，非实测）",
+      "uncertainty": {
+        "method": "示例给定点预测区间半宽，正式任务须由历史数据重估",
+        "value": 2
+      },
+      "evidence": [
+        {
+          "source_id": "input",
+          "location": "#/measurements/yield",
+          "quote": "产物质量除以理论产物质量，以 % 报告",
+          "sha256": "63fb457d69526f8c440e19571d0c73c2708138615578317096562d42cd0e0317"
+        }
+      ]
+    },
+    {
+      "name": "impurity",
+      "unit": "%",
+      "measurement_method": "目标峰外杂质面积占总峰面积，以 % 报告",
+      "direction": "minimize",
+      "acceptable_variation": "重复测量差不超过 0.5 个百分点",
+      "model_ref": "problem.responses.impurity.model（声明代理模型，非实测）",
+      "uncertainty": {
+        "method": "示例给定点预测区间半宽，正式任务须由历史数据重估",
+        "value": 0.5
+      },
+      "evidence": [
+        {
+          "source_id": "input",
+          "location": "#/measurements/impurity",
+          "quote": "目标峰外杂质面积占总峰面积，以 % 报告",
+          "sha256": "63fb457d69526f8c440e19571d0c73c2708138615578317096562d42cd0e0317"
+        }
+      ]
+    }
+  ],
+  "search": {
+    "strategy": "exhaustive_grid",
+    "initial_design": "all_declared_finite_domain_points",
+    "rounds": [
+      {
+        "round": 1,
+        "evaluated": 6,
+        "selected_indices": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ]
+      }
+    ],
+    "stopping_rule": "evaluated_count==domain_size",
+    "stop_reason": "exhaustive_grid_complete",
+    "evaluated_count": 6,
+    "tradeoff": "权重 yield=0.7、impurity=0.3；先过滤硬约束，再在交集内做响应归一化和 Pareto 检查"
+  },
+  "cost_budget": {
+    "currency": "CNY",
+    "budget": 60,
+    "time_budget_hours": 5,
+    "sample_budget": 6,
+    "selected_cost": 55,
+    "selected_time_hours": 2.7,
+    "selected_samples": 3,
+    "response_sacrifice": "相对单纯产率，不额外牺牲；推荐候选效用 0.7，所有成本均低于硬预算"
+  },
+  "optimization": {
+    "evaluated_count": 6,
+    "feasible_candidates": [
+      {
+        "costs": {
+          "money": "55",
+          "samples": "3",
+          "time_hours": "2.7"
+        },
+        "desirability": {
+          "impurity": "0",
+          "yield": "1"
+        },
+        "index": 2,
+        "parameters": {
+          "duration": "1",
+          "temperature": "60"
+        },
+        "responses": {
+          "impurity": "11.5",
+          "yield": "58"
+        },
+        "score": "0.7"
+      },
+      {
+        "costs": {
+          "money": "55",
+          "samples": "3",
+          "time_hours": "3"
+        },
+        "desirability": {
+          "impurity": "0.5",
+          "yield": "0.3333333333333333333333333333"
+        },
+        "index": 4,
+        "parameters": {
+          "duration": "2",
+          "temperature": "50"
+        },
+        "responses": {
+          "impurity": "11",
+          "yield": "54"
+        },
+        "score": "0.3833333333333333333333333333"
+      },
+      {
+        "costs": {
+          "money": "50",
+          "samples": "3",
+          "time_hours": "2.5"
+        },
+        "desirability": {
+          "impurity": "1",
+          "yield": "0"
+        },
+        "index": 1,
+        "parameters": {
+          "duration": "1",
+          "temperature": "50"
+        },
+        "responses": {
+          "impurity": "10.5",
+          "yield": "52"
+        },
+        "score": "0.3"
+      }
+    ],
+    "feasible_count": 3,
+    "model_status": "explicit_declared_models_not_measurements",
+    "optimization_schema_version": "bounded-grid-optimization-1.0.0",
+    "pareto_indices": [
+      2,
+      4,
+      1
+    ],
+    "problem_sha256": "d75bff00299ae00c37fe921889afa5f9d21bb2ceeb155ecc961c357ab179e92b",
+    "problem_version": "problem-v1",
+    "recommended": {
+      "costs": {
+        "money": "55",
+        "samples": "3",
+        "time_hours": "2.7"
+      },
+      "desirability": {
+        "impurity": "0",
+        "yield": "1"
+      },
+      "index": 2,
+      "parameters": {
+        "duration": "1",
+        "temperature": "60"
+      },
+      "responses": {
+        "impurity": "11.5",
+        "yield": "58"
+      },
+      "score": "0.7"
+    },
+    "rejected_candidates": [
+      {
+        "costs": {
+          "money": "45",
+          "samples": "3",
+          "time_hours": "2.3"
+        },
+        "index": 0,
+        "parameters": {
+          "duration": "1",
+          "temperature": "40"
+        },
+        "rejection_reasons": [
+          "response_min:yield"
+        ],
+        "responses": {
+          "impurity": "9.5",
+          "yield": "46"
+        }
+      },
+      {
+        "costs": {
+          "money": "50",
+          "samples": "3",
+          "time_hours": "2.8"
+        },
+        "index": 3,
+        "parameters": {
+          "duration": "2",
+          "temperature": "40"
+        },
+        "rejection_reasons": [
+          "response_min:yield"
+        ],
+        "responses": {
+          "impurity": "10",
+          "yield": "48"
+        }
+      },
+      {
+        "costs": {
+          "money": "60",
+          "samples": "3",
+          "time_hours": "3.2"
+        },
+        "index": 5,
+        "parameters": {
+          "duration": "2",
+          "temperature": "60"
+        },
+        "rejection_reasons": [
+          "constraint:load"
+        ],
+        "responses": {
+          "impurity": "12",
+          "yield": "60"
+        }
+      }
+    ],
+    "search": {
+      "initial_design": "all_declared_finite_domain_points",
+      "next_round_rule": "none_after_complete_grid",
+      "stopping_rule": "evaluated_count==domain_size",
+      "strategy": "exhaustive_grid"
+    },
+    "status": "complete",
+    "stopping_reason": "exhaustive_grid_complete",
+    "tool_version": "parameter-exp-tool-3.0.0"
+  },
+  "risks": [
+    {
+      "id": "R1",
+      "failure_mode": "无可行解",
+      "trigger": "feasible_count==0",
+      "consequence": "无可开机推荐",
+      "mitigation": "逐项报告预算、响应和约束拒绝原因",
+      "stop_rule": "完整枚举后仍为空则停止并转人工放宽约束"
+    },
+    {
+      "id": "R2",
+      "failure_mode": "指标方向冲突",
+      "trigger": "yield 增而 impurity 同时越可接受上限",
+      "consequence": "单指标最优不可用",
+      "mitigation": "坚持硬过滤并展示 Pareto 候选",
+      "stop_rule": "无可接受折中则转人工"
+    }
+  ],
+  "judgments": [
+    {
+      "id": "J1",
+      "claim": "推荐 60 C、1 h 来自完整六点评估而非经验编造",
+      "evidence": [
+        {
+          "source_id": "problem",
+          "location": "#/parameters/temperature/values/2",
+          "quote": "60",
+          "sha256": "36ee6ecd1d6ec073f6b42ec67dc2d8b7b1cf0eec7b1d0868248e59991133f984"
+        }
+      ],
+      "confidence": "模型内高；外推未核验"
+    }
+  ],
+  "exception_register": [
+    {
+      "code": "no_feasible_solution",
+      "signal": "完整枚举 feasible_count==0",
+      "action": "recommended=null、status=issues，并按拒绝码列出放宽方向",
+      "disposition": "manual",
+      "owner": "课题负责人",
+      "linked_fields": [
+        "optimization.feasible_count",
+        "optimization.rejected_candidates"
+      ]
+    },
+    {
+      "code": "conflicting_constraints",
+      "signal": "min>max、单位不一致或约束交集为空",
+      "action": "停止搜索并列出冲突字段，不自动放宽",
+      "disposition": "stop",
+      "owner": "设备与材料负责人",
+      "linked_fields": [
+        "parameters",
+        "optimization.rejected_candidates"
+      ]
+    },
+    {
+      "code": "missing_data",
+      "signal": "参数域、响应模型或不确定度缺失",
+      "action": "相应预测标 not_checked，只保留算术可核验部分",
+      "disposition": "downgrade",
+      "owner": "数据负责人",
+      "linked_fields": [
+        "response_metrics",
+        "optimization"
+      ]
+    },
+    {
+      "code": "equipment_error",
+      "signal": "设备返回 fault 或推荐点实际不可设定",
+      "action": "冻结该候选并改选未拒绝的下一可行点，重放核验",
+      "disposition": "downgrade",
+      "owner": "设备管理员",
+      "linked_fields": [
+        "parameters",
+        "search"
+      ]
+    },
+    {
+      "code": "conflicting_metrics",
+      "signal": "响应方向/单位冲突或一个响应改善另一个越过硬阈值",
+      "action": "不报单一最优，展示 Pareto 集并交人工确认权重",
+      "disposition": "manual",
+      "owner": "研究负责人",
+      "linked_fields": [
+        "response_metrics",
+        "optimization.pareto_indices"
+      ]
+    },
+    {
+      "code": "insufficient_permissions",
+      "signal": "目标设备或原始数据读写权限被拒绝",
+      "action": "停止该动作，保留已有哈希与结果，标 failed/not_checked",
+      "disposition": "stop",
+      "owner": "权限管理员",
+      "linked_fields": [
+        "status",
+        "unchecked"
+      ]
+    }
+  ],
+  "expert_confirmation": [
+    "代理模型是否适用于正式批次",
+    "正式设备和材料限值",
+    "不确定性校准"
+  ],
+  "gain": {
+    "status": "not_run",
+    "reason": "示例不冒充平台基础 Agent 对照",
+    "design": {
+      "same_case_id": "parameter-demo",
+      "same_input_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "same_permissions": true,
+      "repetitions": 3
+    },
+    "quality": {},
+    "efficiency": {}
+  },
+  "unchecked": [],
+  "sources": [
+    {
+      "source_id": "input",
+      "version": "example-v1",
+      "path": "example_input.json",
+      "sha256": "63fb457d69526f8c440e19571d0c73c2708138615578317096562d42cd0e0317"
+    },
+    {
+      "source_id": "problem",
+      "version": "problem-v1",
+      "path": "problem.json",
+      "sha256": "36ee6ecd1d6ec073f6b42ec67dc2d8b7b1cf0eec7b1d0868248e59991133f984"
+    }
+  ],
+  "uncertainty": [
+    "示例响应来自显式声明的线性代理模型，不是实测或正式建议"
+  ],
+  "change_log": [
+    {
+      "from": null,
+      "to": "plan-v1",
+      "reason": "最小示例"
+    }
   ]
- },
- "variables": [
-  {
-   "id": "V1",
-   "name": "药物A浓度",
-   "type": "independent",
-   "operational_definition": "培养液中药物A终浓度(μM)",
-   "unit": "μM",
-   "range": "0/10/30/100"
-  },
-  {
-   "id": "V2",
-   "name": "细胞存活率",
-   "type": "dependent",
-   "operational_definition": "CCK-8 吸光度归一化到空白组",
-   "unit": "%",
-   "range": "0-100"
-  }
- ],
- "controls": [
-  {
-   "id": "C1",
-   "type": "negative",
-   "purpose": "空白对照组",
-   "confounder_excluded": "溶剂DMSO效应"
-  },
-  {
-   "id": "C2",
-   "type": "positive",
-   "purpose": "已知抑制剂的阳性对照",
-   "confounder_excluded": "实验体系是否响应"
-  }
- ],
- "steps": [
-  {
-   "id": "S1",
-   "action": "铺板",
-   "equipment": "96孔板",
-   "material": "细胞悬液",
-   "duration": "0.5h",
-   "parameter_range": "5000细胞/孔"
-  }
- ],
- "resources": {
-  "equipment": [
-   "酶标仪"
-  ],
-  "materials": [
-   "CCK-8"
-  ],
-  "sample": "细胞株X",
-  "time_estimate": "2周",
-  "cost_estimate": "约1.2万"
- },
- "risks": [
-  {
-   "id": "R1",
-   "failure_mode": "无信号(细胞未贴壁)",
-   "trigger": "吸光度<0.1",
-   "consequence": "数据不可用",
-   "mitigation": "复孔+重复三次",
-   "stop_rule": "重复仍无信号则查细胞状态"
-  }
- ],
- "judgments": [
-  {
-   "id": "J1",
-   "claim": "选CCK-8测增殖",
-   "evidence": "文献常用且线性范围匹配",
-   "source": "文献[1]",
-   "confidence": "high"
-  }
- ],
- "expert_confirmation": [
-  "药物A溶解度需实验员确认"
- ],
- "unchecked": [],
- "sources": [
-  "文献[1]"
- ],
- "uncertainty": [
-  "剂量上限未覆盖临床浓度"
- ],
- "change_log": [
-  "初版方案生成"
- ]
 }
