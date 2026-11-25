@@ -23,7 +23,7 @@ Layout (role-keyed, nothing invented, contract keys FILLED with real artifacts):
 status follows trace_report's status_ceiling and is NEVER upgraded here.
 Exit 0 on assembly, 2 on unreadable inputs.
 """
-import argparse, json, os, re, sys
+import argparse, datetime, hashlib, json, os, platform, re, sys
 
 
 def load(p):
@@ -34,9 +34,29 @@ def load(p):
         return None
 
 
+def file_digest(path):
+    if not path or not os.path.isfile(path):
+        return None
+    h = hashlib.sha256()
+    with open(path, "rb") as f:
+        for block in iter(lambda: f.read(65536), b""):
+            h.update(block)
+    return h.hexdigest()
+
+
+def file_manifest(paths):
+    rows = []
+    for path in paths:
+        if path and os.path.isfile(path):
+            rows.append({"path": os.path.abspath(path), "bytes": os.path.getsize(path),
+                         "sha256": file_digest(path)})
+    return rows
+
+
 def file_entry(path, role):
     if path and os.path.isfile(path):
-        return {"path": os.path.basename(path), "bytes": os.path.getsize(path)}
+        return {"path": os.path.basename(path), "bytes": os.path.getsize(path),
+                "sha256": file_digest(path)}
     return {"path": None, "status": "missing",
             "reason": f"{role} not produced; do not claim it exists"}
 
@@ -70,6 +90,8 @@ def fill_contract(k, ctx):
         return ctx["preview"]
     if has("pdf", "export", "vector"):
         return ctx["export"]
+    if has("coverage"):
+        return ctx.get("coverage")
     if has("report", "check", "validation", "audit"):
         return ctx["report"]
     if has("uncertain"):
@@ -93,6 +115,8 @@ def main():
     ap.add_argument("--png")
     ap.add_argument("--pdf")
     ap.add_argument("--render", help="JSON evidence printed by render_preview.py")
+    ap.add_argument("--coverage", help="coverage_guard.py 生成的覆盖审计 JSON")
+    ap.add_argument("--source", dest="sources", action="append", default=[], help="实际材料路径，可重复")
     a = ap.parse_args()
 
     case = load(a.case)
@@ -101,6 +125,9 @@ def main():
         sys.exit(2)
     spec = load(a.elements) if a.elements else {}
     render = load(a.render) if a.render else None
+    coverage = load(a.coverage) if a.coverage else None
+    if a.coverage and coverage is None:
+        coverage = {"ok": False, "errors": [{"code": "coverage_report_unreadable"}]}
 
     tdir = os.path.dirname(os.path.abspath(a.trace_report))
     fmap = os.path.join(tdir, "figure_map.md")
@@ -120,7 +147,7 @@ def main():
         preview["png"] = png_entry
     if render and pdf_entry and pdf_entry.get("path"):
         preview["pdf"] = pdf_entry
-    mapping_entry = ({"path": "figure_map.md", "bytes": os.path.getsize(fmap)}
+    mapping_entry = ({"path": "figure_map.md", "bytes": os.path.getsize(fmap), "sha256": file_digest(fmap)}
                      if os.path.isfile(fmap) else
                      {"path": None, "status": "missing",
                       "reason": "run check_figure.py to regenerate"})
@@ -129,8 +156,10 @@ def main():
         "preview": preview,
         "export": pdf_entry,
         "mapping": mapping_entry,
-        "report": {"path": os.path.basename(a.trace_report)},
+        "report": {"path": os.path.basename(a.trace_report), "sha256": file_digest(a.trace_report)},
     }
+    if a.coverage:
+        deliverables["coverage"] = file_entry(a.coverage, "coverage audit")
 
     sources = {
         "files_read": rep.get("sources_read", []),
@@ -142,6 +171,10 @@ def main():
                                "quote_not_found": qc.get("quote_not_found", []),
                                "locator_mismatch": qc.get("locator_mismatch", [])},
         "required_coverage": src.get("required_coverage"),
+        "coverage_guard": (coverage or {}).get("coverage"),
+        "data_binding": spec.get("data_binding"),
+        "relation_extraction": spec.get("extraction"),
+        "input_manifest": file_manifest((a.sources or []) + ([a.case] if a.case else [])),
     }
     uncertainty = spec.get("uncertainties", [])
     change_log = spec.get("change_log", [])
@@ -149,10 +182,18 @@ def main():
                "change_log": change_log,
                "trade_offs": spec.get("trade_offs", [])}
     status = "partial" if rep.get("status_ceiling") == "partial" else "answered"
+    if coverage is not None and not coverage.get("ok"):
+        status = "partial"
+        uncertainty = list(uncertainty) + [{"code": "coverage_incomplete", "errors": coverage.get("errors", [])}]
+    changes["uncertainties"] = uncertainty
 
     out = {
         "case_id": case.get("case_id") or case.get("id"),
         "status": status,
+        "result_schema_version": "sci-schematic-result/2.0",
+        "figure_version": str(spec.get("figure_version") or "1.0"),
+        "spec_schema_version": str(spec.get("schema_version") or "sci-schematic-elements/1.0"),
+        "generated_at_utc": datetime.datetime.now(datetime.timezone.utc).isoformat(),
         "status_rule": rep.get("status_rule"),
         "figure_score": rep.get("figure_score"),
         "verdict": rep.get("verdict"),
@@ -162,8 +203,24 @@ def main():
         "changes": changes,
         "uncertainty": uncertainty,
         "change_log": change_log,
-        "checks": ck,
+        "checks": dict(ck, coverage_guard=coverage, data_binding=spec.get("data_binding"),
+                       relation_extraction=spec.get("extraction")),
+        "data_mapping": spec.get("data_mapping", []),
+        "coverage": coverage,
         "warnings": rep.get("warnings", []),
+        "tool_versions": {"make_result.py": "2.0.0", "relation_ir.py": "1.0.0",
+                          "data_legend.py": "1.0.0", "coverage_guard.py": "1.0.0",
+                          "python": platform.python_version()},
+        "source_manifest": file_manifest((a.sources or []) + ([a.elements] if a.elements else []) + [a.case]),
+        "artifact_manifest": file_manifest([a.svg, a.png, a.pdf, a.render, a.trace_report, fmap, a.coverage]),
+        "review": {"scientific_judgement": "native_or_human_review_required",
+                   "machine_check_scope": "source/relationship/data-legend/coverage/geometry/export consistency; not proof of scientific validity"},
+        "reproduction": {"working_directory": "/app/work", "output_directory": "/app/output",
+                         "commands": [
+                             "python3 scripts/relation_ir.py audit SOURCE.txt elements.json",
+                             "python3 scripts/data_legend.py audit elements.json TABLE.csv --entity-column entity --category-column category",
+                             "python3 scripts/coverage_guard.py audit elements.json figure.svg --task /input/task.md --out coverage.json"
+                         ]},
     }
 
     # ---- contract per-key alignment -----------------------------------------
@@ -181,7 +238,7 @@ def main():
            "export": pdf_entry, "mapping": mapping_entry,
            "report": deliverables["report"], "sources": sources,
            "uncertainty": uncertainty, "change_log": change_log,
-           "deliverables": deliverables}
+           "coverage": deliverables.get("coverage"), "deliverables": deliverables}
     null_fields = []
     for k in contract_keys:
         if k in out and out[k] is not None:

@@ -24,7 +24,8 @@ UV light was 0.031 min-1.
 
 ```bash
 python3 scripts/index_corpus.py --text-dir /app/work/text --out /app/work/corpus_index.json
-# Agent 写 evidence_cards.jsonl / relations.json / case_meta.json 后：
+# Agent 写 evidence_cards.jsonl / relations.json / case_meta.json（含下方分诊）后：
+python3 scripts/intake_audit.py audit --work /app/work
 python3 scripts/validate_and_render.py validate --work /app/work
 python3 scripts/validate_and_render.py render   --work /app/work
 python3 scripts/validate_and_render.py result   --work /app/work --out /app/output
@@ -35,6 +36,16 @@ python3 scripts/validate_and_render.py result   --work /app/work --out /app/outp
 ```json
 {"source_document_id":"P1","field":"metric_value","value":"92.4","unit":"%","context":"MO 20 mg/L, vis 60 min","paragraph_id":"P1::p002","quote":"reached 92.4% removal in 60 min","confidence":"direct","value_state":"reported-positive","caliber":{"task":"degradation","metric":"removal rate","unit":"%","object":"MO 20 mg/L","condition":"vis 60 min"}}
 {"source_document_id":"P2","field":"metric_value","value":"0.031","unit":"min-1","context":"MO 10 mg/L, UV","paragraph_id":"P2::p002","quote":"rate constant was 0.031 min-1","confidence":"direct","value_state":"reported-positive","caliber":{"task":"degradation","metric":"rate constant","unit":"min-1","object":"MO 10 mg/L","condition":"UV"}}
+```
+
+## 示意 case_meta.json：全部文档先做主题/版本分诊
+
+```json
+{"case_id":"synthetic-demo","status":"success","contract_fields":{},"uncertainty":[],"change_records":[],
+ "document_assessments":[
+  {"source_document_id":"P1","relevance":"relevant","version_state":"selected"},
+  {"source_document_id":"P2","relevance":"relevant","version_state":"selected"}],
+ "visual_gaps":[]}
 ```
 
 ## 示意 relations.json：口径不同 → noncomparable + 阻断维度

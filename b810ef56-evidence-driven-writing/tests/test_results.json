@@ -11,7 +11,7 @@
       "expect_code": null,
       "got_rc": 0,
       "hit": true,
-      "seconds": 1.6,
+      "seconds": 0.12,
       "pass": true
     },
     {
@@ -20,7 +20,7 @@
       "expect_code": "E1",
       "got_rc": 1,
       "hit": true,
-      "seconds": 1.13,
+      "seconds": 0.11,
       "pass": true
     },
     {
@@ -29,7 +29,7 @@
       "expect_code": "E5",
       "got_rc": 1,
       "hit": true,
-      "seconds": 1.13,
+      "seconds": 0.14,
       "pass": true
     },
     {
@@ -38,7 +38,7 @@
       "expect_code": "E7",
       "got_rc": 1,
       "hit": true,
-      "seconds": 1.37,
+      "seconds": 0.13,
       "pass": true
     },
     {
@@ -47,7 +47,7 @@
       "expect_code": "E9",
       "got_rc": 1,
       "hit": true,
-      "seconds": 1.18,
+      "seconds": 0.12,
       "pass": true
     },
     {
@@ -56,7 +56,7 @@
       "expect_code": "E10",
       "got_rc": 1,
       "hit": true,
-      "seconds": 1.23,
+      "seconds": 0.11,
       "pass": true
     },
     {
@@ -65,7 +65,7 @@
       "expect_code": "E2",
       "got_rc": 1,
       "hit": true,
-      "seconds": 1.43,
+      "seconds": 0.11,
       "pass": true
     },
     {
@@ -74,7 +74,7 @@
       "expect_code": "E4",
       "got_rc": 1,
       "hit": true,
-      "seconds": 1.38,
+      "seconds": 0.12,
       "pass": true
     },
     {
@@ -83,7 +83,7 @@
       "expect_code": "M1",
       "got_rc": 1,
       "hit": true,
-      "seconds": 1.4,
+      "seconds": 0.16,
       "pass": true
     },
     {
@@ -92,7 +92,7 @@
       "expect_code": "E12",
       "got_rc": 1,
       "hit": true,
-      "seconds": 1.29,
+      "seconds": 0.13,
       "pass": true
     },
     {
@@ -101,7 +101,7 @@
       "expect_code": "E12",
       "got_rc": 1,
       "hit": true,
-      "seconds": 1.24,
+      "seconds": 0.12,
       "pass": true
     },
     {
@@ -110,7 +110,7 @@
       "expect_code": "E6",
       "got_rc": 1,
       "hit": true,
-      "seconds": 1.23,
+      "seconds": 0.12,
       "pass": true
     },
     {
@@ -119,7 +119,7 @@
       "expect_code": null,
       "got_rc": 0,
       "hit": true,
-      "seconds": 1.2,
+      "seconds": 0.17,
       "pass": true
     },
     {
@@ -128,7 +128,7 @@
       "expect_code": "E5=unchecked",
       "got_rc": 0,
       "hit": true,
-      "seconds": 0.83,
+      "seconds": 0.11,
       "pass": true
     },
     {
@@ -137,7 +137,7 @@
       "expect_code": null,
       "got_rc": 0,
       "hit": true,
-      "seconds": 0.91,
+      "seconds": 0.2,
       "pass": true
     },
     {

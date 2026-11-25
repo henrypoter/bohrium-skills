@@ -1,30 +1,51 @@
 {
-  "case_id": "case-001",
+  "schema_version": "3.0",
+  "case_id": "synthetic-example-not-official",
   "status": "issues",
-  "document": {"file": "sample_paper.txt", "pages": 1, "char_count": 320, "full_text_extracted": true},
-  "claims": [
-    {"id": "C1", "text": "药物 A 对所有高血压患者均有效", "type": "author", "location": "摘要", "scope": "无限制的全称结论"},
-    {"id": "C2", "text": "Smith 等在 1000 例患者中证实药物 A 可使血压降至正常", "type": "citation", "location": "讨论", "scope": "转述被引文献主张"}
-  ],
-  "findings": [
-    {"id": "F1", "category": "logic", "severity": "critical", "claim_id": "C1",
-     "issue": "由 30 例单组前后对照外推为对所有患者有效，结论超出数据范围",
-     "quote": "证明药物 A 对所有高血压患者均有效",
-     "location": "摘要/第2句",
-     "evidence": "样本 30 例且无对照组，无法支持全称因果结论",
-     "type": "insufficient_evidence", "fix": "将结论降为：药物 A 在本 30 例样本中与血压下降相关",
-     "confidence": "confirmed"},
-    {"id": "F2", "category": "citation", "severity": "major", "claim_id": "C2",
-     "issue": "被引文献实际为 20 例 pilot study，本文转述为 1000 例",
-     "quote": "Smith 等 (2020) 在 1000 例患者中证实",
-     "location": "讨论/第1句",
-     "evidence": "参考文献[1] 标题为 20 patients 的 pilot study，与正文 1000 例不符",
-     "type": "fact_error", "fix": "将 1000 例改为 20 例，并删除'降至正常'的过度转述",
-     "confidence": "confirmed"}
-  ],
-  "checklist_coverage": {"fact": 1, "citation": 1, "method": 0, "statistics": 0, "logic": 1, "compliance": 0},
-  "unchecked": ["图表未提供"],
-  "sources": ["sample_paper.txt"],
+  "manuscript_version": {
+    "label": "sample_paper-v1",
+    "sha256": "341a1aa16760a71129a95c0dd6ef99f95a4769a6b56688491141965c9f5bd328",
+    "files": ["sample_paper.txt"]
+  },
+  "run": {"tool_version": "3.0.0", "run_id": "synthetic-example-001"},
+  "contract": {"source": "synthetic-example", "preserved_fields": ["case_id", "status", "issues", "sources", "uncertainty", "change_log"]},
+  "facets": {
+    "design": {"status": "checked", "notes": "方法明确为单组前后对照且无安慰剂组", "reason": ""},
+    "variables": {"status": "checked", "notes": "检查了收缩压测量与单位；样例未提供完整切点信息", "reason": ""},
+    "statistics": {"status": "checked", "notes": "核对了样例中p与线性尺度95%CI方向", "reason": ""},
+    "sample_size": {"status": "checked", "notes": "记录30例入组，未见样本量估算依据", "reason": ""},
+    "reporting": {"status": "checked", "notes": "核对摘要、方法、结果与讨论的结论范围", "reason": ""}
+  },
+  "categories": {
+    "fact": {"status": "checked", "notes": "样例内部数值回查", "reason": ""},
+    "citation": {"status": "checked", "notes": "检查Smith条目；未外部获取，不声称外部核验", "reason": ""},
+    "design": {"status": "checked", "notes": "单组设计与全称因果结论不匹配", "reason": ""},
+    "statistics": {"status": "checked", "notes": "样例报告的p与CI相容", "reason": ""},
+    "argument": {"status": "checked", "notes": "所有患者/治愈表述超出单组设计", "reason": ""},
+    "compliance": {"status": "checked", "notes": "样例未提供伦理声明，列为材料限制而非确定违规", "reason": ""}
+  },
+  "issues": [{
+    "id": "P1",
+    "category": "design",
+    "facet": "design",
+    "severity": "major",
+    "defect_type": "evidence_gap",
+    "review_status": "confirmed",
+    "location": {"section": "方法", "page": 1, "paragraph": 5, "quote_sha256": "c3c0c93600f081fe46a308a7f52d8785b4f2fb78fbecd9196b024ef2e7ea34b1"},
+    "quote": "采用单组前后对照设计，未设安慰剂对照组。",
+    "claim": "缺少平行对照，安慰剂效应和自然波动等替代解释未被排除，不能独立支撑全称因果结论。",
+    "fix": "补充合适对照；若无法补充，限定结论为单组前后变化并讨论偏倚。",
+    "evidence": [{
+      "source_id": "M",
+      "quote": "采用单组前后对照设计，未设安慰剂对照组。",
+      "basis": "设计句直接说明单组且无安慰剂对照，限制因果推断强度。",
+      "locator": {"section": "方法", "page": 1, "paragraph": 5, "quote_sha256": "c3c0c93600f081fe46a308a7f52d8785b4f2fb78fbecd9196b024ef2e7ea34b1"}
+    }]
+  }],
+  "sources": [{"source_id": "M", "path": "sample_paper.txt", "sha256": "341a1aa16760a71129a95c0dd6ef99f95a4769a6b56688491141965c9f5bd328"}],
+  "checked_scope": {"did": ["合成样例的五面六类演示"], "not_checked": ["外部文献原文与真实伦理批件未提供"]},
+  "gain": {"baseline_hit_rate": null, "skill_hit_rate": null, "false_positive_rate": null},
+  "unchecked": ["外部来源、伦理批件和原始数据未提供；对应外部真实性未核"],
   "uncertainty": [],
-  "change_log": ["extract 全文成功", "schema 校验通过"]
+  "change_log": ["合成接口示例；未使用正式案例；v3 gate通过"]
 }

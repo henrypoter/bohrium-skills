@@ -1,0 +1,35 @@
+{
+  "summary": {
+    "total": 19,
+    "passed": 19,
+    "failed": 0
+  },
+  "audit_groups": {
+    "positive": 3,
+    "mutants": 14,
+    "fingerprint_assertions": 2
+  },
+  "checks_pass": [
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true
+  ],
+  "rule_version": "evidence-audit-1.0.0",
+  "boundary": "自拟数据；只验证规则一致性，不自动判定研究设计或科学冲突"
+}

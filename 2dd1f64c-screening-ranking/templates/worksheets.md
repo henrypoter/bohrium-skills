@@ -50,3 +50,9 @@ REF01,yes,no,miss,M1,"Q2 未覆盖同义词 'pyroptosis'",title match fail
 
 - `miss_reason_code`：M1 查询词未覆盖同义表达；M2 检索字段过窄；M3 时间窗截断；M4 来源库未收录；M5 记录标识异常
 - `miss_attribution` 必须指到**具体查询/字段/来源**，不能只写"数据库覆盖不足"
+
+## 5. 可复算评分与稳定排序（筛选排序类课题）
+`result.json` 使用 `dimensions[] + scores[] + ranking_policy + ranking[] + top_k`，而不是只给一列总分。每条评分带 `dim_scores/unknown_dimensions/unknown_details/evidence`，每条排序带 `rank/total/bucket/reason`；同分组另带 `tie_group/tie_resolution`。
+
+固定键 `unknown_last,total_desc,record_id_asc`，固定公式 `known_weight_renormalized`。`metadata_issues/criteria_conflicts/source_status/empty_result` 用于保留缺失、冲突和失败边界。运行：
+`python3 scripts/search_tool.py rankcheck result.json`。

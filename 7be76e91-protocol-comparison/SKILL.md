@@ -1,92 +1,119 @@
 ---
 name: protocol-comparison
-description: 实验方案比较与选择：六要素齐备、参数逐项核对设备量程、风险带触发与止损、方案可版本化复核
+description: 实验方案比较与选择：固定同口径矩阵，核算全成本与全周期，核验设备/档期/预算/参数硬约束，给有证据的选型、逐方案舍弃理由、敏感性和全不可行恢复路径
 ---
 
 # 实验方案比较与选择
 
-把研究目标转成**能排期、能执行、能被同行评审**的方案：假设可检验、变量可测、对照能排除混杂、参数在设备允许范围内、风险有预案。
+把固定材料中的多个候选方案放到**同一张可复核矩阵**上，区分“理论可行”“当前资源可行”“被选择”，而不是分别写三份通用流程。适用于给定研究目标、候选方案、有限参数域、设备/耗材/价格/档期合同的比较与选择。
 
-不适用：替代实验人员承担安全与伦理审查、替代统计分析、代写论文。
+不适用：代替安全/伦理审批、捏造真实实验室或供应商状态、单篇文献综述、实验数据统计建模或论文写作。输入里的规划合同只代表该场景，不能称为真实采购报价、实际排期或实测效果。
 
-## 调用
+## 输入、输出与调用边界
 
-- 输入：`/input/case.json`、`/input/task.md`、设备/材料清单与约束
-- 输出：`/app/output/result.json` + 方案正文
-- 工具：`scripts/exp_tool.py`（`check` / `params` / `schema`）
-- 模板：`templates/plan_spec.md`（六要素检查表 + 参数表 + 风险矩阵）
+1. 读取真实 `/input/case.json`、`/input/task.md` 和随案材料，先记录原 `output_contract`。**原契约字段原样保留**，下列字段是增量审计字段，不替换原字段；从实际文件取内容，不从文件名猜答案。
+2. 在 `/app/work` 工作，尽早写 `/app/output/result.json` 与方案正文；最终保留 `case_id/input_id`、状态、来源定位、不确定性、确认项和变更记录。
+3. 工具仅依赖 Python 3 标准库，安装后位于 `/skills/weekly-skill/`。以下命令在提交根目录执行；评测时可将 `scripts/...` 换成绝对路径。
+4. `bench/fixtures/good_result.json` 是合成接口示例，不是正式案例答案。工具只能核验结构、算术和显式合同，不能证明科学效应一定成立。
 
-## 工作流
+## 判对工作流
 
-### 0. 目标 → 可检验假设
-写 `research_goal.hypothesis`：**可被数据推翻**的陈述（含方向、比较对象、阈或范围）。"研究 X 的机制"不是假设；"X 在 A 条件下使 Y 上升 ≥20%"才是。
+### 1. 先锁定口径，再填所有候选
 
-### 1. 变量：给操作定义，不给名词
-每个变量必须有 `operational_definition`（怎么测）、`unit`、`range`，并标 `type`（independent/dependent/confounder）。混杂因素要单独列出，不要藏在自变量里。
+- 保留案例给定的全部候选及各自 `id/plan_version`；通常是 3 个版本化候选，不得只描述自己偏好的一个。
+- `comparison_basis.fields` 固定为：`hypothesis / variables / controls / steps / parameters / resources / decision_criteria / risks / evidence / cost_breakdown / time_breakdown / hard_constraints`。每个候选逐项填写，未知写 `unknown`，不得换个方案就换字段。
+- 候选内部仍须做到：假设可推翻；变量有操作定义、测量方式、单位、范围；对照说明排除的混杂；步骤绑定设备/材料、先后与并行关系；参数有单位、有限定义域和来源；判读标准含阈值与方向。
+- 专家确认项单列。未经确认的安全、伦理、设备可用性或效果推断，不写成已获批准事实。
 
-### 2. 对照：说明排除哪类混杂
-每个对照写 `confounder_excluded`。没有"排除什么"的对照等于没设对照。
+### 2. 全成本、全周期必须可重算
 
-### 3. 步骤 / 设备 / 材料 / 时间
-步骤绑定设备型号与耗材规格；写清 `time_estimate`（可分步时长与并行关系）与成本估算。**可替代与不可替代项要标出来**（试剂缺货时的替代路径）。
+成本统一币种且分项为 `capital + machine + consumables + labor + rework = total`，其中一次性投入与按次消耗不能混写。时间统一单位且分项为 `preparation + execution + queue + characterization + rework = total`；样品准备、设备排期、表征排队、返工不可省略。若并行，须在正文说明总时长的关键路径；不能只把并行步骤机械相加，也不能漏项后伪称并行。
 
-### 4. 参数：逐项核对量程，不只看"看起来合理"
-写 `parameters`：`name / value / unit / min / max`。然后用设备与材料限值核验：
-```bash
-python3 scripts/exp_tool.py params result.json --spec limits.json
-```
-`limits.json` 里放设备手册/材料耐温/安全阈值。脚本会抓三类问题：**超出上限、单位不一致、spec 未声明限值（须补来源）**。参数依据注明来自设备手册/预实验/文献。
+每个分项表给 `unit/source_locator`。报价、货期、排期未知时是 `missing_input`，不补造数字；不同币种或时间单位未经明确换算依据不得直接比较。
 
-### 5. 风险与异常：三件套缺一不可
-每个风险必须有 `trigger`（什么信号触发）、`mitigation`（怎么救）、`stop_rule`（何时止损）。只写"注意安全"不算。
+### 3. 硬约束先行，评分不得“抵消不可行”
 
-### 6. 六要素自检
-```bash
-python3 scripts/exp_tool.py check result.json
-```
-输出 `missing_elements` 与逐项错误（假设缺失、变量缺操作定义/单位、对照未说明混杂、风险三件套缺项、判断缺证据来源、参数越自述区间）。全部清零再接下一步。
-
-### 7. 增益对照
-同目标、同资源约束，基础 Agent vs 本 Skill 各跑一次，报：六要素完整度、需人工修改条目数、评审返工轮次。
-
-### 8. 异常处置
-| 异常 | 动作 |
-|-|-|
-| 无设备参数/预算 | 该要素标 `unknown` 并给出"需确认清单"，**不编造型号与价格** |
-| 约束冲突（时间窗 vs 样本量） | 列出冲突双方与取舍空间，给两个可行方案供选择，不悄悄牺牲一方 |
-| 依赖不可用（试剂缺货/设备排期满） | 给替代路径与预计影响，标为 `blocked` 而非"已完成" |
-| 参数无可行解 | 说明冲突的参数对与放宽方向，转人工决策 |
-| 生成内容不确定 | 写明哪些是文献依据、哪些是经验推断，标 `confidence` |
-| 安全/伦理未明确 | 单列进 `expert_confirmation`，不自行放行 |
-
-### 9. 诚实输出
-```bash
-python3 scripts/exp_tool.py schema /app/output/result.json
-```
-
-## result.json 契约
+从案例材料构造 `feasibility-spec.json`（文件名自定），只登记材料实际提供的合同：
 
 ```json
 {
-  "case_id": "", "status": "pass|issues|partial|failed", "plan_version": "plan-v1.0",
-  "research_goal": {"objective": "", "hypothesis": "", "constraints": []},
-  "variables": [{"id": "V1", "name": "", "type": "independent|dependent|confounder",
-                 "operational_definition": "", "unit": "", "range": ""}],
-  "controls": [{"id": "C1", "type": "blank|positive|negative|gradient", "purpose": "",
-                "confounder_excluded": ""}],
-  "steps": [{"id": "S1", "action": "", "equipment": "", "material": "", "duration": "", "parameter_range": ""}],
-  "resources": {"equipment": [], "materials": [], "sample": "", "time_estimate": "", "cost_estimate": ""},
-  "parameters": [{"name": "temperature", "value": 75, "unit": "C", "min": 20, "max": 90, "source": "设备手册 p12"}],
-  "risks": [{"id": "R1", "failure_mode": "", "trigger": "", "consequence": "", "mitigation": "", "stop_rule": ""}],
-  "judgments": [{"id": "J1", "claim": "", "evidence": "", "source": "", "confidence": ""}],
-  "expert_confirmation": [],
-  "gain": {"baseline_completeness": null, "skill_completeness": null, "rework_rounds_saved": null},
-  "unchecked": [], "sources": [], "uncertainty": [], "change_log": []
+  "spec_version": "case-contract-v1",
+  "budget": {"amount": 1500, "currency": "CNY", "source_locator": "case.json#/budget"},
+  "time_window": {"value": 40, "unit": "h", "source_locator": "case.json#/time_window"},
+  "equipment": {"reader": {"available": true, "booking_status": "open", "source_locator": "case.json#/equipment/reader"}},
+  "materials": {"reagent": {"available": true, "lead_time": 2, "unit": "h", "source_locator": "case.json#/materials/reagent"}},
+  "limits": {"temperature": {"min": 4, "max": 40, "unit": "C", "source_locator": "manual.pdf#page=12"}}
 }
 ```
 
-## 底线
-假设可检验、对照说明排除什么、参数不越量程、风险有止损点、需专家确认的单列。缺设备/预算就写 unknown，不编造。
+候选 `resource_requirements.equipment/materials` 引用合同 ID；`hard_constraints[]` 逐项写 `id/type/status/source_locator`，`status` 只能是 `pass/fail/unknown`。任一 `fail/unknown` 均不可选，低成本或高主观分不能抵消。
 
-## 本课题聚焦
-本题聚焦**多方案横向比较**：先固定可比字段（目标/硬约束/成本口径/风险/证据强度）再逐方案填表，避免各写一套；成本区分一次性投入与按次消耗；给可辩护的选择与具体舍弃理由，并说明敏感性（哪个假设变了结论会翻转）。
+### 4. 选型、舍弃和敏感性缺一不可
+
+- `selection.selected_candidate_id` 只能指向所有硬约束均为 `pass` 的候选。
+- `selection.rejected` 对每个未选候选恰好一条具体理由，写清成本、周期、证据或哪条硬约束导致舍弃，不写“综合较差”。
+- `selection.rationale/evidence` 把最终结论挂到登记来源；文献、设备手册、预实验、报价和日志不能用笼统“经验”代替。
+- `selection.sensitivity[]` 写 `assumption/threshold/effect/evidence`，说明哪个假设或成本/时间变化会翻转结论；翻转后仍须重验硬约束。
+
+### 5. 风险不是“注意安全”
+
+每条风险有 `trigger/consequence/mitigation/stop_rule/alternative_path`，触发条件可观察、后果可判读，替代路径写参数/成本/周期影响和确认人。可接受风险与硬不可行必须分开。
+
+## 异常处置硬表
+
+异常写入 `exceptions[]`，每条包含 `type/trigger/action/impact/decision_owner/status`。未解决时状态诚实标 `issues` 或 `partial`，不得写执行完成。
+
+| 题面失败情形 | 识别与动作 | 放行规则 |
+|-|-|-|
+| 设备不可得 / 排期满 | `equipment_unavailable`；定位设备合同；给已核验替代设备或改期路径，重算参数、成本、周期 | 替代项仍 `unknown` 就不可选 |
+| 耗材缺货 / 货期超窗 | `material_unavailable` 或 `time_window_conflict`；给替代耗材验证要求及成本/货期影响 | 不用未经验证替换冒充等效 |
+| 耗材/总成本超预算 | `budget_exceeded`；给超支 `delta`，列可裁剪项及其证据/判读影响 | 不静默删对照、样本或返工预算 |
+| 参数窗口冲突 | `parameter_window_conflict`；展示候选区间、设备限值与交集；空交集则换路线 | 不把越界值截到边界就宣称科学等效 |
+| 时间窗冲突 | `time_window_conflict`；给并行、分批、延期选项及影响 | 未确认前不压缩关键步骤 |
+| 输入缺失 | `missing_input`；该字段 `unknown`，列需确认的合同和来源 | `unknown != pass`，不得推测价格/档期 |
+| **候选全部不可行** | `all_candidates_infeasible`；`selected_candidate_id=null`，逐候选给失败理由；`recovery.status=blocked`，写放宽项、替代路径、影响、`decision_owner` | 禁止强行选“相对最好”；补证据后重跑全矩阵 |
+| 内容或效果不确定 | `uncertain_content`；区分材料事实、假设、经验推断，给 `uncertainty/confidence` | 不把语言自信当证据强度 |
+
+## 机检顺序（新硬闸）
+
+```bash
+# 契约：输入/方案/来源/工具版本、来源定位、运行命令与变更记录
+python3 scripts/exp_tool.py schema /app/output/result.json
+# 矩阵：同口径字段、算术、可行候选、选择/舍弃、敏感性、全不可行恢复
+python3 scripts/exp_tool.py compare /app/output/result.json
+# 资源：设备/档期、耗材/货期、预算、时间窗、参数交集
+python3 scripts/exp_tool.py feasibility /app/output/result.json --spec /app/work/feasibility-spec.json
+```
+
+三条命令均须 `ok=true`；若真实异常使 `feasibility` 返回非零，保留违规清单与诚实 `issues/partial` 产物，不为“变绿”改假数据。已有 `check` 与 `params --spec` 可用于选定方案正文的六要素和单参数复核。所有实际执行命令写入 `run_record.commands`，工具版本写 `run_record.tool_version`。
+
+## result.json 增量契约（字段结构）
+
+```json
+{
+  "case_id": "...", "input_id": "...", "status": "pass|issues|partial|failed",
+  "plan_version": "comparison-v1.0", "comparison_schema_version": "matrix-v3.0", "source_version": "...",
+  "comparison_basis": {"cost_currency": "CNY", "time_unit": "h", "hard_constraint_rule": "任一非pass不可选", "fields": ["...统一字段..."]},
+  "candidates": [{"id": "P-A", "plan_version": "A-v1.2", "hypothesis": "...", "variables": [], "controls": [], "steps": [], "parameters": [], "resources": {}, "resource_requirements": {"equipment": [], "materials": []}, "decision_criteria": [], "risks": [], "evidence": [], "cost_breakdown": {}, "time_breakdown": {}, "hard_constraints": []}],
+  "selection": {"selected_candidate_id": "P-A", "rationale": "...", "evidence": [], "rejected": [{"candidate_id": "P-B", "reason": "..."}], "sensitivity": [{"assumption": "...", "threshold": "...", "effect": "...", "evidence": "..."}]},
+  "exceptions": [], "recovery": {"status": "not_blocked|blocked", "action": "...", "decision_owner": "..."},
+  "sources": [{"id": "SRC1", "version": "v1", "locator": "manual.pdf#page=12 或 case.json#/equipment/reader"}],
+  "uncertainty": [], "expert_confirmation": [], "unchecked": [],
+  "change_log": [{"plan_version": "comparison-v1.0", "change": "...", "reason": "..."}],
+  "run_record": {"tool_version": "3.0.0", "commands": ["...实际执行命令..."]}
+}
+```
+
+最小可运行示例：
+
+```bash
+python3 scripts/exp_tool.py schema bench/fixtures/good_result.json
+python3 scripts/exp_tool.py compare bench/fixtures/good_result.json
+python3 bench/bench_run.py
+```
+
+## 公平增益与完成底线
+
+本地 `bench` 只证明命令及变异检出，不声称官方得分、科学有效性或相对榜首提升。若另做基础 Agent 对照，必须同输入、同预算、同工具可用性，记录候选字段对齐耗时、人工修改项、返工轮次及原始轨迹；平台未提供的数字保持 `null`。
+
+交付前：所有候选同表、算术可重算、选择未越硬约束、舍弃具体、敏感性可翻转、全不可行不硬选、来源可定位、版本可追踪。

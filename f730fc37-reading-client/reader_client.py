@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""reading-client v3: 打开→检索→选中→问答→批注→导出+断点续读; 锚点四级回退, 未核验记 needs_confirmation。"""
-import argparse, difflib, json, os, re, shutil, subprocess, sys, time
+"""reading-client v5: 材料预检+选区/答案/证据版本绑定+阅读闭环；未核验记 needs_confirmation。"""
+import argparse, difflib, hashlib, json, os, re, shutil, subprocess, sys, time
+from scripts.delivery_guard import canonical_digest, digest_text, inspect_material
 
-SCHEMA = 2
+SCHEMA = 3
+TOOL_VERSION = "5.0.0"
 VERIFIED = ("verbatim", "normalized")
 
 def norm(s): return re.sub(r"\s+", " ", s or "").strip()
@@ -17,7 +19,9 @@ def jout(o): print(json.dumps(o, ensure_ascii=False))
 class Session:
     DEFAULT = {"schema_version": SCHEMA, "doc": None, "pages": 0, "text_status": None,
                "extraction": None, "page_offset": 0, "selection": None, "qa": [],
-               "notes": [], "reading_position": None, "opened_at": None}
+               "notes": [], "reading_position": None, "opened_at": None,
+               "material_version": None, "tool_version": TOOL_VERSION,
+               "last_open_error": None}
     def __init__(self, d):
         self.dir = d
         os.makedirs(d, exist_ok=True)
@@ -53,7 +57,9 @@ class Session:
         return out
 
 def fail(msg, code=2):
-    jout({"ok": False, "error": msg}); sys.exit(code)
+    payload = dict(msg) if isinstance(msg, dict) else {"error": str(msg)}
+    payload["ok"] = False
+    jout(payload); sys.exit(code)
 
 def locate(pages, quote):
     q = norm(quote)
@@ -153,36 +159,77 @@ def set_pos(s, page, line, quote, src):
 
 def cmd_open(a):
     s = Session(a.workdir)
-    if not os.path.exists(a.file): fail("material_missing: %s" % a.file)
+    doc = os.path.abspath(a.file)
+    def reject(report):
+        if "code" not in report:
+            report = {"code": "open_failed", "error": str(report), "status": "partial"}
+        report.setdefault("error", report["code"])
+        s.state.update(doc=doc, pages=0, text_status=report["code"], extraction=None,
+                       material_version=report.get("material_version"),
+                       last_open_error=report, selection=None, qa=[], notes=[],
+                       opened_at=int(time.time()))
+        with open(s.pp, "w", encoding="utf-8"):
+            pass
+        set_pos(s, 1, 1, "", "open_failed")
+        s.save()
+        fail(report)
+    try:
+        preflight = inspect_material(a.file, a.max_file_mib)
+    except OSError as exc:
+        reject({"code": "material_unreadable", "status": "partial",
+                "error": str(exc), "action": "修复路径/权限/磁盘占用后重试"})
+    if not preflight.get("ok"): 
+        reject(preflight)
     if a.file.lower().endswith(".pdf"):
         try:
             def _pdf(flag):
                 c = ["pdftotext"] + ([flag] if flag else []) + [a.file, "-"]
-                return subprocess.run(c, capture_output=True, timeout=120).stdout.decode("utf-8", "replace")
+                result = subprocess.run(c, capture_output=True, timeout=120)
+                if result.returncode:
+                    detail = result.stderr.decode("utf-8", "replace").strip()[:400]
+                    kind = ("encrypted_pdf" if re.search(r"password|encrypt", detail, re.I)
+                            else "pdf_extraction_failed")
+                    raise RuntimeError(kind + ": " + (detail or "pdftotext failed"))
+                return result.stdout.decode("utf-8", "replace")
             txt, mode = _pdf("-layout"), "pdftotext-layout"
             if len(norm(txt)) < 40: txt, mode = _pdf(None), "pdftotext-raw"
-        except FileNotFoundError: fail("tool_missing: pdftotext")
-        except subprocess.TimeoutExpired: fail("extract_timeout: pdftotext >120s")
+        except FileNotFoundError:
+            reject({"code": "tool_missing", "status": "partial", "action": "安装 poppler/pdftotext 后重试"})
+        except subprocess.TimeoutExpired:
+            reject({"code": "extract_timeout", "status": "partial", "action": "请求分卷或可复制文本；120 秒超时"})
+        except RuntimeError as exc:
+            code = str(exc).split(":", 1)[0]
+            reject({"code": code, "status": "partial", "error": str(exc)})
         pages = txt.split("\f")
     else:
         txt = readf(a.file)
         pages = txt.split("\f") if "\f" in txt else [txt]
         mode = "plain-text"
     if pages and not norm(pages[-1]): pages = pages[:-1]
-    if not pages: fail("empty_document")
+    if not pages:
+        reject({"code": "empty_document", "status": "partial"})
+    if len(pages) > a.max_pages:
+        reject({"code": "oversized_document", "status": "partial",
+                "page_count": len(pages), "max_pages": a.max_pages,
+                "action": "按章节分卷或显式提高 --max-pages；不得假装已读"})
     text_status = "ok" if sum(len(norm(p)) for p in pages) >= 100 else "no_text_layer"
     with open(s.pp, "w", encoding="utf-8") as f:
         for i, p in enumerate(pages, 1):
             f.write(json.dumps({"page": i, "text": p}, ensure_ascii=False) + "\n")
-    doc = os.path.abspath(a.file)
+    previous_doc = s.state.get("doc")
     rp = s.state.get("reading_position")
+    fresh_doc = previous_doc != doc
     s.state.update(doc=doc, pages=len(pages), text_status=text_status,
                    extraction=mode, page_offset=a.page_offset, selection=None,
+                   material_version=preflight["material_version"], last_open_error=None,
                    opened_at=int(time.time()))
+    if fresh_doc:
+        s.state["qa"] = []; s.state["notes"] = []; rp = None
     if not rp or rp.get("doc") != doc: set_pos(s, 1, 1, "", "open")
     s.save()
     jout({"ok": True, "doc": doc, "pages": len(pages), "text_status": text_status,
-          "extraction": mode, "session_health": s.health})
+          "extraction": mode, "material_version": preflight["material_version"],
+          "session_health": s.health})
 
 def cmd_search(a):
     s = Session(a.workdir)
@@ -247,18 +294,33 @@ def cmd_qa(a):
     evid = list(a.evidence or [])
     if a.evidence_file:
         evid += [b for b in (norm(x) for x in re.split(r"\n\s*\n", readf(a.evidence_file))) if b]
+    answer_number = len(s.state["qa"]) + 1
+    answer_id = "qa%d" % answer_number
+    material = s.state.get("material_version") or {}
+    doc_sha = material.get("sha256")
     entries = []
     for ev in evid:
         locs = locate(pages, ev)
         anch = make_anchor(locs[0], ev) if locs else resolve_and_anchor(pages, ev)
         conf = anch.get("confidence")
         verified = is_verified(conf)
+        locations = [pub(l) for l in resolve(pages, anch)[:2]]
+        first = locations[0] if locations else None
         entries.append({"quote": norm(ev)[:300], "anchor": anch,
+                        "answer_id": answer_id,
+                        "evidence_id": "%s-ev%d" % (answer_id, len(entries) + 1),
+                        "document_sha256": doc_sha,
                         "verified": verified, "confidence": conf or "failed",
                         "needs_confirmation": not verified,
-                        "locations": [pub(l) for l in resolve(pages, anch)[:2]]})
-    entry = {"id": len(s.state["qa"]) + 1, "question": q, "answer": ans,
-             "selection": s.state.get("selection"), "evidence": entries,
+                        "location": ("p%s:L%s" % (first.get("page"), first.get("line"))
+                                     if first else None),
+                        "locations": locations})
+    entry = {"id": answer_number, "answer_id": answer_id,
+             "question": q, "answer": ans,
+             "answer_sha256": digest_text(ans), "document_sha256": doc_sha,
+             "selection": s.state.get("selection"),
+             "selection_sha256": canonical_digest(s.state.get("selection")),
+             "evidence": entries,
              "all_verified": (all(e["verified"] for e in entries) if entries else None),
              "ts": int(time.time())}
     s.state["qa"].append(entry)
@@ -306,6 +368,8 @@ def cmd_status(a):
     jout({"doc": st["doc"], "pages": st["pages"], "text_status": st["text_status"],
           "extraction": st.get("extraction"), "page_offset": st.get("page_offset", 0),
           "schema_version": st.get("schema_version"), "session_health": s.health,
+           "tool_version": st.get("tool_version"), "material_version": st.get("material_version"),
+           "last_open_error": st.get("last_open_error"),
           "backup_exists": os.path.exists(s.sp + ".bak"), "opened_at": st.get("opened_at"),
           "reading_position": st.get("reading_position"), "resume_hint": _hint(st),
           "qa_count": len(st["qa"]), "qa_needs_confirmation": nc,
@@ -364,8 +428,11 @@ def cmd_export(a):
     for e in st["qa"]:
         for i, ev in enumerate(e["evidence"]):
             an = ev.get("anchor") or {}
-            anns.append({"id": "qa%d-ev%d" % (e["id"], i + 1), "type": "Annotation",
-                "body": {"question": e["question"], "answer": e["answer"]},
+            anns.append({"id": ev.get("evidence_id") or "qa%d-ev%d" % (e["id"], i + 1),
+                "type": "Annotation",
+                "body": {"question": e["question"], "answer": e["answer"],
+                         "answer_id": e.get("answer_id") or "qa%d" % e["id"]},
+                "answer_sha256": e.get("answer_sha256"),
                 "target": _target(st["doc"], an, ev["quote"]),
                 "confidence": ev.get("confidence"), "verified": ev["verified"],
                 "needs_confirmation": ev.get("needs_confirmation", False)})
@@ -376,34 +443,77 @@ def cmd_export(a):
             "confidence": an.get("confidence"), "verified": bool(n.get("anchor")),
             "needs_confirmation": bool(an) and not is_verified(an.get("confidence"))})
     ap = os.path.join(a.out, "annotations.json")
-    json.dump({"schema_version": SCHEMA, "doc": st["doc"], "annotations": anns},
+    json.dump({"schema_version": SCHEMA, "tool_version": TOOL_VERSION,
+               "doc": st["doc"], "material_version": st.get("material_version"),
+               "annotations": anns},
               open(ap, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
-    unv = [e["id"] for e in st["qa"] if e["all_verified"] is False]
+    unv = [e["id"] for e in st["qa"] if e["all_verified"] is not True]
     fuzzy = any(str(ev.get("confidence", "")).startswith("fuzzy")
                 for e in st["qa"] for ev in e["evidence"])
     nc = [{"qa_id": e["id"], "quote": ev["quote"][:80], "confidence": ev.get("confidence"),
            "reason": "证据未能逐字核验（模糊/兜底/未命中），需人工复核原文"}
           for e in st["qa"] for ev in e["evidence"] if ev.get("needs_confirmation")]
-    if st["text_status"] != "ok":
-        status = "partial: 扫描件/无文本层，仅部分可读"
+    nc += [{"qa_id": e["id"], "quote": None, "confidence": "missing",
+            "reason": "回答没有证据锚点，不得作为已证实结论"}
+           for e in st["qa"] if not e.get("evidence")]
+    open_error = st.get("last_open_error")
+    if open_error:
+        status, status_reason = "partial", open_error.get("code", "open_failed")
+    elif st["text_status"] != "ok":
+        status, status_reason = "partial", "no_text_layer"
     elif unv:
-        status = "partial: QA %s 存在未核验证据" % unv
+        status, status_reason = "partial", "QA %s 存在未核验或无锚点证据" % unv
     else:
-        status = "success"
-    draft = {"case_id": "", "status": status,
-             "answers": [{"question": e["question"], "answer": e["answer"],
+        status, status_reason = "success", None
+    material = st.get("material_version") or {}
+    opened = st.get("opened_at") or 0
+    run_id = "reader-" + digest_text("%s|%s" % (material.get("sha256"), opened))[:16]
+    uncertainty = ([str(open_error)] if open_error else
+                   (["扫描件无文本层，仅覆盖可抽取文本"] if st["text_status"] != "ok" else []))
+    uncertainty += (["存在未核验证据引用"] * bool(unv) +
+                    ["存在模糊匹配证据，置信度已降级，建议人工复核"] * bool(fuzzy))
+    draft = {"schema_version": SCHEMA, "tool_version": TOOL_VERSION, "run_id": run_id,
+             "case_id": "", "status": status, "status_reason": status_reason,
+             "material_version": st.get("material_version"), "open_error": open_error,
+             "answers": [{"id": e["id"], "answer_id": e.get("answer_id"),
+                          "question": e["question"], "answer": e["answer"],
+                          "answer_sha256": e.get("answer_sha256"),
+                          "document_sha256": e.get("document_sha256"),
+                          "selection": e.get("selection"),
+                          "selection_sha256": e.get("selection_sha256"),
                           "evidence": e["evidence"]} for e in st["qa"]],
              "annotations": st["notes"], "needs_confirmation": nc,
-             "reading_record": rec, "annotations_file": ap, "sources": [st["doc"]],
-             "uncertainty": (["扫描件无文本层，仅覆盖可抽取文本"] if st["text_status"] != "ok"
-                             else []) + ["存在未核验证据引用"] * bool(unv)
-                            + ["存在模糊匹配证据，置信度已降级，建议人工复核"] * bool(fuzzy),
+             "reading_record": rec, "annotations_file": ap,
+             "sources": [{"path": st["doc"], "material_version": st.get("material_version"),
+                          "pages": st.get("pages"), "text_status": st.get("text_status"),
+                          "extraction": st.get("extraction"),
+                          "page_offset": st.get("page_offset", 0)}],
+             "uncertainty": uncertainty,
              "change_log": ["export at %d: %d QA, %d notes, %d annotations" %
                             (int(time.time()), len(st["qa"]), len(st["notes"]), len(anns))]}
+    manifest = {}
+    for path in (rec, ap):
+        manifest[os.path.basename(path)] = hashlib.sha256(open(path, "rb").read()).hexdigest()
+    manifest["session.json"] = hashlib.sha256(open(s.sp, "rb").read()).hexdigest()
+    draft["artifact_manifest"] = manifest
     dp = os.path.join(a.out, "result_draft.json")
     json.dump(draft, open(dp, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
+    final_path = None
+    if a.case:
+        case = json.load(open(a.case, encoding="utf-8"))
+        final = dict(draft)
+        final["case_id"] = case.get("case_id", case.get("id", ""))
+        contract = case.get("output_contract", {})
+        final["output_contract"] = contract
+        if isinstance(contract, dict):
+            for key, value in contract.items():
+                if key not in final:
+                    final[key] = value
+        final_path = os.path.join(a.out, "result.json")
+        json.dump(final, open(final_path, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
     jout({"ok": True, "reading_record": rec, "annotations": ap, "result_draft": dp,
-          "status": status, "needs_confirmation": len(nc)})
+          "result": final_path, "status": status, "status_reason": status_reason,
+          "needs_confirmation": len(nc)})
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
@@ -411,6 +521,8 @@ def main():
     sub = ap.add_subparsers(dest="cmd", required=True)
     p = sub.add_parser("open")
     p.add_argument("file"); p.add_argument("--page-offset", type=int, default=0)
+    p.add_argument("--max-file-mib", type=float, default=64.0)
+    p.add_argument("--max-pages", type=int, default=2000)
     p.set_defaults(f=cmd_open)
     p = sub.add_parser("search")
     p.add_argument("query"); p.add_argument("--regex", action="store_true")
@@ -436,7 +548,9 @@ def main():
     p = sub.add_parser("resume")
     p.set_defaults(f=cmd_resume)
     p = sub.add_parser("export")
-    p.add_argument("--out", default="/app/output"); p.set_defaults(f=cmd_export)
+    p.add_argument("--out", default="/app/output")
+    p.add_argument("--case", help="可选 case.json；自动合并 case_id/output_contract 并写 result.json")
+    p.set_defaults(f=cmd_export)
     a = ap.parse_args()
     a.f(a)
 

@@ -6,8 +6,18 @@
     {"path": "/app/output/diagnosis.md", "kind": "诊断报告（必需）"},
     {"path": "/app/output/edit_plan.md", "kind": "六维 source-grounded 修改方案（必需，可编辑）"},
     {"path": "/app/output/skeleton.json", "kind": "骨架图谱（必需）"},
+    {"path": "/app/output/logic_audit.json", "kind": "研究问题/结论范围/截断候选与输入摘要（必需）"},
     {"path": "/app/output/revised_draft.md", "kind": "修改稿（可选：仅当存在 L1/L2 句子级落笔时产出；整篇重写非必需）"}
   ],
+  "artifact_version": "paper-structure-logic-review-1.1.0",
+  "input_manifest": {"algorithm": "sha256", "path": "实际稿件路径", "sha256": "scan 输出的64位摘要", "bytes": 0, "anchors_version": "skeleton-v1"},
+  "logic_audit": {
+    "rule_version": "logic-audit-1.0.0",
+    "audit_report": "/app/output/logic_audit.json",
+    "research_questions": [{"id": "RQ1（scan无候选则为空列表）", "status": "closed|open|not_applicable", "question_anchor": "S1.P1.s1", "method_anchors": ["S2.P1.s1"], "result_anchors": ["S3.P1.s1"], "conclusion_anchors": ["S4.P1.s1"], "rationale": "逐环覆盖或断环理由", "diagnosis_ids": []}],
+    "conclusion_boundaries": [{"id": "CB1（scan无候选则为空列表）", "conclusion_anchor": "S4.P1.s1", "result_anchors": ["S3.P1.s1"], "scope_relation": "within|narrower|broader|uncertain", "rationale": "人群/条件/数值/因果范围比对", "diagnosis_ids": []}],
+    "truncation": {"suspected": false, "last_anchor": "S4.P1.s1", "last_text_sha256": "scan输出", "read_scope": "complete|partial", "action": "全文核查或截断降级动作"}
+  },
   "diagnosis": [
     {"id": "D1", "dimension": "六维之一", "location": "S2.P3", "criterion": "判据+检索范围",
      "evidence": "原文≤40字", "type": "问题类型", "severity": "high|mid|low", "action": "动作摘要"}

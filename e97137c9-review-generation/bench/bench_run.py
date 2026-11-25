@@ -1,82 +1,105 @@
 #!/usr/bin/env python3
-"""syn_tool 自测：论断-引用回路、主题覆盖、交付校验；正向零误杀 + 变异必命中。"""
-import json, os, subprocess, sys, tempfile
+"""syn_tool 自测：所有命令均有正向零误杀与变异必命中。"""
+import copy
+import json
+import os
+import subprocess
+import sys
+import tempfile
 
 HERE = os.path.dirname(os.path.abspath(__file__))
+FIXTURES = os.path.join(HERE, "fixtures")
 TOOL = os.path.join(HERE, "..", "scripts", "syn_tool.py")
-TMP = tempfile.mkdtemp()
+TMP = tempfile.mkdtemp(prefix="review-bench-")
 checks = []
 
+with open(os.path.join(FIXTURES, "good_result.json"), encoding="utf-8") as f:
+    GOOD = json.load(f)
 
-def run(*a):
-    r = subprocess.run([sys.executable, TOOL, *a], capture_output=True, text=True)
+
+def run(*args):
+    result = subprocess.run([sys.executable, TOOL, *args], capture_output=True, text=True)
     try:
-        return r.returncode, json.loads(r.stdout)
+        return result.returncode, json.loads(result.stdout)
     except Exception:
-        return r.returncode, {"raw": r.stdout[:150]}
+        return result.returncode, {"raw": result.stdout[:200], "stderr": result.stderr[:200]}
 
 
-def dump(n, o):
-    p = os.path.join(TMP, n)
-    json.dump(o, open(p, "w", encoding="utf-8"), ensure_ascii=False)
-    return p
+def dump(name, value):
+    path = os.path.join(TMP, name)
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(value, f, ensure_ascii=False)
+    return path
 
 
-def add(n, c, d=""):
-    checks.append((n, c, d))
+def add(name, condition, detail=""):
+    checks.append((name, condition, detail))
 
 
-GOOD = {"case_id": "c1", "status": "issues",
-        "screening_criteria": [{"criterion": "纳入原始研究", "judgement": "对象匹配"}],
-        "records": [{"id": "R1", "title": "A"}, {"id": "R2", "title": "B"}],
-        "included": [{"id": "R1", "title": "A", "screening_reason": "对象匹配"}],
-        "claims": [{"id": "C1", "text": "机制X", "theme": "机制",
-                    "citations": [{"record_id": "R1", "location": "结果第2段"}]},
-                   {"id": "C2", "text": "背景Y", "theme": "背景",
-                    "citations": [{"record_id": "R2", "location": "引言"}]}],
-        "themes": [{"name": "机制"}, {"name": "背景"}],
-        "counts": {"included": 1, "excluded": 1, "records_raw": 2},
-        "gain": {}, "unchecked": [], "sources": [], "uncertainty": [], "change_log": []}
+def good_path():
+    return dump("good.json", GOOD)
 
-rc, d = run("cite_check", dump("g.json", GOOD))
-add("cite正向:论断引用闭合", rc == 0 and d.get("ok"), str(d)[:150])
 
-bad = json.loads(json.dumps(GOOD)); bad["claims"][0]["citations"] = []
-rc, d = run("cite_check", dump("b1.json", bad))
-add("cite变异:论断无引用被抓", rc == 1 and d.get("uncited_claims"), str(d.get("uncited_claims"))[:120])
+def mutation(name):
+    value = copy.deepcopy(GOOD)
+    return dump(name, value), value
 
-bad = json.loads(json.dumps(GOOD)); bad["claims"][0]["citations"] = [{"record_id": "R9", "location": "p1"}]
-rc, d = run("cite_check", dump("b2.json", bad))
-add("cite变异:悬空引用被抓", rc == 1 and d.get("dangling_citations"), str(d.get("dangling_citations"))[:120])
 
-bad = json.loads(json.dumps(GOOD)); bad["claims"][0]["citations"] = [{"record_id": "R1"}]
-rc, d = run("cite_check", dump("b3.json", bad))
-add("cite变异:引用缺定位被抓", rc == 1 and any("location" in e for e in d.get("errors", [])), str(d.get("errors"))[:120])
+# 先修改对象再落盘的辅助，避免测试误判共享 GOOD。
+def changed(name, fn):
+    value = copy.deepcopy(GOOD)
+    fn(value)
+    return dump(name, value)
 
-rc, d = run("theme_check", dump("g.json", GOOD))
-add("theme正向:主题均有论断", rc == 0 and d.get("ok"), str(d)[:150])
 
-bad = json.loads(json.dumps(GOOD)); bad["themes"].append({"name": "方法"})
-rc, d = run("theme_check", dump("b4.json", bad))
-add("theme变异:主题无论断被抓", rc == 1 and "方法" in d.get("themes_without_claims", []), str(d.get("themes_without_claims")))
+path = good_path()
+rc, out = run("cite_check", path)
+add("cite 正向：引用回路零误杀", rc == 0 and out.get("ok"), str(out))
+rc, out = run("cite_check", changed("cite-missing.json", lambda d: d["claims"][0].update(citations=[])))
+add("cite 变异：无引用必命中", rc == 1 and out.get("uncited_claims"), str(out))
+rc, out = run("cite_check", changed("cite-dangling.json", lambda d: d["claims"][0]["citations"][0].update(record_id="R9")))
+add("cite 变异：悬空引用必命中", rc == 1 and out.get("dangling_citations"), str(out))
+rc, out = run("cite_check", changed("cite-location.json", lambda d: d["claims"][0]["citations"][0].pop("location")))
+add("cite 变异：缺定位必命中", rc == 1 and any("location" in e for e in out.get("errors", [])), str(out))
 
-bad = json.loads(json.dumps(GOOD)); bad["claims"][0]["citations"] = []
-rc, d = run("theme_check", dump("b5.json", bad))
-add("theme变异:主题无带引用论断被抓", rc == 1 and d.get("themes_without_cited_claim"), str(d.get("themes_without_cited_claim")))
+rc, out = run("theme_check", path)
+add("theme 正向：主题覆盖零误杀", rc == 0 and out.get("ok"), str(out))
+rc, out = run("theme_check", changed("theme-empty.json", lambda d: d["themes"].append({"name": "空主题"})))
+add("theme 变异：空主题必命中", rc == 1 and "空主题" in out.get("themes_without_claims", []), str(out))
+rc, out = run("theme_check", changed("theme-weak.json", lambda d: d["claims"][0].update(citations=[])))
+add("theme 变异：主题无带引用论断必命中", rc == 1 and out.get("themes_without_cited_claim"), str(out))
 
-rc, d = run("schema", dump("g.json", GOOD))
-add("schema正向:合规零误杀", rc == 0 and d.get("ok"), str(d.get("errors"))[:150])
+rc, out = run("schema", path)
+add("schema 正向：附加字段契约零误杀", rc == 0 and out.get("ok"), str(out))
+rc, out = run("schema", changed("schema-required.json", lambda d: d.pop("screening_criteria")))
+add("schema 变异：缺筛选标准必命中", rc == 1, str(out))
+rc, out = run("schema", changed("schema-count.json", lambda d: d["counts"].update(excluded=99)))
+add("schema 变异：计数矛盾必命中", rc == 1, str(out))
 
-bad = json.loads(json.dumps(GOOD)); bad.pop("screening_criteria")
-rc, d = run("schema", dump("b6.json", bad))
-add("schema变异:缺筛选标准->失败", rc == 1, str(d.get("errors"))[:120])
+rc, out = run("screen_check", path)
+add("screen 正向：判据与决定闭合零误杀", rc == 0 and out.get("ok"), str(out))
+rc, out = run("screen_check", changed("screen-ref.json", lambda d: d["records"][0].update(criterion_ids=["S9"])))
+add("screen 变异：未知判据引用必命中", rc == 1 and any("criterion_ids" in e for e in out.get("errors", [])), str(out))
 
-bad = json.loads(json.dumps(GOOD)); bad["counts"]["excluded"] = 99
-rc, d = run("schema", dump("b7.json", bad))
-add("schema变异:计数矛盾->失败", rc == 1, str(d.get("errors"))[:120])
+rc, out = run("evidence_check", path)
+add("evidence 正向：摘录与强度零误杀", rc == 0 and out.get("ok"), str(out))
+rc, out = run("evidence_check", changed("evidence-quote.json", lambda d: d["claims"][0]["citations"][0].update(quote="")))
+add("evidence 变异：缺原文摘录必命中", rc == 1 and any("quote" in e for e in out.get("errors", [])), str(out))
 
-ok = sum(1 for _, c, _ in checks if c)
-for n, c, dd in checks:
-    print(("PASS" if c else "FAIL"), n, ("| " + dd if not c else ""))
-print("total %d/%d" % (ok, len(checks)))
-sys.exit(0 if ok == len(checks) else 1)
+rc, out = run("grounding_check", path)
+add("grounding 正向：主题/空白/冲突零误杀", rc == 0 and out.get("ok"), str(out))
+rc, out = run("grounding_check", changed("grounding-gap.json", lambda d: d["research_gaps"][0].update(basis_claim_ids=["C9"])))
+add("grounding 变异：无锚点研究空白必命中", rc == 1 and any("basis_claim_ids" in e for e in out.get("errors", [])), str(out))
+
+prov_args = (path, "--input", os.path.join(FIXTURES, "case.json"), "--source-root", os.path.join(FIXTURES, "sources"))
+rc, out = run("provenance_check", *prov_args)
+add("provenance 正向：版本与哈希零误杀", rc == 0 and out.get("ok") and out.get("sources_checked") == 3, str(out))
+bad_path = changed("provenance-hash.json", lambda d: d["sources"][0].update(sha256="0" * 64))
+rc, out = run("provenance_check", bad_path, "--input", os.path.join(FIXTURES, "case.json"), "--source-root", os.path.join(FIXTURES, "sources"))
+add("provenance 变异：来源哈希篡改必命中", rc == 1 and any("SHA-256" in e for e in out.get("errors", [])), str(out))
+
+passed = sum(1 for _, condition, _ in checks if condition)
+for name, condition, detail in checks:
+    print(("PASS" if condition else "FAIL"), name, ("| " + detail if not condition else ""))
+print("total %d/%d" % (passed, len(checks)))
+sys.exit(0 if passed == len(checks) else 1)

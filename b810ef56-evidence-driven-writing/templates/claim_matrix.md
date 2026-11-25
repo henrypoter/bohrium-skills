@@ -7,7 +7,9 @@
 | id | C1, C2, ...（与正文内嵌编号一致） | 一个论断只含一个事实谓词 |
 | text | 论断原文 | 与成稿中表述逐字对应 |
 | verdict | supported / partially_supported / unsupported / conflicted | 判定规则见 SKILL.md 第 3 节 |
-| bindings | 绑定列表 | supported 至少 1 条；conflicted 至少 2 条 |
+| strength_annotation | {level:A-D,rationale,uncertainty} | 综合强度及剩余不确定性必填；不高于绑定证据，含仅摘要/未解决冲突封顶 C（S6/S7） |
+| conflict_analysis | {summary,differences,uncertainty,action}；无冲突为 null | conflicted 必填，说明正反结果、条件差异与裁决路径（C3） |
+| bindings | 绑定列表 | supported 至少 1 条；conflicted 至少 2 条且双向 |
 
 每个 binding 对象：
 
@@ -15,6 +17,7 @@
 |-|-|
 | evidence_id | 指向证据库的 E# |
 | scope | full（证据完整覆盖论断）/ partial（只支持更弱或部分表述） |
+| position | support / oppose / mixed / context | 证据相对论断的方向；有 oppose/mixed 而 verdict 非 conflicted → C4 |
 | note | 支撑范围说明：证据支持到哪一步、与论断的强弱差（判定理由，必填非空） |
 
 判定纪律（脚本会复核 E7/E8/E9/E10）：
@@ -30,4 +33,4 @@
 | 递进 | 后者在前者基础上推进（方法/机制/规模） | 按逻辑链：「A 首先报告 X；在此基础上，B 用更大样本/更严设计确认了 Y。」前者 partial、后者 full，体现证据累积。 |
 | 冲突 | 结论相反且不能仅以条件差异解释 | verdict=conflicted 并陈：「现有证据不一致：A 报告 X，B 报告相反结果。二者在……上不同，目前不能得确定结论。」≥2 绑定，uncertainty 写裁决建议。 |
 
-综合句须把适用条件写进正文限定语，不抹平差异；多篇一致才允许「已有研究表明」等 A 级措辞。
+综合句须把适用条件写进正文限定语，不抹平差异；多篇一致才允许「已有研究表明」等 A 级措辞。冲突论断所在的 C# 句必须出现「不一致/相反/冲突」等明示词，`evidence_audit.py audit` 的 C5 只检查该句窗口，不能靠段落后方补一句来隐藏冲突。

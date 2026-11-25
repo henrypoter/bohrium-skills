@@ -1,30 +1,54 @@
 {
-  "case_id": "case-001",
+  "schema_version": "3.0",
+  "case_id": "synthetic-example-not-official",
   "status": "issues",
-  "document": {"file": "sample_paper.txt", "pages": 1, "char_count": 320, "full_text_extracted": true},
-  "claims": [
-    {"id": "C1", "text": "药物 A 对所有高血压患者均有效", "type": "author", "location": "摘要", "scope": "无限制的全称结论"},
-    {"id": "C2", "text": "Smith 等在 1000 例患者中证实药物 A 可使血压降至正常", "type": "citation", "location": "讨论", "scope": "转述被引文献主张"}
+  "manuscript_version": {"label": "sample_paper-v1", "sha256": "341a1aa16760a71129a95c0dd6ef99f95a4769a6b56688491141965c9f5bd328", "files": ["sample_paper.txt"]},
+  "run": {"tool_version": "3.0.0", "run_id": "synthetic-example-001"},
+  "contract": {"source": "synthetic-example", "preserved_fields": ["case_id", "status", "claims", "issues", "sources", "uncertainty", "change_log"]},
+  "claims": [{
+    "id": "C1",
+    "source_id": "R1",
+    "claim_quote": "Smith 等 (2020) 在 1000 例患者中证实药物 A 可使血压降至正常，因此本研究证明药物 A 可治愈高血压。",
+    "claim_locator": {"page": 1, "paragraph": 5, "occurrence": 1, "quote_sha256": "31eb00e5bd0333bbf73fc2ba8ade6df40e5b620765aeb401830b9bc84496abec", "source_sha256": "341a1aa16760a71129a95c0dd6ef99f95a4769a6b56688491141965c9f5bd328"},
+    "source_quote": "In a pilot study of 20 patients, drug A was associated with reduced blood pressure in some participants. The study did not assess normalization or cure.",
+    "source_locator": {"page": 1, "paragraph": 1, "occurrence": 1, "quote_sha256": "3e0191d44efbcb0ac18635c3ddd05ba8a6a080ceb60503822189dc69b2a0c325", "source_sha256": "7f6241d903dfaf6af239a8269116cda578a203ea52d6e78ce6facbf669778dca"},
+    "support": "none",
+    "support_rationale": "来源是20例初步相关研究且限定部分参与者，未评估血压正常化或治愈；与稿件1000例和治愈转述直接不符。"
+  }],
+  "issues": [{
+    "id": "F1", "claim_id": "C1", "source_id": "R1", "category": "citation", "severity": "major",
+    "defect_type": "fact_error", "review_status": "confirmed",
+    "location": {"page": 1, "paragraph": 5, "occurrence": 1, "quote_sha256": "31eb00e5bd0333bbf73fc2ba8ade6df40e5b620765aeb401830b9bc84496abec", "source_sha256": "341a1aa16760a71129a95c0dd6ef99f95a4769a6b56688491141965c9f5bd328"},
+    "quote": "Smith 等 (2020) 在 1000 例患者中证实药物 A 可使血压降至正常，因此本研究证明药物 A 可治愈高血压。",
+    "claim": "被引来源的样本量、研究强度和终点均不支持该转述；治愈结论超出证据。",
+    "fix": "改为20例初步相关研究，删除血压正常化与治愈表述，或提供真正支持这些结论的新证据。",
+    "evidence": [{
+      "source_id": "R1",
+      "quote": "In a pilot study of 20 patients, drug A was associated with reduced blood pressure in some participants. The study did not assess normalization or cure.",
+      "basis": "20对1000、相关对部分确证、未评估正常化或治愈，三组差异均可由双侧原句直接回查。",
+      "locator": {"page": 1, "paragraph": 1, "occurrence": 1, "quote_sha256": "3e0191d44efbcb0ac18635c3ddd05ba8a6a080ceb60503822189dc69b2a0c325", "source_sha256": "7f6241d903dfaf6af239a8269116cda578a203ea52d6e78ce6facbf669778dca"}
+    }]
+  }],
+  "sources": [
+    {"source_id": "M", "role": "manuscript", "path": "sample_paper.txt", "sha256": "341a1aa16760a71129a95c0dd6ef99f95a4769a6b56688491141965c9f5bd328"},
+    {"source_id": "R1", "role": "reference", "path": "source_R1.txt", "doi": "10.0000/synthetic-r1", "url": "https://example.invalid/synthetic/R1", "version": "published-v1", "publication_status": "published", "retraction_status": "not_retracted", "checked_at": "2026-11-25", "evidence_url": "https://example.invalid/synthetic/R1/status", "access": "open", "sha256": "7f6241d903dfaf6af239a8269116cda578a203ea52d6e78ce6facbf669778dca"}
   ],
-  "findings": [
-    {"id": "F1", "category": "logic", "severity": "critical", "claim_id": "C1",
-     "issue": "由 30 例单组前后对照外推为对所有患者有效，结论超出数据范围",
-     "quote": "证明药物 A 对所有高血压患者均有效",
-     "location": "摘要/第2句",
-     "evidence": "样本 30 例且无对照组，无法支持全称因果结论",
-     "type": "insufficient_evidence", "fix": "将结论降为：药物 A 在本 30 例样本中与血压下降相关",
-     "confidence": "confirmed"},
-    {"id": "F2", "category": "citation", "severity": "major", "claim_id": "C2",
-     "issue": "被引文献实际为 20 例 pilot study，本文转述为 1000 例",
-     "quote": "Smith 等 (2020) 在 1000 例患者中证实",
-     "location": "讨论/第1句",
-     "evidence": "参考文献[1] 标题为 20 patients 的 pilot study，与正文 1000 例不符",
-     "type": "fact_error", "fix": "将 1000 例改为 20 例，并删除'降至正常'的过度转述",
-     "confidence": "confirmed"}
-  ],
-  "checklist_coverage": {"fact": 1, "citation": 1, "method": 0, "statistics": 0, "logic": 1, "compliance": 0},
-  "unchecked": ["图表未提供"],
-  "sources": ["sample_paper.txt"],
+  "categories": {
+    "fact": {"status": "checked", "notes": "核对样例的样本量与转述", "reason": ""},
+    "citation": {"status": "checked", "notes": "C1双侧来源核验", "reason": ""},
+    "design": {"status": "checked", "notes": "核对单组设计与治愈结论范围", "reason": ""},
+    "statistics": {"status": "checked", "notes": "核对样例给出的p和95%CI方向", "reason": ""},
+    "argument": {"status": "checked", "notes": "核对所有患者、治愈等外推", "reason": ""},
+    "compliance": {"status": "checked", "notes": "检查样例声明范围；未提供真实外部批件", "reason": ""}
+  },
+  "sections": {
+    "methods": {"status": "checked", "notes": "单组前后对照方法段已读", "reason": ""},
+    "results": {"status": "checked", "notes": "结果段数值已读", "reason": ""},
+    "discussion": {"status": "checked", "notes": "讨论段C1已双侧核验", "reason": ""}
+  },
+  "checked_scope": {"did": ["合成样例与一条合成来源快照"], "not_checked": ["真实出版方数据库；本fixture的registry仅合成演示"]},
+  "gain": {"baseline_hit_rate": null, "skill_hit_rate": null, "false_positive_rate": null},
+  "unchecked": ["真实外部数据库状态不适用本合成示例"],
   "uncertainty": [],
-  "change_log": ["extract 全文成功", "schema 校验通过"]
+  "change_log": ["合成接口示例；非正式案例；v3 gate通过"]
 }

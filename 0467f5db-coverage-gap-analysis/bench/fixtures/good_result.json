@@ -1,7 +1,10 @@
 {
  "case_id": "case-001",
  "status": "issues",
+ "artifact_version": "coverage-result/v3",
+ "method_version": "frozen-reference-incremental-coverage/v3",
  "protocol_version": "v1.0",
+ "stop_rule": "连续两轮无新增且每条残余漏检已有可执行归因后停止；来源异常不计为完成",
  "research_question": {
   "topic": "pyroptosis in inflammation",
   "object": "pyroptosis",
@@ -15,7 +18,7 @@
    "id": "Q1",
    "query": "pyroptosis AND inflammation",
    "database": "PubMed",
-   "fields": "title/abstract",
+   "fields": "title-only",
    "date_range": "2015-2025",
    "run_date": "2026-11-20"
   },
@@ -69,6 +72,32 @@
    "language": "zh",
    "version": "journal"
   }
+ ],
+ "reference_set": {
+  "version": "reference-freeze-v1",
+  "frozen_at": "2026-11-20T09:50Z",
+  "source": "self-test reference list; not an official case answer",
+  "denominator_rule": {"exclude_retracted": true, "unavailable_fulltext_remains_eligible": true},
+  "records": [
+   {"ref_id": "REF1", "title": "Cell pyroptosis in inflammation", "doi": "10.1038/nature22307", "inclusion_reason": "目标原始研究", "countable": true, "retraction_status": "not_retracted", "identifier_status": "ok", "fulltext_status": "available"},
+   {"ref_id": "REF2", "title": "Pyroptosis drives IL-1b release", "doi": "10.1000/b", "inclusion_reason": "目标原始研究", "countable": true, "retraction_status": "not_retracted", "identifier_status": "conflict", "identifier_conflicts": [{"field": "doi", "values": ["10.1000/b", "10.1000/legacy-b"], "resolution_status": "resolved", "resolution": "以冻结来源题录结合标题、首作者、年份裁决"}], "fulltext_status": "available"},
+   {"ref_id": "REF3", "title": "A pyroptosis study recovered by supplemental search", "doi": "10.1000/d", "inclusion_reason": "目标原始研究", "countable": true, "retraction_status": "not_retracted", "identifier_status": "ok", "fulltext_status": "available"},
+   {"ref_id": "REF4", "title": "A missed pyroptosis study without full text", "doi": "10.1000/e", "inclusion_reason": "题录直接符合参考标准", "countable": true, "retraction_status": "not_retracted", "identifier_status": "ok", "fulltext_status": "unavailable"},
+   {"ref_id": "REF5", "title": "A retracted background report", "doi": "10.1000/r", "inclusion_reason": "冻结前已进入清单", "countable": false, "exclusion_reason": "冻结核查发现撤稿，按分母协议排除", "retraction_status": "retracted", "retraction_evidence": "撤稿通知 RE-001", "retraction_source": "self-test publisher notice fixture", "identifier_status": "ok", "fulltext_status": "unavailable"}
+  ]
+ },
+ "hit_matrix": [
+  {"ref_id": "REF1", "baseline_hit": true, "final_hit": true, "baseline_match_rule": "identifier", "baseline_evidence": "DOI 完全匹配", "baseline_matched_record_id": "R1", "final_match_rule": "identifier", "final_evidence": "DOI 完全匹配", "final_matched_record_id": "R1"},
+  {"ref_id": "REF2", "baseline_hit": true, "final_hit": true, "baseline_match_rule": "manual", "baseline_evidence": "标识冲突经标题+作者+年份裁决", "baseline_matched_record_id": "R2", "final_match_rule": "manual", "final_evidence": "同一裁决版本 reference-freeze-v1", "final_matched_record_id": "R2"},
+  {"ref_id": "REF3", "baseline_hit": false, "final_hit": true, "final_match_rule": "identifier", "final_evidence": "S1 返回 DOI 10.1000/d", "final_matched_record_id": "R5", "discovered_in_round": "S1"},
+  {"ref_id": "REF4", "baseline_hit": false, "final_hit": false},
+  {"ref_id": "REF5", "baseline_hit": false, "final_hit": false, "not_applicable_reason": "撤稿且不计分母"}
+ ],
+ "search_rounds": [
+  {"round_id": "S1", "query": "pyroptosis AND caspase", "fields": "title/abstract", "source": "PubMed", "run_date": "2026-11-20", "status": "ok", "target_miss_codes": ["M1"], "new_hit_ids": ["REF3"], "result_count": 1}
+ ],
+ "miss_attributions": [
+  {"ref_id": "REF4", "miss_reason_code": "M2", "attribution": {"query_id": "Q1", "field": "title-only", "source": "PubMed", "evidence": "参考题录关键方法仅出现在摘要，Q1 未检索摘要字段"}}
  ],
  "dedup": {
   "exact_groups": [
@@ -170,10 +199,19 @@
   }
  ],
  "coverage": {
-  "reference_total": 4,
-  "retrieved": 4,
-  "missed": 0,
-  "missed_by_code": {}
+  "reference_total": 5,
+  "eligible_total": 4,
+  "excluded_total": 1,
+  "baseline_retrieved": 2,
+  "baseline_missed": 2,
+  "baseline_rate": 0.5,
+  "retrieved": 3,
+  "missed": 1,
+  "coverage_rate": 0.75,
+  "incremental_new_hits": 1,
+  "missed_by_code": {"M2": 1},
+  "complete": true,
+  "unresolved_sources": []
  },
  "gain": {
   "baseline_accuracy": 0.62,

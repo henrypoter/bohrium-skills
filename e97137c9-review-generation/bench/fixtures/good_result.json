@@ -1,1 +1,66 @@
-{"case_id": "c1", "status": "issues", "research_question": {"topic": "X", "scope": "2015-2025"}, "screening_criteria": [{"id": "S1", "criterion": "纳入原始研究", "judgement": "对象匹配"}], "included": [{"id": "R1", "title": "A", "citation": "A et al. 2020", "screening_reason": "对象匹配原始研究"}], "claims": [{"id": "C1", "text": "机制B", "type": "synthesis", "citations": [{"record_id": "R1", "location": "结果第3段"}]}], "themes": [{"id": "T1", "name": "机制", "evidence": ["R1"], "gap": "无"}], "counts": {"included": 1, "excluded": 0}, "unchecked": [], "sources": [], "uncertainty": [], "change_log": []}
+{
+  "case_id": "demo-literature-review",
+  "status": "issues",
+  "research_question": {
+    "statement": "在示例范围内，A 如何影响 Y？",
+    "object": "合成研究对象",
+    "scope": "仅三份合成材料",
+    "date_range": "不限"
+  },
+  "run": {
+    "case_id": "demo-literature-review",
+    "skill_version": "2.0.0",
+    "tool_version": "2.0.0",
+    "input_sha256": "7dfc279bd4224e79e86c2d297f1d659f43ee295a6ecccf452fd64e219cca255d",
+    "generated_at": "2026-01-01T00:00:00Z",
+    "source_snapshot": "fixture-sha256-v1"
+  },
+  "screening_criteria": [
+    {"id": "S1", "criterion": "纳入报告 A 对 Y 的原始研究", "judgement": "有原始实验且对象匹配"}
+  ],
+  "records": [
+    {"id": "R1", "title": "合成研究一", "decision": "include", "criterion_ids": ["S1"], "screening_reason": "报告原始实验", "fulltext_status": "available"},
+    {"id": "R2", "title": "合成研究二", "decision": "include", "criterion_ids": ["S1"], "screening_reason": "提供测量背景证据", "fulltext_status": "available"},
+    {"id": "R3", "title": "合成评论", "decision": "exclude", "criterion_ids": ["S1"], "screening_reason": "无原始实验", "fulltext_status": "available"}
+  ],
+  "included": [
+    {"id": "R1", "title": "合成研究一", "screening_reason": "报告原始实验"},
+    {"id": "R2", "title": "合成研究二", "screening_reason": "提供测量背景证据"}
+  ],
+  "excluded": [
+    {"id": "R3", "title": "合成评论", "screening_reason": "无原始实验"}
+  ],
+  "duplicates": [],
+  "claims": [
+    {
+      "id": "C1", "text": "材料中 A 改善 Y", "theme": "效应",
+      "claim_kind": "material_fact", "certainty": "established",
+      "citations": [{"record_id": "R1", "location": "结果第2段", "quote": "A 显著改善 Y，效应为 0.2", "support": "supports", "evidence_strength": "fulltext"}]
+    },
+    {
+      "id": "C2", "text": "Z 可能是测量差异的一个条件", "theme": "测量条件",
+      "claim_kind": "inference", "certainty": "suggestive", "inference_basis": "由测量受影响推断条件性，不作因果证明",
+      "citations": [{"record_id": "R2", "location": "引言第1段", "quote": "Y 的测量受到 Z 影响", "support": "supports", "evidence_strength": "fulltext"}]
+    }
+  ],
+  "themes": [
+    {"name": "效应", "evidence": ["R1"], "derivation": "由 R1 的原始结果归并", "boundary": "不讨论测量来源"},
+    {"name": "测量条件", "evidence": ["R2"], "derivation": "由 R2 的测量限定归并", "boundary": "不估计 A 的效应"}
+  ],
+  "unmapped_records": [],
+  "research_gaps": [
+    {"id": "G1", "statement": "本材料集未给出 Z 条件下 A 效应的直接比较", "gap_type": "evidence_absence", "basis_claim_ids": ["C1", "C2"], "bounded_to_search": true, "next_evidence": "纳入分层报告 Z 与 A 效应的研究"}
+  ],
+  "conflicts": [],
+  "conflict_review": {"searched": true, "note": "已核对两份纳入材料，本合成示例没有相反结论"},
+  "counts": {"records_raw": 3, "included": 2, "excluded": 1, "pending": 0, "duplicates": 0},
+  "gain": {"baseline_cite_coverage": null, "skill_cite_coverage": null, "note": "未运行平台对照，不填造增益"},
+  "unchecked": [],
+  "sources": [
+    {"record_id": "R1", "path": "r1.txt", "sha256": "e85829d2f18b8b8b1e2d44b3fa9ba70f96c347cba6999c0cb45bbd623ebae153"},
+    {"record_id": "R2", "path": "r2.txt", "sha256": "75d91631cfdbd39fa916f1ba07f28b49687cca20c8f5795842f088b6e2b98ed8"},
+    {"record_id": "R3", "path": "r3.txt", "sha256": "58a533c406b9b25efb7aa4a5a3b8aa600e8814c01d1936ab97b07008b6b8273b"}
+  ],
+  "uncertainty": ["仅演示接口，不表征任何真实领域结论"],
+  "change_log": ["先定义 S1，再筛选；本文件为合成 bench fixture"]
+}

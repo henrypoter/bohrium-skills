@@ -47,3 +47,20 @@ project/
 - [ ] 每个文件都有 manifest 行（`checkmap` 的 `no_manifest_row` 为空）
 - [ ] 路径符合命名规则（`path_violations` 为空）
 - [ ] 操作日志可还原任意文件的来源与变更
+
+## 6. 知识库问答附加字段
+
+`index.json` 中文档除上述字节/来源字段外，保留 `doc_id/version/role/include_in_search/text_status/text_source/extraction_method`。引用必须包含：
+
+| 字段 | 判对要求 |
+|-|-|
+| path | 能回到 index 中实际文件 |
+| sha256 | 与该文件完整内容版本一致 |
+| version / role | 版本标签和 current/history/duplicate 均与索引一致 |
+| chunk_id | 指向具体段落，不能跨段拼接 |
+| quote | 目标 chunk 原文的精确子串 |
+| locator | page/paragraph/start_line/end_line 全部与 chunk 一致；无页界时 page=null |
+| scope.index_sha256 | 与实际索引重算指纹一致 |
+| missing | no_evidence/partial 说明缺少的文件、字段或版本 |
+
+重复副本的 `duplicate_of`、历史版本的 `superseded_by`、当前版本的 `supersedes` 用于解释角色，不能把重复副本当独立证据。版本冲突未由行政说明解决时，不填 current 猜测值，分版本并列回答并记异常。

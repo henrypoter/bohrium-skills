@@ -18,6 +18,9 @@ python3 scripts/evidence_lib.py skeleton /app/output   # 1. 生成骨架
 # 2. 读材料，填 evidence_library.json / claim_matrix.json，起草 manuscript.md
 python3 scripts/evidence_lib.py check /app/output/evidence_library.json \
     /app/output/claim_matrix.json /input/texts /app/output/manuscript.md  # 3. 核验（结构+内容级）
+python3 scripts/evidence_audit.py audit /app/output/evidence_library.json \
+    /app/output/claim_matrix.json /app/output/manuscript.md  # 4. 强度/摘要/冲突硬闸
+python3 scripts/evidence_audit.py fingerprint /input/texts/snippets.txt > /app/work/input_manifest.json
 python3 scripts/check_result.py /input/case.json /app/output/result.json
 ```
 
@@ -28,9 +31,14 @@ claim_matrix.json 节选——两条证据冲突，论断判 conflicted：
 ```json
 {"claims": [{"id": "C1", "text": "方法 X 对识别准确率的影响尚无一致结论",
   "verdict": "conflicted",
+  "strength_annotation": {"level": "C", "rationale": "正反证据均为初步研究",
+    "uncertainty": "样本与噪声条件差异尚未排除"},
+  "conflict_analysis": {"summary": "小样本正性与预印本阴性并陈",
+    "differences": "样本与数据噪声条件不同", "uncertainty": "无法判定真实效应方向",
+    "action": "人工核对全文并补独立重复研究"},
   "bindings": [
-    {"evidence_id": "E1", "scope": "partial", "note": "小样本(n=25)正向结果，仅初步证据(C级)"},
-    {"evidence_id": "E2", "scope": "partial", "note": "预印本阴性结果，未经同行评审(C级)"}]}]}
+    {"evidence_id": "E1", "scope": "partial", "position": "support", "note": "小样本(n=25)正向结果，仅初步证据(C级)"},
+    {"evidence_id": "E2", "scope": "partial", "position": "oppose", "note": "预印本阴性结果，未经同行评审(C级)"}]}]}
 ```
 
 manuscript.md 节选（措辞与 C 级证据对齐、冲突如实并陈）：
@@ -43,5 +51,8 @@ result.json 节选：
 {"case_id": "demo", "status": "complete", "sources": ["/input/texts/snippets.txt"],
  "uncertainty": [{"claim_id": "C1", "reason": "仅小样本+预印本，证据封顶C级",
    "action": "建议人工补充同行评审文献"}],
- "change_records": ["初稿将C1写为确定性结论，核验后按冲突证据降级并加限定语"]}
+ "change_records": ["初稿将C1写为确定性结论，核验后按冲突证据降级并加限定语"],
+ "artifact_version": "evidence-driven-writing-1.1.0",
+ "input_manifest": {"algorithm": "sha256", "files": [{"path": "/input/texts/snippets.txt", "sha256": "<运行时由 fingerprint 生成>", "bytes": 0}]},
+ "verification": {"evidence_lib": {"status": "pass"}, "strength_audit": {"status": "pass"}, "rule_version": "evidence-audit-1.0.0"}}
 ```

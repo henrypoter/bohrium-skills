@@ -1,0 +1,9 @@
+{
+  "R1": {
+    "canonical_doi": "10.0000/synthetic-r1",
+    "current_version": "published-v1",
+    "publication_status": "published",
+    "retraction_status": "not_retracted",
+    "evidence_url": "https://example.invalid/synthetic/R1/status"
+  }
+}

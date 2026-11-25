@@ -4,13 +4,21 @@
 
 ```bash
 python3 /skills/weekly-skill/scripts/skeleton.py /input/demo_manuscript.md -o skeleton.json
+python3 /skills/weekly-skill/scripts/logic_audit.py scan /input/demo_manuscript.md -o logic_audit.json
 python3 /skills/weekly-skill/scripts/result_check.py /app/output/result.json
+python3 /skills/weekly-skill/scripts/logic_audit.py verify /app/output/result.json /app/output/logic_audit.json
 ```
 
 result.json 关键片段（示例；每条诊断带 criterion；L3 只建议不进 change_log）：
 
 ```json
 {"case_id":"demo-self-made","status":"partial",
+ "artifact_version":"paper-structure-logic-review-1.1.0",
+ "input_manifest":{"algorithm":"sha256","path":"/input/demo_manuscript.md","sha256":"<原样复制scan输出>","bytes":0},
+ "logic_audit":{"rule_version":"logic-audit-1.0.0","audit_report":"/app/output/logic_audit.json",
+   "research_questions":"按scan逐个RQ裁决的数组；无候选则为空数组",
+   "conclusion_boundaries":"按scan逐个CB比对results的数组",
+   "truncation":{"suspected":false,"last_anchor":"按scan","last_text_sha256":"按scan","read_scope":"complete","action":"全文核查"}},
  "diagnosis":[
   {"id":"D1","dimension":"redundancy","location":"S2.P1.s2","criterion":"与 S1.P1.s2 同贡献角色且非必要呼应","evidence":"本文研究调度算法，提出一种贪心调度器","type":"跨章节复述","severity":"mid","action":"delete"},
   {"id":"D2","dimension":"conclusion_boundary","location":"S4.P1","criterion":"证据仅覆盖 3 个自建测试集(S3.P1)，结论却表述为普遍因果","evidence":"导致所有数据中心延迟显著下降","type":"结论越界+因果越界","severity":"high","action":"narrow"}],

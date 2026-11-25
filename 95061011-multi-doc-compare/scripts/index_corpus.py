@@ -6,7 +6,7 @@ Each .txt/.md file becomes one document; source_document_id defaults to the
 file stem, --map takes {"<filename>": "<DOCID>"}. Paragraphs are split on
 blank lines and get stable DOCID::pNNN ids used by all evidence cards.
 """
-import argparse, json, os, re, sys
+import argparse, hashlib, json, os, re, sys
 
 
 def split_paragraphs(text):
@@ -65,6 +65,8 @@ def main():
   docs.append({
    "source_document_id": doc_id,
    "source_file": name,
+   "content_sha256": hashlib.sha256(text.encode("utf-8")).hexdigest(),
+   "content_bytes": len(text.encode("utf-8")),
    "paragraph_count": len(paras),
    "paragraphs": [
     {"paragraph_id": "%s::p%03d" % (doc_id, i), "text": p}
@@ -72,7 +74,7 @@ def main():
    ],
   })
 
- index = {"documents": docs, "warnings": warnings}
+ index = {"index_version": "2.0.0", "documents": docs, "warnings": warnings}
  with open(args.out, "w", encoding="utf-8") as f:
   json.dump(index, f, ensure_ascii=False, indent=1)
  print(json.dumps({

@@ -230,13 +230,22 @@ def cmd_skeleton(out_dir):
     os.makedirs(out_dir, exist_ok=True)
     lib = {"evidence": [{"id": "E1", "authors": None, "year": None, "title": "",
              "venue": None, "doi": None, "type": "原始研究|综述|指南|预印本",
-             "locator": "章节/页/段", "quote": "逐字原文摘录",
+             "availability": "full_text|abstract_only", "locator": "章节/页/段；仅摘要须写摘要", "quote": "逐字原文摘录",
              "supports": "该文献真正支持的表述", "data": "关键数字",
              "conditions": "适用条件/人群/体系", "limitations": "局限",
-             "evidence_level": "A|B|C|D", "caveat": None}]}
+             "evidence_level": "A|B|C|D",
+              "evidence_level_reason": "设计/样本/重复/共识如何决定该等级",
+              "strength_basis": {"design": "研究设计或 null", "sample_size": "样本或 null",
+                                 "replication": "独立重复或 null", "consensus": "共识程度或 null",
+                                 "basis_unknown": ["值为 null 的字段名"]},
+              "caveat": "仅摘要/撤稿/版本差异；无则 null"}]}
     mat = {"claims": [{"id": "C1", "text": "最小可判定论断",
              "verdict": "partially_supported",
+              "strength_annotation": {"level": "A|B|C|D", "rationale": "综合强度理由",
+                                       "uncertainty": "剩余不确定性及边界"},
+              "conflict_analysis": None,
              "bindings": [{"evidence_id": "E1", "scope": "partial",
+                            "position": "support|oppose|mixed|context",
                            "note": "支撑范围说明：证据支持到哪一步"}]}]}
     for name, obj in (("evidence_library.json", lib), ("claim_matrix.json", mat)):
         with open(os.path.join(out_dir, name), "w", encoding="utf-8") as f:

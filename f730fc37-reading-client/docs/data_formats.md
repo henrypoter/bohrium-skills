@@ -8,14 +8,17 @@
 
 | 字段 | 类型 | 说明 |
 |-|-|-|
-| `schema_version` | int | 当前为 `2`；字段变更时自增 |
+| `schema_version` | int | 当前为 `3`；字段变更时自增 |
+| `tool_version` | str | 当前客户端为 `5.0.0` |
+| `material_version` | obj\|null | `{path, bytes, sha256, format}`；读取失败时 hash 可为 null |
+| `last_open_error` | obj\|null | encrypted_pdf/oversized_file/extract_timeout 等结构化失败及接管建议 |
 | `doc` | str | 材料绝对路径 |
 | `pages` | int | 页数 |
 | `text_status` | str | `ok` / `no_text_layer` |
 | `extraction` | str | `pdftotext-layout` / `pdftotext-raw` / `plain-text` |
 | `page_offset` | int | 物理页 → 印刷页偏移 |
 | `selection` | obj\|null | 当前选区锚点（结构见 §3） |
-| `qa` | array | 问答记录（含 evidence 数组） |
+| `qa` | array | 问答记录；含 answer_id/answer_sha256/document_sha256/selection_sha256 与 evidence 数组 |
 | `notes` | array | 批注记录 |
 | `reading_position` | obj\|null | 断点：`{doc, physical_page, line, quote, source, ts}` |
 | `opened_at` | int | Unix 时间戳 |
@@ -45,9 +48,11 @@
 ## 4. `annotations.json`（W3C Web Annotation）
 
 ```json
-{"schema_version": 2, "doc": "…",
+{"schema_version": 3, "tool_version": "5.0.0", "doc": "…",
+ "material_version": {"path": "…", "bytes": 1234, "sha256": "…", "format": "text"},
  "annotations": [{"id": "qa1-ev1", "type": "Annotation",
-   "body": {"question": "…", "answer": "…"},
+   "body": {"question": "…", "answer": "…", "answer_id": "qa1"},
+   "answer_sha256": "…",
    "target": {"source": "…",
      "selector": {"type": "TextQuoteSelector", "prefix": "…", "exact": "…", "suffix": "…"},
      "physical_page": 1, "line": 4},
@@ -63,9 +68,11 @@
 
 | 字段 | 说明 |
 |-|-|
-| `case_id` | 来自 `case.json` |
+| `schema_version` / `tool_version` / `run_id` | `result.json` 结构、客户端版本和本次运行标识 |
+| `material_version` / `artifact_manifest` | 原文身份与路径/字节数/SHA-256；其余交付文件摘要 |
+| `case_id` | 来自 `case.json`；`export --case` 自动终稿并保留 output_contract 键 |
 | `status` | `success` / `partial` / `unanswerable_from_material` / `failed` |
-| `answers[]` | `{question, answer, evidence:[{quote, verified, confidence, needs_confirmation, anchor}]}` |
+| `answers[]` | `{answer_id, answer_sha256, document_sha256, selection_sha256, question, answer, evidence:[{evidence_id, answer_id, document_sha256, quote, location, verified, confidence, needs_confirmation, anchor}]}` |
 | `sources` | 材料清单 |
 | `uncertainty` | 缺口与原因 |
 | `needs_confirmation` | 需人工复核项清单 |

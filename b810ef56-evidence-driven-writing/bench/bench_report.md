@@ -27,6 +27,12 @@
 机检：`evidence_lib.py check` rc=0（报告落 `bench/skill/verification_report.json`）；
 `check_result.py` rc=0。baseline 无可机检产物——「无法被机器复核」本身即是对照发现。
 
+## 新增能力回归：强度 / 仅摘要 / 冲突 / 摘要（19/19）
+
+复跑：`python3 bench/evidence_audit_bench.py`，汇总落 `evidence_audit_bench_results.json`。正向 3 项（全文 B、仅摘要合规 C、冲突完整并陈）均 rc=0；变异 14 项均 rc=1 且命中 S1/S2/S3/S4/S5/S6/S7/S8/C1/C2/C3/C4/C5。覆盖：缺可得性、摘要越级或伪装全文、缺强度理由/样本依据、单篇无重复标 A、论断强于证据、未解冲突标 B、缺正反方向、伪冲突、缺差异分析、正文隐藏冲突、反向证据仍 supported。另有 fingerprint 两项：abc 的真实 SHA-256/bytes 精确复算，改为 abcd 后摘要必须变化。
+
+该套夹具只验证规则与字段一致性；研究设计是否真为严格RCT、样本量是否足够、科学上是否构成冲突仍需全文与专家判断，脚本不自动发明这些事实。
+
 ## 边界（诚实声明）
 
 1. 本对照度量**证据支撑的结构与可核验性**（绑定率、锚定率、强度对齐、冲突并陈、

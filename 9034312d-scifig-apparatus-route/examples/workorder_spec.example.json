@@ -1,0 +1,37 @@
+{
+  "schema_version": "scifig-spec/1.0",
+  "figure_version": "1.0",
+  "kind": "apparatus",
+  "title": "示例（非正式案例）：带来源工单的二部件装置",
+  "canvas": {"w": 600, "h": 240},
+  "nodes": [
+    {"id": "p1", "label": "P-1 泵", "type": "source", "x": 150, "y": 100, "w": 130, "h": 56,
+     "source": {"locator": "句1", "quote": "泵 P-1 出口经气管"}},
+    {"id": "r1", "label": "R-1 反应器", "x": 430, "y": 100, "w": 150, "h": 56,
+     "source": {"locator": "句1", "quote": "进入反应器 R-1 入口"}}
+  ],
+  "edges": [
+    {"from": "p1", "to": "r1", "from_interface": "p1.gas.out", "to_interface": "r1.gas.in",
+     "style": "material", "label": "气管",
+     "source": {"locator": "句1", "quote": "P-1 出口经气管进入反应器 R-1"}}
+  ],
+  "required": ["P-1", "R-1", "气管"],
+  "workorder": {
+    "schema_version": "scifig-workorder/1.0",
+    "parameters": [
+      {"id": "p1.flow", "node": "p1", "name": "设定流量", "status": "stated",
+       "value": "10", "unit": "mL/min", "source": {"locator": "句1", "quote": "设定流量 10 mL/min"}}
+    ],
+    "interfaces": [
+      {"id": "p1.gas.out", "node": "p1", "port": "出口", "medium": "gas", "direction": "out",
+       "source": {"locator": "句1", "quote": "P-1 出口经气管"}},
+      {"id": "r1.gas.in", "node": "r1", "port": "入口", "medium": "gas", "direction": "in",
+       "source": {"locator": "句1", "quote": "反应器 R-1 入口"}}
+    ],
+    "order_assertions": [
+      {"before": "p1", "after": "r1", "source": {"locator": "句2", "quote": "先启动 P-1，再加热 R-1"}}
+    ],
+    "ambiguities": []
+  },
+  "uncertainty": []
+}

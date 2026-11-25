@@ -34,11 +34,18 @@
 - 校验命令：`python3 scripts/search_tool.py audit result.json`（不闭合返回非零）。
 - 审计日志逐行记录：步骤、输入数、输出数、操作人、时间、标准版本。
 
-## 7. 增益对照（使用增益 25 分的证据）
-- 同一批题录、同一标准版本，分别用**基础 Agent（不加载 Skill）**与**加载本 Skill**各跑一次。
-- 报三个数：纳排决策准确率、双人一致率（κ）、人工核对条数/耗时。
-- 对照必须同输入、同标准；差异要能指到具体记录，不能只给总体结论。
+## 7. 参考集、覆盖与补检协议（先于结果冻结）
+- 独立参考集：`version/frozen_at/source/denominator_rule/records[]`；禁止从候选反推分母。
+- 逐条异常：撤稿证据与分母规则、identifier_conflicts、fulltext_status；无全文不移分母。
+- 命中：`identifier/title_author_year/manual` 之一，留 evidence + matched_record_id；baseline/final 全矩阵。
+- 漏检：M1–M5，按类型写具体 query_id/field/source 与证据。
+- 补检：每轮 query/fields/source/run_date/status/target_miss_codes/new_hit_ids；新增只计 baseline miss→final hit，写 stop_rule。
+- 硬闸：`python3 scripts/search_tool.py covercheck result.json`。
 
-## 8. 适用边界与不适用
+## 8. 增益对照（只有实际对照才能填）
+- 使用同一冻结参考集、同一查询预算的基础 Agent / Skill Agent 原生结果，逐条比较 hit status、真实新增和残漏。
+- 没有平台或实际运行对照就填 null + uncertainty；不编造准确率、κ、耗时、人工核对或榜单成绩。
+
+## 9. 适用边界与不适用
 - 本 Skill 处理的是**有限快照**（给定题录集合），不声称在线数据库全覆盖、不声称全局召回率。
 - 不替代同行评审、不替代研究者的最终科学判断；模型判定默认是「待复核建议」。

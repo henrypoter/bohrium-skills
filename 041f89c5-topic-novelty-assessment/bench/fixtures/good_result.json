@@ -1,1 +1,110 @@
-{"case_id": "c1", "status": "issues", "research_question": {"topic": "X", "scope": "2015-2025"}, "screening_criteria": [{"id": "S1", "criterion": "纳入原始研究", "judgement": "对象匹配"}], "included": [{"id": "R1", "title": "A", "citation": "A et al. 2020", "screening_reason": "对象匹配原始研究"}], "claims": [{"id": "C1", "text": "机制B", "type": "synthesis", "citations": [{"record_id": "R1", "location": "结果第3段"}]}], "themes": [{"id": "T1", "name": "机制", "evidence": ["R1"], "gap": "无"}], "counts": {"included": 1, "excluded": 0}, "unchecked": [], "sources": [], "uncertainty": [], "change_log": []}
+{
+  "case_id": "demo-topic-assessment",
+  "status": "issues",
+  "research_question": {
+    "id": "Q1",
+    "statement": "在约束E下，联合校准是否提高任务T的F1？",
+    "object": "任务T的合成样本",
+    "variables": [
+      {"name": "联合校准", "role": "independent", "measure": "启用/不启用"},
+      {"name": "任务表现", "role": "dependent", "measure": "固定测试集F1"},
+      {"name": "约束E", "role": "constraint", "measure": "所有样本满足E"}
+    ],
+    "comparators": ["M1", "M2"],
+    "expected_outcome": "相对M1/M2的F1变化及置信区间",
+    "falsification_conditions": ["预注册测试上联合校准不优于两个基线"],
+    "success_criteria": ["固定数据划分下F1提升且报告不确定性"],
+    "scope": {"time_window": "2020-2026", "setting": "约束E下任务T"}
+  },
+  "run": {
+    "case_id": "demo-topic-assessment",
+    "skill_version": "2.0.0",
+    "tool_version": "2.0.0",
+    "input_sha256": "14ecd6b4deef95ca38f34b45e4de985180c5d933ab72b695f095e1f2c128f88b",
+    "generated_at": "2026-01-01T00:00:00Z",
+    "source_snapshot": "fixture-sha256-v1"
+  },
+  "screening_criteria": [
+    {"id": "S1", "criterion": "纳入任务T且报告方法、数据与评价的研究", "judgement": "三字段均可提取"}
+  ],
+  "records": [
+    {"id": "R1", "title": "合成M1研究", "origin": "search", "screening_reason": "任务T且字段齐全"},
+    {"id": "R2", "title": "合成M2研究", "origin": "search", "screening_reason": "任务T且字段齐全"},
+    {"id": "R3", "title": "合成旁支研究", "origin": "search", "screening_reason": "不研究任务T"}
+  ],
+  "included": [
+    {"id": "R1", "title": "合成M1研究", "screening_reason": "任务T且字段齐全"},
+    {"id": "R2", "title": "合成M2研究", "screening_reason": "任务T且字段齐全"}
+  ],
+  "excluded": [{"id": "R3", "title": "合成旁支研究", "screening_reason": "不研究任务T"}],
+  "search_log": [
+    {"source": "fixture-index", "query": "task T AND (M1 OR M2)", "executed_at": "2026-01-01", "time_window": "2020-2026", "status": "completed", "hits": 3, "returned": 3, "screened": 3, "selected_record_ids": ["R1", "R2", "R3"]}
+  ],
+  "coverage": {
+    "databases": ["fixture-index"], "time_window": "2020-2026", "languages": ["zh"],
+    "limitations": "仅演示两条纳入证据，不作全局新颖性结论", "evidence_sufficiency": "limited"
+  },
+  "claims": [
+    {"id": "C1", "text": "R1报告M1在D1上的F1为0.70", "theme": "已有工作", "citations": [{"record_id": "R1", "location": "结果第1段", "quote": "方法M1在数据D1上得到F1=0.70"}]},
+    {"id": "C2", "text": "R2报告M2尚未使用约束E", "theme": "已有工作", "citations": [{"record_id": "R2", "location": "结果第1段", "quote": "方法M2在数据D2上得到F1=0.72，尚未使用约束E"}]}
+  ],
+  "themes": [{"name": "已有工作", "evidence": ["R1", "R2"], "gap": "约束E下缺少直接比较"}],
+  "comparisons": [
+    {
+      "record_id": "R1", "comparability": "partial", "comparability_reason": "数据D1与拟议数据不同",
+      "dimensions": {"task": "任务T", "method": "M1", "data": "D1", "evaluation": "F1", "conclusion": "F1=0.70"},
+      "citations": [{"record_id": "R1", "location": "结果第1段", "quote": "方法M1在数据D1上得到F1=0.70"}]
+    },
+    {
+      "record_id": "R2", "comparability": "partial", "comparability_reason": "数据D2与D1不可直接比较",
+      "dimensions": {"task": "任务T", "method": "M2", "data": "D2", "evaluation": "F1", "conclusion": "F1=0.72且未使用E"},
+      "citations": [{"record_id": "R2", "location": "结果第1段", "quote": "方法M2在数据D2上得到F1=0.72，尚未使用约束E"}]
+    }
+  ],
+  "novelty_claims": [
+    {
+      "id": "N1", "statement": "本提案检验约束E下的联合校准",
+      "bounded_claim": "仅相对R1/R2及本次检索，数据与约束组合尚待验证",
+      "status": "supported", "innovation_type": "data", "nearest_record_ids": ["R1", "R2"],
+      "recency_rationale": "R1/R2是给定时间窗内检索到的最近邻，不代表全领域最新",
+      "limitations": "两篇合成材料不能证明全局新颖性", "absolute_novelty_claimed": false,
+      "differences": [
+        {"record_id": "R1", "dimension": "data", "existing": "D1，未检验E下联合校准", "proposed": "构造满足E的固定比较集", "citations": [{"record_id": "R1", "location": "结果第1段", "quote": "方法M1在数据D1上得到F1=0.70"}]},
+        {"record_id": "R2", "dimension": "data", "existing": "D2且尚未使用E", "proposed": "显式施加E并统一评价", "citations": [{"record_id": "R2", "location": "结果第1段", "quote": "尚未使用约束E"}]}
+      ]
+    }
+  ],
+  "feasibility": {
+    "decision": "conditional",
+    "rationale": "数据、实验、时间与人员有输入依据，算力仍需基准测试",
+    "premises": [
+      {"id": "P1", "category": "data", "statement": "可复用D1格式构造比较集", "applicable": true, "status": "verified", "evidence": [{"type": "literature", "record_id": "R1", "location": "结果第1段", "quote": "数据D1"}], "failure_risk": "标签分布偏移", "mitigation": "冻结划分并审计标签"},
+      {"id": "P2", "category": "compute", "statement": "单卡可完成训练", "applicable": true, "status": "assumption", "assumption_reason": "输入未给显存与模型规模", "validation": "先运行一个批次并记录峰值显存", "failure_risk": "显存不足", "mitigation": "缩小模型或分批"},
+      {"id": "P3", "category": "experiment", "statement": "已有设备E可施加约束", "applicable": true, "status": "verified", "evidence": [{"type": "case_input", "location": "/proposal/constraints/equipment", "quote": "已有设备E"}], "failure_risk": "设备校准漂移", "mitigation": "每批前校准"},
+      {"id": "P4", "category": "time", "statement": "输入预留四周", "applicable": true, "status": "verified", "evidence": [{"type": "case_input", "location": "/proposal/constraints/time", "quote": "四周"}], "failure_risk": "基线复现超时", "mitigation": "第一周冻结基线"},
+      {"id": "P5", "category": "personnel", "statement": "两名成员具备实现能力", "applicable": true, "status": "verified", "evidence": [{"type": "case_input", "location": "/proposal/team", "quote": "两名相关经验成员"}], "failure_risk": "关键人员不可用", "mitigation": "交叉复核代码与记录"}
+    ]
+  },
+  "research_gaps": [
+    {"id": "G1", "statement": "本次材料缺少E约束下统一数据上的直接比较", "basis_comparison_ids": ["R1", "R2"], "basis_novelty_claim_ids": ["N1"], "bounded_to_search": true, "next_step": "补充同数据同评价实验"}
+  ],
+  "conflicts": [],
+  "conflict_review": {"searched": true, "note": "已比较两篇结果和差异，本合成示例没有相反结论"},
+  "conclusion": {
+    "summary": "问题可检验；相对两篇最近邻存在有界数据增量，算力验证后有条件推进",
+    "recommendation": "pursue_conditionally", "research_question_id": "Q1",
+    "supporting_claim_ids": ["C1", "C2"], "novelty_claim_ids": ["N1"],
+    "feasibility_decision": "conditional", "conditions": ["先完成算力基准测试"],
+    "residual_uncertainties": ["检索覆盖有限", "约束E下实际效果未知"]
+  },
+  "counts": {"records_raw": 3, "included": 2, "excluded": 1, "pending": 0},
+  "gain": {"baseline_decision_traceability": null, "skill_decision_traceability": null, "note": "未运行平台对照，不填造增益"},
+  "unchecked": [],
+  "sources": [
+    {"record_id": "R1", "path": "r1.txt", "sha256": "d71f05e6c88e589c06739ba302e7f92fec6ee326d630bf1a484c3fa165dd5382"},
+    {"record_id": "R2", "path": "r2.txt", "sha256": "f178c670503eee460318bff396db8879d1a2c28728552af3ab13cf46bc8d4237"},
+    {"record_id": "R3", "path": "r3.txt", "sha256": "52d0575ea71b99b6317cbc88b8827e7d904c5fc2a2911828a7154cfcbb58d85c"}
+  ],
+  "uncertainty": ["仅演示接口，不表征真实领域全局创新结论"],
+  "change_log": ["先定义Q1与S1，再检索比较；本文件为合成bench fixture"]
+}

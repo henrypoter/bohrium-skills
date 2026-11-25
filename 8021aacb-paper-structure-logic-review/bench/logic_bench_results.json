@@ -1,0 +1,111 @@
+{
+  "summary": {
+    "total": 20,
+    "passed": 20,
+    "failed": 0
+  },
+  "checks": [
+    {
+      "name": "正向 scan:研究问题/结论候选可定位",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "正向 scan:完整稿零截断/零数值越界误杀",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "正向 verify:闭环且结论在数据范围内零误杀",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "变异 scan:研究问题缺结果环必提示",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "变异 scan:结论新增结果外数值必命中",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "变异 scan:无限定普遍化必提示",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "变异 scan:末句截断必命中",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "变异 verify:输入摘要不匹配 P1",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "变异 verify:漏审研究问题 Q1",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "变异 verify:closed 缺方法锚点 Q3",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "变异 verify:open 无诊断 Q4",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "变异 verify:结论锚点被替换 B2",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "变异 verify:结果锚点不在结果节 B3",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "变异 verify:broader 无诊断 B5",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "变异 verify:规则版本错 P2",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "变异 verify:截断处置为空 T2",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "变异 verify:新增数值仍判 within B4",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "变异 verify:截断状态被静默改写 T1",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "变异 verify:截断未 partial/缺异常 T2",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "变异 verify:漏审结论边界 B1",
+      "pass": true,
+      "detail": ""
+    }
+  ],
+  "rule_version": "logic-audit-1.0.0",
+  "boundary": "自拟短稿；scan 信号为候选，verify 只核验闭环/范围裁决与留痕，不替代语义专家判断"
+}

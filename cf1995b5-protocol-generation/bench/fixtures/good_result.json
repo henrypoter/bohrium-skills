@@ -1,97 +1,69 @@
 {
- "case_id": "case-001",
- "status": "issues",
- "research_goal": {
-  "objective": "测药物A对某细胞增殖的影响",
-  "hypothesis": "药物A在10-100 μM范围内剂量依赖抑制细胞增殖",
-  "constraints": [
-   "预算5万",
-   "4周内完成"
-  ]
- },
- "variables": [
-  {
-   "id": "V1",
-   "name": "药物A浓度",
-   "type": "independent",
-   "operational_definition": "培养液中药物A终浓度(μM)",
-   "unit": "μM",
-   "range": "0/10/30/100"
+  "case_id": "bench-generation-001",
+  "input_id": "bench-input-v1",
+  "status": "pass",
+  "plan_version": "plan-v1.0",
+  "schema_version": "result-v3.0",
+  "source_version": "bench-sources-v1",
+  "example_only": true,
+  "research_goal": {
+    "objective": "检验示例药物A对示例细胞增殖读数的影响",
+    "hypothesis": "在示例体系内，药物A在10-100 uM范围使归一化读数相对溶剂对照下降至少20%",
+    "constraints": ["bench预算2000 CNY", "bench时间窗40 h"]
   },
-  {
-   "id": "V2",
-   "name": "细胞存活率",
-   "type": "dependent",
-   "operational_definition": "CCK-8 吸光度归一化到空白组",
-   "unit": "%",
-   "range": "0-100"
-  }
- ],
- "controls": [
-  {
-   "id": "C1",
-   "type": "negative",
-   "purpose": "空白对照组",
-   "confounder_excluded": "溶剂DMSO效应"
+  "decision_criteria": [
+    {"id": "D1", "criterion": "溶剂对照与药物处理组归一化读数差达到预设20%阈值", "direction": "decrease", "source_locator": "bench://protocol#D1"}
+  ],
+  "variables": [
+    {"id": "V1", "name": "药物A终浓度", "type": "independent", "operational_definition": "培养液中终浓度", "unit": "uM", "range": "0/10/50/100", "measurement_method": "按配液记录核算"},
+    {"id": "V2", "name": "归一化检测读数", "type": "dependent", "operational_definition": "处理孔读数除以溶剂对照中位数并乘100", "unit": "%", "range": "0-200", "measurement_method": "示例读板流程"},
+    {"id": "V3", "name": "溶剂比例", "type": "confounder", "operational_definition": "各孔溶剂的体积分数", "unit": "%", "range": "0.1", "measurement_method": "配液记录"}
+  ],
+  "control_requirements": [
+    {"id": "CR1", "research_goal": "区分药物效应与溶剂效应", "confounder": "溶剂比例", "required_control_types": ["negative"], "rationale": "等溶剂无药处理可扣除溶剂背景", "source_locator": "bench://control-rationale#CR1"},
+    {"id": "CR2", "research_goal": "确认检测体系能产生响应", "confounder": "检测体系失效", "required_control_types": ["positive"], "rationale": "已知响应条件用于识别整体性无信号", "source_locator": "bench://control-rationale#CR2"}
+  ],
+  "controls": [
+    {"id": "C1", "type": "negative", "purpose": "等溶剂无药对照", "confounder_excluded": "溶剂效应", "maps_requirement": "CR1"},
+    {"id": "C2", "type": "positive", "purpose": "示例已知响应条件", "confounder_excluded": "检测体系失效", "maps_requirement": "CR2"}
+  ],
+  "steps": [
+    {"id": "S1", "action": "示例铺板", "equipment": "reader-open", "material": "reagent-instock", "duration": "2h", "parameter_range": "5000细胞/孔", "depends_on": []},
+    {"id": "S2", "action": "示例孵育与读数", "equipment": "reader-open", "material": "reagent-instock", "duration": "16h", "parameter_range": "37 C", "depends_on": ["S1"]}
+  ],
+  "resources": {
+    "equipment": ["reader-open"],
+    "materials": ["reagent-instock"],
+    "sample": "bench示例体系",
+    "sample_size": 24,
+    "capacity_per_batch": 12,
+    "batches": 2,
+    "time_estimate": "28 h",
+    "cost_estimate": "1100 CNY",
+    "cost_breakdown": {"capital": 0, "machine": 200, "consumables": 500, "labor": 300, "rework": 100, "total": 1100, "unit": "CNY", "source_locator": "bench://cost-sheet#v1"},
+    "time_breakdown": {"preparation": 2, "execution": 16, "queue": 4, "characterization": 2, "rework": 4, "total": 28, "unit": "h", "source_locator": "bench://schedule-sheet#v1"}
   },
-  {
-   "id": "C2",
-   "type": "positive",
-   "purpose": "已知抑制剂的阳性对照",
-   "confounder_excluded": "实验体系是否响应"
-  }
- ],
- "steps": [
-  {
-   "id": "S1",
-   "action": "铺板",
-   "equipment": "96孔板",
-   "material": "细胞悬液",
-   "duration": "0.5h",
-   "parameter_range": "5000细胞/孔"
-  }
- ],
- "resources": {
-  "equipment": [
-   "酶标仪"
+  "parameters": [
+    {"name": "temperature", "value": 37, "unit": "C", "min": 20, "max": 40, "source": "bench设备表", "source_locator": "bench://limits#temperature"},
+    {"name": "dose", "value": 50, "unit": "uM", "min": 0, "max": 100, "source": "bench预实验占位", "source_locator": "bench://limits#dose"}
   ],
-  "materials": [
-   "CCK-8"
+  "risks": [
+    {"id": "R1", "failure_mode": "无信号", "trigger": "阳性对照未达到bench预设响应阈值", "consequence": "整批读数不可解释", "mitigation": "核查读板设置和试剂批次后重复一次", "stop_rule": "重复后阳性对照仍失败则停止该批", "alternative_path": "改用经确认的备用检测路线并重做阴阳性对照"},
+    {"id": "R2", "failure_mode": "重复性差", "trigger": "复孔极差超过bench预设阈值", "consequence": "不能稳定判读剂量效应", "mitigation": "检查加样与边缘孔并增加技术复孔", "stop_rule": "两次重复均越阈则暂停并复核体系", "alternative_path": "改分批随机化布局并保留同批对照"}
   ],
-  "sample": "细胞株X",
-  "time_estimate": "2周",
-  "cost_estimate": "约1.2万"
- },
- "risks": [
-  {
-   "id": "R1",
-   "failure_mode": "无信号(细胞未贴壁)",
-   "trigger": "吸光度<0.1",
-   "consequence": "数据不可用",
-   "mitigation": "复孔+重复三次",
-   "stop_rule": "重复仍无信号则查细胞状态"
-  }
- ],
- "judgments": [
-  {
-   "id": "J1",
-   "claim": "选CCK-8测增殖",
-   "evidence": "文献常用且线性范围匹配",
-   "source": "文献[1]",
-   "confidence": "high"
-  }
- ],
- "expert_confirmation": [
-  "药物A溶解度需实验员确认"
- ],
- "unchecked": [],
- "sources": [
-  "文献[1]"
- ],
- "uncertainty": [
-  "剂量上限未覆盖临床浓度"
- ],
- "change_log": [
-  "初版方案生成"
- ]
+  "judgments": [
+    {"id": "J1", "claim": "选择示例读板路线", "evidence": "bench量程覆盖当前参数", "source": "bench设备表", "source_locator": "bench://limits#reader", "confidence": "example-only"}
+  ],
+  "assumptions": [{"id": "A1", "statement": "bench输入合同完整且仅用于命令测试", "confirmation_owner": "bench"}],
+  "expert_confirmation": ["药物溶解性与真实实验安全须由实验负责人另行确认"],
+  "gain": {"baseline_completeness": null, "skill_completeness": null, "rework_rounds_saved": null},
+  "exceptions": [],
+  "unchecked": ["真实执行条件未用于bench"],
+  "sources": [
+    {"id": "SRC1", "version": "v1", "locator": "bench://limits#reader"},
+    {"id": "SRC2", "version": "v1", "locator": "bench://control-rationale#all"}
+  ],
+  "uncertainty": ["bench数值仅演示算术，不代表真实实验效应"],
+  "change_log": [{"plan_version": "plan-v1.0", "change": "建立bench示例", "reason": "验证结构化契约"}],
+  "run_record": {"tool_version": "3.0.0", "commands": ["check bench/fixtures/good_result.json", "controls bench/fixtures/good_result.json", "optimize bench/fixtures/good_result.json --spec <generated-bench-spec>"]}
 }

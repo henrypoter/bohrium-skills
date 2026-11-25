@@ -1,106 +1,128 @@
 ---
 name: coverage-gap-analysis
-description: 检索覆盖率与遗漏分析：参考集冻结版本、命中判定规则显式、覆盖率与漏检逐条比对、漏检按可操作原因归因到查询/字段/来源、定向补检评估边际收益
+description: 检索覆盖率与遗漏分析：冻结独立参考集、逐条命中矩阵、撤稿/标识异常不入假命中、覆盖率复算、漏检归因到查询字段来源、补检真实增量与残余遗漏闭环
 ---
 
 # 检索覆盖率与遗漏分析
 
-把一个科研问题转成**可复跑、可复核**的检索与筛选闭环：候选集、逐条判定与依据、计数闭合、遗漏归因。适用于系统综述/范围综述/指南证据更新/技术查新的题录筛选环节。
+围绕一个已冻结的已知相关参考集完成 **“算覆盖—列漏检—定向补检—复算残余遗漏”**。核心不是检索条数，而是分子分母可独立核对、漏检逐条可定位、补检收益不重复计算。
 
-**不适用**：在线数据库全覆盖召回、全局新颖性判定、全文精读与质量评价结论、替代同行评审。本 Skill 处理的是**给定题录的有限快照**，报告里不得声称全局召回率或在线实时覆盖。
+**适用**：组织方提供的实际来源响应、参考清单、查询与增量状态的有限快照。**不适用**：声称在线实时覆盖、全局召回率/最新性、无源撤稿判断，或把候选结果自身当参考集。不负责全文质量评价和正式系统综述纳排。
 
-## 调用方式
+## 调用与交付
 
-- 输入：`/input/case.json`（case_id + 研究问题 + 题录/材料）、`/input/task.md`
-- 输出：`/app/output/result.json` + 工作表 CSV（标注/仲裁/审计/覆盖率）
-- 辅助：`scripts/search_tool.py` 的 `dedup / audit / agreement / schema` 四个命令
-- 模板：`templates/protocol.md`（协议）、`templates/reason_codes.md`（理由码字典）、`templates/worksheets.md`（三张表列定义）
+- 读 `/input/case.json`、`/input/task.md` 与实际材料；原 `output_contract`、`case_id` 和来源标识必须保留。
+- 输出 `/app/output/result.json`，附冻结参考集、hit matrix、查询轮次、漏检表和变更记录。
+- 标准库工具：`scripts/search_tool.py` 的 `dedup / audit / agreement / schema / covercheck`，版本 `search_tool v3`。Harness 内用绝对路径 `/skills/weekly-skill/scripts/search_tool.py`；开发命令在提交根运行时可用相对路径。
+- 模板：`templates/protocol.md`、`templates/reason_codes.md`、`templates/worksheets.md`。
+- `bench/fixtures/good_result.json` 仅为调用示意和自测夹具，不是正式案例答案。
+
+## 三条判对硬标准
+
+1. **分母独立且冻结**：`reference_set` 来自综述/指南/专家清单/给定已知集及其实际来源记录，带 `version/frozen_at/source/denominator_rule`。不得从本次候选反推分母，不得删除未命中项让覆盖率上升。
+2. **逐条漏检可执行归因**：每条有效参考在 `hit_matrix` 中恰有一次基线和最终状态；每条最终未命中必须有 M1–M5、具体 `query_id/field/source` 组合及实际 `evidence`，不得写成“不相关”。
+3. **补检只计真实新增**：每轮保留查询、字段、来源、日期、状态和 `new_hit_ids`；补检后的新增并集必须等于从“基线 miss”转“final hit”的参考 ID。没有新增就不得声称遗漏下降，残漏和未覆盖来源须留下。
 
 ## 工作流
 
-### 0. 写协议，先于看结果
-1. 读 `case.json` 与 `task.md`，把问题拆成对象/机制或方法/人群/时间/比较/证据要求。
-2. 按 `templates/protocol.md` 填协议：**每个库的检索式、字段、时间窗、语种、检索日期**逐条写死；纳排标准逐条落到可判定判据并给版本号 v1.0。
-3. 标准**先于筛选定稿**；之后任何改动都要升版本，并在 `change_log` 记录改了什么、影响哪些已判记录、是否回溯重判。
+### 0. 冻结算法和参考集，先于看覆盖结果
+- 写 `protocol_version`、`artifact_version=coverage-result/v3`、`method_version=frozen-reference-incremental-coverage/v3`。
+- 每条参考写 `ref_id/title/identifiers/inclusion_reason/countable/retraction_status/identifier_status/fulltext_status`；标识、纳入理由和冻结版本须可回看。
+- 预先声明命中规则：`identifier`（规范化 DOI/PMID 等）、`title_author_year`（标题+作者+年近似并留证据）、`manual`（实际裁决理由）；不允许 `looks_similar` 等不可复核口径。
+- 预先写 `stop_rule`，例如“连续两轮无新增且每条残漏已有可操作归因则停；来源异常未绝不视为完成”。
 
-### 1. 检索并留痕
-每条查询写 `queries[]`：`id/query/database/fields/date_range/run_date`。检索日期缺一不可——没有检索日期就无法复跑。
+### 1. 参考集异常治理，禁止默默改分母
+- **撤稿**：`retraction_status=retracted` 必须附 `retraction_evidence/retraction_source`。仅当冻结分母规则预先允许 `exclude_retracted=true` 时 `countable=false`；仍保留记录与 hit matrix 的 `not_applicable_reason`，不可物理删除。
+- **撤稿未知**：保留 countable、记未决，status 非 pass；没有来源不得猜撤稿。
+- **无全文**：`fulltext_status=unavailable` 只影响可读性，不移出分母，也不等于不相关/漏检。
+- **标识冲突**：逐字段写 `identifier_conflicts={field,values,resolution_status,...}`。未解决时不能仅凭 identifier 判命中；有真实题名+作者+年或人工证据才可按相应规则命中，status 非 pass。
+- **重复参考**：先运行 `dedup`，精确组与近邻候选分开留痕。分母按冻结裁决后的独立参考数计算，合并没有依据的多篇报道不得随意缩减分母。
 
-### 2. 去重（精确 + 近似分开处理）
+### 2. 建基线命中矩阵并独立复算
+对每条参考，包括撤稿和无全文项，填：
+```json
+{"ref_id":"REF1","baseline_hit":true,"final_hit":true,
+ "baseline_match_rule":"identifier","baseline_evidence":"DOI 完全匹配",
+ "baseline_matched_record_id":"R1","final_match_rule":"identifier",
+ "final_evidence":"DOI 完全匹配","final_matched_record_id":"R1"}
 ```
-python3 scripts/search_tool.py dedup records.json
+不命中为显式 `false`，命中必须给 match_rule/evidence/matched_record_id。命中变漏检要写 `status_change_reason`。只以 `countable=true` 的参考作有效分母；零有效分母时率为 null，并报协议/参考集问题，不能报 100%。
+
+保留以下可复算字段：
+```text
+N = eligible_total
+baseline_rate = baseline_retrieved / N
+coverage_rate = retrieved / N
+missed = N - retrieved
+incremental_new_hits = |{基线 miss 且 final hit}|
 ```
-- 精确键：DOI → arXiv → 标题+首作者+年份。同键自动合并，保留合并依据。
-- 近似候选：同年且标题 Jaccard ≥ 0.55 → **只列为候选，不自动合并**，由人工按 DOI/作者/卷期裁决（预印本 vs 正式版）。
-- 禁止用"标题肉眼比对"直接给一个剩余条数：必须输出合并组与依据。
+同时保留 `reference_total/eligible_total/excluded_total/baseline_missed`，使撤稿排除也有审计轨迹。
 
-### 3. 双人独立标注
-- A、B 各自独立按同一版标准逐条判 `include/exclude/maybe`，每条必须带 `reason_code`（取自理由码字典）+ `evidence_snippet`（原文片段）+ `evidence_location`（页码/章节/表号）。
-- 双方互不可见结果。先各自出全量，再算一致率：
+### 3. 漏检归因到具体查询、字段或来源
+每条最终漏检在 `miss_attributions` 恰有一行，`coverage.missed_by_code` 由这些行复算：
+
+| 码 | 含义 | 至少需要的定位 |
+|-|-|-|
+| M1 | 查询未覆盖同义表达 | `query_id` + 能说明缺失词/字段的 evidence |
+| M2 | 检索字段过窄 | `query_id + field` + evidence |
+| M3 | 时间窗截断 | `query_id` + 实际题录年份/窗口 evidence |
+| M4 | 来源库未收录 | `source` + 来源响应/覆盖证据 |
+| M5 | 记录标识异常 | `field` + 冲突值/异常响应 evidence |
+
+不得只写“数据库覆盖不足”“关键词不好”。无证据时把归因标为未决假设，而非坐实某原因。
+
+### 4. 定向补检与边际收益
+每轮写：
+```json
+{"round_id":"S1","query":"...","fields":"title/abstract","source":"...",
+ "run_date":"ISO-date","status":"ok|empty|timeout|error|permission_denied",
+ "target_miss_codes":["M1"],"new_hit_ids":["REF3"],"detail":"...","next_action":"..."}
 ```
-python3 scripts/search_tool.py agreement pairs.json
+- 正常轮次必须指向目标漏检码，查询由该归因生成；结果的 `discovered_in_round` 回指轮次。
+- `new_hit_ids` 只含有效参考中此前未命中、本轮真实新增者。重复命中、基线已命中、失败响应里的“命中”均不计收益。
+- 一轮没有新增也是有效结果，须记录 `new_hit_ids=[]`，不得通过更换同义词文字制造“收益”。达到 `stop_rule` 后保留全部未解决项。
+- 最终重新运行覆盖计算，列出仍 miss 的参考、原因和查询/字段/来源证据。
+
+### 5. 机检后才交付
+```bash
+python3 /skills/weekly-skill/scripts/search_tool.py schema /app/output/result.json
+python3 /skills/weekly-skill/scripts/search_tool.py audit /app/output/result.json
+python3 /skills/weekly-skill/scripts/search_tool.py covercheck /app/output/result.json
 ```
-输出决策一致率、Cohen's κ、include 上的理由码一致率。门槛：一致率 ≥ 0.80 且 κ ≥ 0.60；未达标要重训标准或重标，不得直接进下一环节。
+`covercheck` 独立检查冻结版本、撤稿证据、无全文分母、标识冲突、hit matrix 全覆盖、命中规则/证据、所有分子分母和覆盖率、逐条归因、真实补检增量、来源超时与停止规则。失败返回非零；修复或保留诚实的 `partial/issues`，不得删异常取绿。若案例不要求候选筛选，可按原契约省略仅适用于筛选的 audit 计数，但不能省略 `covercheck`。
 
-### 4. 冲突仲裁
-- 分歧分三类：`decision` / `reason_code` / `evidence`。
-- 逐条写仲裁结论 + `rationale`（为什么），**不用多数票或平均掩盖实质分歧**；无法裁决的记 `maybe` 并标为待人工复核。
+有真实同参考集、同预算的基础 Agent 对照时，逐条比较分母、hit status、新增命中和残漏；无对照就填 null，不编造增益或人工复核。
 
-### 5. 计数闭合审计
-```
-python3 scripts/search_tool.py audit result.json
-```
-必须闭合：`原始 → 去重后 → 已判定（纳入+排除+待定）`，且 `去重后 ≤ 原始`、`已判定 = 去重后`。不闭合返回非零，**不得交差**。审计日志逐行写步骤/输入数/输出数/操作人/时间/标准版本。
-
-### 6. 覆盖率与遗漏（有参考集时）
-逐条比对参考集与命中，未命中按可操作原因归类（M1 同义词未覆盖 / M2 字段过窄 / M3 时间窗截断 / M4 库未收录 / M5 标识异常），`miss_attribution` 必须指到具体查询、字段或来源。补检要记录新增查询式与新增命中，评估边际收益后明确停止条件。
-
-### 7. 增益对照（不要只写自述）
-同题录、同标准版本，分别用基础 Agent 与加载本 Skill 各跑一次，报：决策准确率、双人一致率(κ)、人工核对条数。差异要能指到具体记录。
-
-### 8. 异常处置（逐类给动作，不笼统说"注意"）
-| 异常 | 处置 |
-|-|-|
-| DOI 缺失 | 退化为标题+首作者+年份；仍缺则记 `maybe` + E6，不猜 DOI |
-| 摘要为空 | 不得据标题硬判；记 `maybe` + E6 并列待取全文 |
-| 编码乱码 | 先按 UTF-8/GBK 重解一次；仍乱码则标记字段不可用并记录，不臆造内容 |
-| 导出格式不一致 | 按各库字段映射归一（作者/期刊/年/标识符/类型），保留原始响应片段 |
-| 标准版本冲突 | 以协议版本号为准，旧版已判记录回溯重判并记 change_log |
-| 两位标注者僵持 | 升级仲裁人；仍僵持记 `maybe`，输出"待人工复核"清单，不强行定稿 |
-| 库超时/限流 | 记 `unresolved`，在 coverage 里标该库未覆盖，不静默当"无结果" |
-
-### 9. 诚实输出
-写 `/app/output/result.json`，再自检：
-```
-python3 scripts/search_tool.py schema /app/output/result.json
-```
-`status` ∈ pass/issues/partial/failed。空结果、冲突、权限或接口异常**如实写**，不补造文献；部分完成要写清完成到哪一步、缺什么。
-
-## result.json 契约
+## result.json 新增字段（覆盖原骨架的细化，不替代原字段）
 
 ```json
 {
-  "case_id": "...",
-  "status": "pass|issues|partial|failed",
-  "protocol_version": "v1.0",
-  "research_question": {"topic": "", "object": "", "method": "", "time_range": "", "evidence_requirement": "", "scope": ""},
-  "queries": [{"id": "Q1", "query": "", "database": "", "fields": "", "date_range": "", "run_date": ""}],
-  "records": [{"id": "R1", "title": "", "authors": "", "year": 0, "doi": "", "arxiv": "", "source": "", "language": "", "version": ""}],
-  "dedup": {"exact_groups": [], "near_candidates": [], "merged": 0},
-  "reason_code_dict": {"I1": "…", "E1": "…"},
-  "screening": [{"record_id": "R1", "annotator": "A|B|arbiter", "decision": "include|exclude|maybe", "reason_code": "I1", "evidence_snippet": "", "evidence_location": "", "rule": ""}],
-  "agreement": {"decision_agreement": 0.0, "cohen_kappa": 0.0, "n": 0},
-  "arbitration": [{"record_id": "", "disagreement_type": "", "decision": "", "rationale": ""}],
-  "counts": {"records_raw": 0, "records_dedup": 0, "included": 0, "excluded": 0, "maybe": 0},
-  "audit_log": [{"step": "", "input_n": 0, "output_n": 0, "operator": "", "timestamp": "", "rule_version": ""}],
-  "coverage": {"reference_total": 0, "retrieved": 0, "missed": 0, "missed_by_code": {}},
-  "gain": {"baseline_accuracy": null, "skill_accuracy": null, "kappa_baseline": null, "kappa_skill": null, "manual_checks_saved": null},
-  "unchecked": [], "sources": [], "uncertainty": [], "change_log": []
+ "case_id":"...","status":"pass|issues|partial|failed",
+ "artifact_version":"coverage-result/v3","method_version":"frozen-reference-incremental-coverage/v3","protocol_version":"v1.0",
+ "reference_set":{"version":"...","frozen_at":"...","source":"...","denominator_rule":{"exclude_retracted":true,"unavailable_fulltext_remains_eligible":true},"records":[]},
+ "hit_matrix":[],"search_rounds":[],"miss_attributions":[],"stop_rule":"...",
+ "coverage":{"reference_total":0,"eligible_total":0,"excluded_total":0,
+   "baseline_retrieved":0,"baseline_missed":0,"baseline_rate":null,
+   "retrieved":0,"missed":0,"coverage_rate":null,"incremental_new_hits":0,
+   "missed_by_code":{},"complete":false,"unresolved_sources":[]},
+ "research_question":{},"queries":[],"records":[],"screening":[],"counts":{},"dedup":{},
+ "sources":[],"unchecked":[],"uncertainty":[],"change_log":[]
 }
 ```
+`coverage.complete=false` 表示某来源未决，不等于覆盖率一定低；`coverage_rate` 仍按已明确的参考命中矩阵如实复算，并同时披露解释边界。
+
+## 异常处置表
+
+| 题面异常 | 强制识别与处置 |
+|-|-|
+| 参考集含撤稿 | 有证据才标撤稿；冻结规则允许才 countable=false；矩阵仍保留，禁止直接删分母 |
+| 标识冲突 | 列字段与冲突值；未解决不允许 identifier 命中，升级题名作者年/人工裁决并披露 |
+| 来源超时 | 该轮 `status=timeout + detail + next_action + new_hit_ids=[]`；来源列入 unresolved_sources、complete=false、总状态非 pass |
+| 重复记录 | 精确去重留组合依据，近似多报道交裁决；不能因去重方便扩大或缩小有效分母 |
+| 无法获取全文 | fulltext_status=unavailable，仍留分母；不能因此判不相关、撤稿或漏检 |
+| 正常空结果 | `status=empty + new_hit_ids=[]` 并继续定向判断；空结果本身不是来源异常 |
+| 来源错误/权限不足 | 与 timeout 同样保留未决来源和下一步，不重试撒谎、不靠猜造记录 |
+| 零有效分母 | 比率为 null，状态非 pass，要求修复参考集/分母协议 |
 
 ## 底线
-- 标准先于筛选、版本可回溯；每条判定有理由码 + 真实片段 + 可定位位置；计数闭合；分歧有仲裁理由；未命中能指名到查询/字段/来源。不补造文献，不虚报覆盖率。
-
-## 本课题聚焦
-本题聚焦**已知集构建、覆盖率计算、漏检分类与补充检索**。硬要求：①参考集来源写清并**冻结版本**，标注撤稿/无全文等不可用记录；②命中判定规则显式（标识符匹配 / 标题+作者+年近似 / 人工裁决），分子分母都可核对，**严禁用检索结果自身反推分母**；③**未命中不得当「不相关」划掉**，必须逐条留状态；④漏检按 M1 同义词未覆盖 / M2 字段过窄 / M3 时间窗截断 / M4 库未收录 / M5 标识异常 归类，`miss_attribution` 指到具体查询式、字段或来源；⑤补检记录新增查询式与新增命中，评估边际收益后给停止条件，禁止换同义词重跑就宣布遗漏下降。
+分母来自独立冻结参考集，逐条状态全保留，撤稿与标识异常有证据，未命中不等于不相关，归因定位到查询/字段/来源，补检只计算真实新增，残余遗漏和超时来源不消失。

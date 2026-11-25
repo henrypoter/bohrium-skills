@@ -1,40 +1,62 @@
-# 方案规格表（plan_spec.md）
+# 方案比较规格表（比较题）
 
-## 1. 六要素检查表（缺一项即不完整）
+> 本模板用于从案例材料生成审计字段，不是预制答案。未知填 `unknown`，不可将规划合同称为真实实验室确认。
 
-| 要素 | 最低要求 | 常见错法 |
-|-|-|-|
-| 假设与变量 | 假设可被推翻；变量有操作定义+单位+范围 | 写"研究X的机制"；变量只有名字 |
-| 对照组 | 每组说明排除哪类混杂 | 只有空白组；对照与目标不匹配 |
-| 设备材料 | 型号/量程/规格/试剂货号 | 只写"离心机" |
-| 时间成本 | 分步时长+并行关系+样本量+预算 | 只给总天数 |
-| 参数范围 | 每参数 value/unit/min/max + 依据来源 | 参数无单位；依据写"经验" |
-| 风险与异常 | 每风险 trigger + mitigation + stop_rule | 只写"注意安全" |
+## 1. 同口径候选矩阵
 
-## 2. 参数表（逐行填）
+| 字段 | P-A（版本） | P-B（版本） | P-C（版本） | 来源定位 |
+|-|-|-|-|-|
+| 可检验假设 |  |  |  |  |
+| 变量：类型/操作定义/测量/单位/范围 |  |  |  |  |
+| 对照：目的/排除混杂 |  |  |  |  |
+| 步骤：设备/材料/依赖/并行 |  |  |  |  |
+| 参数：value/unit/min/max/来源 |  |  |  |  |
+| 资源：设备/耗材/样本/人员 |  |  |  |  |
+| 判读：终点/方向/阈值 |  |  |  |  |
+| 风险：触发/后果/缓解/止损/替代 |  |  |  |  |
+| 证据：判断/来源 ID/定位 |  |  |  |  |
+| 硬约束：设备/材料/预算/时间/参数 | pass/fail/unknown | pass/fail/unknown | pass/fail/unknown |  |
+| 全成本/币种 |  |  |  |  |
+| 全周期/时间单位 |  |  |  |  |
 
-| 参数 | 建议值 | 单位 | 允许区间 | 依据来源 | 越界处置 |
+不得只填被偏好的方案；缺失字段标 `unknown`，不能删列。候选全部不可行时不得强行选“相对最好”。
+
+## 2. 成本与时间算术
+
+- `capital + machine + consumables + labor + rework = cost_total`；一次性与按次成本分列。
+- `preparation + execution + queue + characterization + rework = time_total`。
+- 每项有单位与 `source_locator`；若并行，另给关键路径说明，不能简单相加或漏掉排队。
+
+## 3. 选择与敏感性
+
+- 选择：`selected_candidate_id`，只允许选硬约束全为 `pass` 的候选。
+- 舍弃：每个未选候选恰好一条具体理由，引用数值、证据或约束。
+- 敏感性：`assumption / threshold / effect / evidence`，说明何时翻转；翻转后重验硬约束。
+- 全不可行：`selected_candidate_id=null`，`recovery.status=blocked`，给放宽项、替代路径、影响和决策人。
+
+## 4. 风险与异常表
+
+| type | trigger | action | impact | decision_owner | status |
 |-|-|-|-|-|-|
-| temperature | 75 | C | 20–90 | 设备手册 p12 | 降至 60 并延长孵育 |
-| dose | 50 | uM | 0–100 | 预实验 P-03 | 分档递增 |
+| equipment_unavailable |  |  |  |  |  |
+| material_unavailable |  |  |  |  |  |
+| budget_exceeded |  |  |  |  |  |
+| time_window_conflict |  |  |  |  |  |
+| parameter_window_conflict |  |  |  |  |  |
+| all_candidates_infeasible |  |  |  |  |  |
 
-核验命令：`python3 scripts/exp_tool.py params result.json --spec limits.json`
-`limits.json` 格式：
-```json
-{"limits": {"temperature": {"min": 4, "max": 80, "unit": "C"}}}
+## 5. 交付闸
+
+```bash
+python3 scripts/exp_tool.py schema /app/output/result.json
+python3 scripts/exp_tool.py compare /app/output/result.json
+python3 scripts/exp_tool.py feasibility /app/output/result.json --spec /app/work/feasibility-spec.json
 ```
 
-## 3. 风险矩阵（按后果与概率排优先级）
-
-| 风险 | 触发信号 | 后果 | 缓解 | 止损点 |
-|-|-|-|-|-|
-| 无信号 | 吸光度 < 0.1 | 数据不可用 | 复孔+重复三次 | 三次仍无信号则停并查细胞状态 |
-| 污染 | 培养基浑浊 | 整批作废 | 加双抗+空白对照 | 空白组也浑浊则整批弃 |
-
-## 4. 交付前自检
-
-- [ ] `check` 的 `missing_elements` 为空
-- [ ] 每个参数都能在 `limits.json` 中找到限值来源
-- [ ] 每个风险三件套齐全
-- [ ] 需专家确认的事项已列入 `expert_confirmation`
-- [ ] 无设备参数/预算时写 `unknown`，未编造型号与价格
+- [ ] 原 `output_contract` 字段和 `case_id/input_id` 保留
+- [ ] 所有候选统一字段、独立版本，来源有 `id/version/locator`
+- [ ] 成本与时间可重算，单位一致
+- [ ] 选择、逐项舍弃、敏感性齐全；`fail/unknown` 未被放行
+- [ ] 全不可行有 blocked 恢复路径；异常有触发、影响、行动、决策人
+- [ ] `change_log` 和 `run_record.tool_version/commands` 是实际记录
+- [ ] 未伪造增益、报价、档期、批准或科学效果

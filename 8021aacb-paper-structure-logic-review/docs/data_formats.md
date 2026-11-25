@@ -6,7 +6,7 @@
 
 - **依赖**：Python ≥ 3.7，零第三方包；无网络访问、无环境变量、无写入技能目录外路径。
 - **安装**：整目录复制即用；平台侧由评测器安装到 `/skills/weekly-skill`，本地验证可将 `submission/` 内容放任意目录后用绝对路径调用脚本。
-- **自检**：`python3 scripts/result_check.py --selftest`（契约双夹具）；`python3 bench/fixture_test.py`（判据+异常 34 项回归）；`python3 bench/path_compare.py`（双路径对照）。三者 exit 0 即健康。
+- **自检**：`python3 scripts/result_check.py --selftest`；`python3 bench/fixture_test.py`（34 项）；`python3 bench/logic_bench.py`（20 项）；`python3 bench/path_compare.py`（双路径对照）。全部 exit 0 即健康。
 - **维护**：词表（HEDGE/CAUSE/CORR/ARG/ZONE/SEC_KEYS，skeleton.py 顶部）与判据（references/checklist.md）为纯文本，可按学科扩展；改词表后必须重跑 fixture_test.py 确认「正向零误杀、变异必命中」不回退。版本记录在提交说明（SOLUTION.md）。
 
 ## 2. 锚点体系
@@ -26,11 +26,21 @@
 | boundary_candidates[] | {para,sec,reason}：强因果无限定 / 相关当因果 / 缺限制声明 |
 | truncation_suspect / dup_scan_capped / warnings | 截断信号 / 扫描截顶标记 / 告警（含 empty_input、no_academic_structure） |
 
-## 4. result.json 诊断与留痕 schema（契约字段）
+## 4. logic_audit.json（输入版本 + RQ/CB/截断候选）
+
+由 `python3 scripts/logic_audit.py scan <稿件> -o logic_audit.json` 生成。`input_fingerprint` 含实际文件 path、SHA-256、bytes 与 anchors_version；`research_question_candidates[]` 含 RQ id、问题句锚点与四类章节建议锚点；`conclusion_boundary_candidates[]` 含 CB id、结论锚点、结论/结果数值差集、普遍化/因果提示与结果锚点；`truncation` 含 signals、last_anchor、last_text_sha256 和末文摘录。
+
+候选不等于诊断。`logic_audit.py verify result.json logic_audit.json` 强制 result 对每个 RQ/CB 给唯一编号、真实锚点、范围关系与理由；closed/open/broader 还要相应闭环或 diagnosis。P=版本/摘要，Q=研究问题，B=边界，T=截断；任何 errors 均 exit 1。语义上是否真正回答科学问题、数据是否支撑结论仍由模型依据全文裁决。
+
+## 5. result.json 诊断与留痕 schema（契约字段）
 
 完整模板见 `references/result_schema.json`。关键条目：
 
 ```json
+"artifact_version": "paper-structure-logic-review-1.1.0"
+"input_manifest": {"algorithm":"sha256","path":"实际稿","sha256":"scan输出","bytes":0}
+"logic_audit": {"rule_version":"logic-audit-1.0.0","audit_report":"/app/output/logic_audit.json",
+  "research_questions":[],"conclusion_boundaries":[],"truncation":{}}
 "diagnosis": [{"id":"D1","dimension":"六维之一","location":"S2.P3",
   "criterion":"判据+检索范围","evidence":"原文≤40字","type":"问题类型",
   "severity":"high|mid|low","action":"动作摘要"}]
@@ -43,7 +53,7 @@
 
 约束：diagnosis 缺四元组任一项、change_log 出现 L3、事实 diff 漂移无 fact_note，均被 result_check.py 记 ADVICE；仅「result.json 不可解析 / 交付文件缺失」为 FAIL(exit 1)。
 
-## 5. 交付物文件格式（优化稿留痕约定）
+## 6. 交付物文件格式（优化稿留痕约定）
 
 | 文件 | 格式约定 |
 |-|-|
@@ -51,9 +61,10 @@
 | edit_plan.md | 表格：E# / action / level / anchor / target / detail / ref_diagnosis；L3 行标注「只建议」 |
 | revised_draft.md | 全稿文本，改动处行尾带留痕标记 `<!-- change:E# 锚点 -->`，未授权处保持原文 |
 | skeleton.json | 见 §3 |
-| result.json | 见 §4 |
+| logic_audit.json | 见 §4；scan 原始输出，不覆盖手工裁决 |
+| result.json | 见 §5 |
 
-## 6. 判据词表样例（criterion 字段写法，摘自 checklist.md）
+## 7. 判据词表样例（criterion 字段写法，摘自 checklist.md）
 
 | 维度 | criterion 样例 |
 |-|-|
@@ -64,6 +75,6 @@
 | redundancy | 「与 S1.P1.s2 同贡献角色、shingle=1.0、非引言-结论呼应(echo)」 |
 | conclusion_boundary | 「证据仅覆盖 3 个自建测试集(S3.P1)，结论表述为普遍因果」 |
 
-## 7. 可复用清单
+## 8. 可复用清单
 
 脚本（skeleton.py / result_check.py）、判据与动作词表（checklist.md）、契约模板（result_schema.json）、标注样例（examples/）、回归题集与对照（bench/fixtures + fixture_test.py + path_compare.py + bench_report.md）均可独立复用；二次开发只需遵守 §1 维护纪律。

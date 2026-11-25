@@ -1,4 +1,4 @@
-# 共同字段字典（field dictionary）v3
+# 共同字段字典（field dictionary）v4
 
 所有文档共用同一套字段定义。工单（comparison-workorder.json）指定维度优先；新增维度按工单定义抽取，字段名保持工单原文。
 
@@ -28,11 +28,17 @@
 
 ## 分歧归因枚举（conflicting 必填 attribution）
 
-`sample`（样本/数据集）/ `method`（方法或对照）/ `condition`（实验条件）/ `metric`（指标口径）/ `unit`（单位）/ `unattributable`（排查后仍无法归因，须 ≥20 字排查说明）。
+`sample`（样本/数据集）/ `method`（方法或对照）/ `condition`（实验条件）/ `metric`（指标口径）/ `unit`（单位）/ `unattributable`（排查后仍无法归因，须 ≥20 字排查说明）。后者还需 `resolution_status="unresolved"`，`checked_dims` 至少含 sample/method/condition/metric/unit，且自动进入 result.uncertainty。
 
 ## 证据卡纪律
 
-1. 一卡一值；quote 为原文片段（≤40 字，可截断），paragraph_id 必须存在于 corpus_index.json；
+1. 一卡一值；quote 为原文片段（≤40 字，可截断），须在 paragraph_id 对应同文档段落中逐字命中，禁止跨文档借用定位；
 2. 未报告 = 不抽卡（validate 自动列入 gaps），禁止用常识或他文值补空；
-3. 图/表读数：confidence="inferred"，note 写“图/表 X 读数，近似”；
+3. 图读数：`source_kind="figure"` + `figure_id` + confidence="inferred"，note 写“图 X 读数，近似”；不可读图只记 visual_gaps，不抽卡；
 4. 同一字段多个取值（多数据集/多条件）：每值一张卡，context/caliber 区分。
+
+## 材料边界字典（case_meta.json）
+
+- `document_assessments[]`：每篇一条；`relevance=relevant|irrelevant|uncertain`，`version_state=selected|only|superseded|duplicate|unknown`。后两类主题状态与被替代版本均排除出关系；irrelevant/uncertain 需 reason 和同文档 paragraph_id。
+- `visual_gaps[]`：`source_document_id + figure_id + reason(unreadable|parse_failed|not_supplied|no_text_layer)`。它表示未覆盖，不表示零值或阴性。
+- 这些是 Agent 阅读后做出的显式边界声明；audit 验证其完整性与禁止性规则，不声称能从关键词自动判断科学主题。

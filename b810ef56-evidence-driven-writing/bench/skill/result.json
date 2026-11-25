@@ -10,5 +10,18 @@
   "change_records": ["初稿将 C2 写作「领域共识」，evidence_lib E9 提示后改为「较广泛接受」对齐 A 级措辞"],
   "manuscript": "manuscript.md",
   "evidence_library": "evidence_library.json",
-  "claim_matrix": "claim_matrix.json"
+  "claim_matrix": "claim_matrix.json",
+  "artifact_version": "evidence-driven-writing-1.1.0",
+  "input_manifest": {
+    "algorithm": "sha256",
+    "files": [
+      {"path": "bench/material/paper_a.txt", "sha256": "f4b872ee200bf978e677af59fa9179391de9b0cc8d2a56e25fc57877ed253937", "bytes": 464},
+      {"path": "bench/material/paper_b.txt", "sha256": "20ec1fe95831687d0d8e296db61049f23ce3da4a1291dce2d867385a88ed0b57", "bytes": 400}
+    ]
+  },
+  "verification": {
+    "evidence_lib": {"status": "pass", "report": "verification_report.json"},
+    "strength_audit": {"status": "pass", "report": "strength_audit.json"},
+    "rule_version": "evidence-audit-1.0.0"
+  }
 }

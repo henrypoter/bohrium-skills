@@ -11,7 +11,7 @@ skeleton 信号：zone=AZ 区域须核实；论点—论据支持边由模型逐
 - 可编辑 JSON/Markdown 即满足交付；revised_draft.md 仅在存在 L1/L2 句子级落笔时产出，整篇重写非必需。
 
 ## 1. 研究问题与贡献对齐 (research_question)
-- 引言有无可指认研究问题句；是否在方法/结果/结论均有呼应。
+- 引言有无可指认研究问题句；是否在方法/结果/结论均有呼应。`logic_audit.py scan` 给 RQ 候选，`verify` 强制逐条 RQ 填齐锚点：closed 必须四环合法，open 必须有关联 diagnosis；不得只写“覆盖研究问题”而不给逐环证据。
 - 贡献逐条核对：能否在结果节找到证据段；找不到→"贡献无证据"。
 - 方法解决的子问题集与引言问题集不一致→"问题与方法各说各话"。
 
@@ -34,7 +34,7 @@ skeleton 信号：zone=AZ 区域须核实；论点—论据支持边由模型逐
 - 方法描述/术语密集句天然表层相似；相似度分数≠重复结论，防误报。
 
 ## 6. 结论边界与表述尺度 (conclusion_boundary)
-- boundary_candidates+复核：结论/摘要逐句与结果节证据范围比对：超范围→"结论越界，需收窄"；相关+因果并存→"因果越界"；无限定词→"缺限制声明"。禁止补写实验结论。
+- boundary_candidates+复核：结论/摘要逐句与结果节证据范围比对：超范围→"结论越界，需收窄"；相关+因果并存→"因果越界"；无限定词→"缺限制声明"。新增 CB 逐条比对 results 的人群/条件/样本/数值/设计：结论出现结果中未见数值时不得判 within/narrower；broader 必须有 diagnosis。禁止补写实验结论。
 
 ## 编辑动作词表（edit_plan.action 只能取这些）
 move(锚点→目标) | merge(锚点列表→目标) | split(锚点→拆分点) | narrow(锚点,原句→收窄句) | add_transition(位置,过渡句) | delete(锚点,理由) | rewrite_sentence(锚点,原句→新句,理由)
@@ -48,5 +48,5 @@ move(锚点→目标) | merge(锚点列表→目标) | split(锚点→拆分点)
 - 越权请求（补实验、改结论、增删文献主张）拒绝并标 human_confirmation。
 
 ## 异常处置
-- 缺章节/无参考文献/图表缺失/格式混乱/截断：记 material_gaps 或 anomalies，status=partial，只诊断可读部分。
+- 缺章节/无参考文献/图表缺失/格式混乱/截断：记 material_gaps 或 anomalies，status=partial，只诊断可读部分。截断须额外保留 scan 的 signals、last_anchor、last_text_sha256 与 read_scope；不能只写“可能截断”而继续 success。
 - 逻辑问题无法自动修复（缺实验、数据不支持）：只诊断+human_confirmation，不硬改。

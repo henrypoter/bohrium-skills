@@ -1,0 +1,12 @@
+{
+  "ok": true,
+  "summary": {
+    "evidence": 2,
+    "claims": 2,
+    "errors": 0,
+    "warnings": 0
+  },
+  "errors": [],
+  "warnings": [],
+  "rule_version": "evidence-audit-1.0.0"
+}

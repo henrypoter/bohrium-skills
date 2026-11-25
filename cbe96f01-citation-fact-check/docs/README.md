@@ -1,24 +1,33 @@
-# 引用与事实核验
+# 引用与事实核验（v3.0.0）
 
-## 用途
-本题聚焦**引用支持与事实核验**。不查「有没有引用」，查「引的对不对」：被引文献是否支持该论断的方向、是否为二次转引、关键论断是否缺引用；同时核数值与单位在文内是否自洽。每条必须写出被引文献的实际结论与本文论断的差异。
+把每条引用拆成“稿件论断 claim_quote”和“来源证据 source_quote”，双侧定位页/段并绑定 quote 与来源全文 SHA-256；再核 full/partial/none/unknown、来源版本/撤稿/权限。每份结果保留原 output_contract 和实际运行版本。
 
-## 调用
-输入 `/input/case.json` 与 `/input/task.md`；输出 `/app/output/result.json` + 产物。
+## 运行
 
-## 命令
+Python 3 标准库，无安装和网络依赖。输入 `/input/case.json`、`/input/task.md` 与实际材料；快照在 `/app/work`，输出 `/app/output/result.json`。格式与最小 JSON 示例见 `SKILL.md`。
+
 ```bash
-python3 scripts/review_tool.py  # 见下
-```
-`verify issues.json --text manuscript.txt`（引文逐字核验，揪出误报）/ `summary issues.json`（六类覆盖矩阵）/ `schema result.json`
-
-## 模板
-`templates/checklist.md`
-
-## 自测
-```bash
-python3 bench/bench_run.py   # 10/10
+python3 scripts/review_tool.py locate claims.json --manuscript manuscript.txt --sources source-files.json
+python3 scripts/review_tool.py align claims.json
+python3 scripts/review_tool.py provenance source-metadata.json --registry registry.json
+python3 scripts/review_tool.py verify issues.json --text manuscript.txt
+python3 scripts/review_tool.py coverage result.json
+python3 scripts/review_tool.py schema result.json
+python3 scripts/review_tool.py gate result.json
 ```
 
-## 适用边界
-处理给定材料；不声称在线全覆盖；模型判定为待人工确认的建议。
+前三个命令分别有 `--allow-partial`、`--allow-unknown`、`--allow-incomplete`，仅用于带 unchecked/uncertainty 的诚实降级，不将未知证据改成确定支持。`summary issues.json` 仅提供问题分布，不能代替 coverage。
+
+## 合成示例与自测
+
+`bench/fixtures/` 仅演示接口，不是组织方案例或预填答案。
+
+```bash
+python3 bench/bench_run.py
+```
+
+bench 同时含合法 full/partial/none、版本差异披露、显式 occurrence、权限 partial 的零误杀，以及伪引、歧义、错标支持、撤稿、版本和权限等变异；以当次日志实得通过数为准。
+
+## 边界
+
+`locate` 不做 PDF/OCR；`align` 是保守规则预警，不是通用语义蕴含；`provenance` 只核带来的 registry 快照，不实时访问数据库。来源全文/权限/版本不可得时必须 unknown/partial，哈希和 schema 通过也不自动证明科学判定正确。正式增益须来自同输入、同权限、同预算的平台真实对照。

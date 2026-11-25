@@ -9,8 +9,8 @@
 |-|-|-|-|
 | 1 | 任务完成度：是否真正落到「论断清单—证据表—成稿」三段交付 | **已实现** | SKILL.md 第 2 节四产物契约 + 第 3 节六步工作流；`evidence_lib.py skeleton` 一键出三段骨架；M1 强制正文 [C#]/[C#:E#] ↔ claim_matrix 双向一致；`bench/skill/` 为完整三段样例 |
 | 2 | 结果正确性：引用真实存在、真支持该论断、著录与原文准确 | **已实现** | E5 quote 回原文子串锚定（编造必拒）；E1 著录字段/年份/DOI 格式校验、缺失只准 null 禁编造；E7 full 绑定数值逐字锚定；E10 supported 必须含 full（拦截「引用真实但不真支撑」）；E8 覆盖软检。夹具证明：`tests/test_report.md`——正向零误杀、11 变异全命中。边界：「原文在科学上足以支撑」仍需专家判断 |
-| 3 | 结果完整性：论断、来源、强度标注、不确定性表述四要素齐备 | **已实现** | 模板强制四要素字段（templates/）；verdict 四值 + evidence_level A-D 为必填且合法值机检（E6）；result.json 强制 uncertainty 字段（check_result R3），缺失 rc=1 |
-| 4 | 结果可核验性：编号、摘录、定位、强度理由能否独立复核 | **已实现** | C#/E# 编号贯穿成稿-矩阵-证据库；每条 binding 必填非空 note（判定理由，E2）；locator 必填（E1）；verification_report.json 落盘且 `python3 scripts/evidence_lib.py check ...` 可独立重跑（tests 中真实子进程复跑 17 次） |
+| 3 | 结果完整性：论断、来源、强度标注、不确定性表述四要素齐备 | **已实现** | 除 verdict/evidence_level 外，新增 evidence_level_reason+四维 strength_basis 与 claim.strength_annotation(level/rationale/uncertainty)；S4-S8 机检，仅摘要/未解决冲突封顶 C；result uncertainty 强制非空 |
+| 4 | 结果可核验性：编号、摘录、定位、强度理由能否独立复核 | **已实现** | C#/E# 编号、quote/locator/note 保持闭环；新增 strength_audit.json、artifact_version、SHA-256+bytes input_manifest 与双核验 verification；check_result 对可读输入重算摘要，三个产物可独立重跑 |
 
 ## 二、使用增益（25）
 
@@ -24,7 +24,7 @@
 
 | # | 得分点 | 状态 | 可复核证据 |
 |-|-|-|-|
-| 8 | 新增能力：基础 Agent 不具备/难稳定实现的论断切分、来源匹配与强度判定 | **已实现** | 论断切分（一论断一谓词+C# 编号）、绑定矩阵（full/partial scope+判定理由）、内容级强度判定（E7 数值锚定/E9 强度词-等级/E10 supported 须 full/M1 双向核对/E12 编号唯一）全部脚本化并由夹具证明可稳定执行（tests 17/17）；基础 Agent 无显式中间产物，无法稳定做到同等可机检性 |
+| 8 | 新增能力：基础 Agent 不具备/难稳定实现的论断切分、来源匹配与强度判定 | **已实现** | 既有论断/绑定/锚定外，新增 evidence_audit：强度理由+basis、availability、正反 position、conflict_analysis 与正文冲突窗口检查；新 bench 3 正向+14 变异+2 摘要断言 19/19，补的是基础 Agent 常省略的可复核强度与异常字段，而非只加提示语 |
 | 9 | 方法改进：证据抽取、匹配校验、强度分级、不确定性控制的方法实质改进 | **已实现** | 证据库四元分离+逐字 quote 锚定；四值充分性判定+full/partial scope；A-D 分级配允许措辞表并机检；诚实优先的 partial 先行+uncertainty 逐条（SKILL.md 第 3-5 节、METHOD.md 方法学） |
 | 10 | 创新证据：证明创新点相对已有方案的边界和价值 | **已实现** | `docs/positioning.md`：与通用写作助手/文献管理器/引用校验工具逐项能力矩阵、三个创新点各自边界、「不做什么」清单；差异数据引自 bench；真实 bug 修复证据（v2 误杀/漏检 → v3 修复）见 `tests/test_report.md` |
 
@@ -34,7 +34,7 @@
 |-|-|-|-|
 | 11 | 调用与易用性：正确触发调用、按说明完成材料→成稿完整流程 | **已实现** | SKILL.md 合法 frontmatter（name/description）、输入/输出契约表、六步工作流、命令含完整参数；`examples/minimal_example.md` 给可逐条复跑的最小流程（含示意输出，已标注为示例）；`docs/data_formats.md` 第 6 节安装说明 |
 | 12 | 运行稳定性：不同学科、不同文献可得性、重复运行下持续产出 | **部分** | 纯标准库、无网络、确定性脚本，重复运行结果一致；可得性梯度（全文/仅摘要/不可得）有降级规则；超长输入（约 450KB）夹具 rc=0 且 0.1s。**未覆盖**：多学科真实语料实测（现有样例为单一自拟虚构案例），已在限制中声明 |
-| 13 | 异常处理：文献不可得/仅摘要/原文与摘要矛盾/证据冲突/格式不支持/权限不足 | **已实现** | SKILL.md 第 5 节七行异常表（含 v3 新增「原文与摘要矛盾：以全文为准」）；夹具覆盖：材料缺失→E5 显式降级 unchecked 且 rc=0、论断超出材料→unsupported 不误杀、编号冲突→E12 必拒、超长输入→正常完成（tests ANOM 组全过）；冲突→conflicted 并陈（E4 机检） |
+| 13 | 异常处理：文献不可得/仅摘要/原文与摘要矛盾/证据冲突/格式不支持/权限不足 | **已实现** | 异常表逐类分读写失败与证据不足；仅摘要 availability/locator/caveat 双标+封顶 C，冲突双向+差异/裁决+正文并陈，不可得不得造 quote。旧 tests 17/17 保持，新 evidence_audit_bench 19/19 覆盖 S1-S8、C1-C5 正反向 |
 
 ## 五、生态贡献（10）
 

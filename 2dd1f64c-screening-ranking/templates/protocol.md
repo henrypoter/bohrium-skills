@@ -19,10 +19,10 @@
 |-|-|-|-|-|-|
 | I1 | 纳入 | 研究对象为 X 且 报告 Y 结局 | 标题或摘要出现 X 与 Y | Q1,Q2 | v1.0 |
 
-## 4. 双人独立标注
-- 标注者 A / B（可为人或模型，须写明是哪一个）；**独立标注，互不可见对方结果**。
-- 一致率门槛：决策一致率 ≥ 0.80 且 Cohen's κ ≥ 0.60 视为可接受；未达标须重训标准或重标。
-- 计算命令：`python3 scripts/search_tool.py agreement pairs.json`
+## 4. 独立标注与一致性（有真实双标注才计算）
+- 有 A/B 时写明人或模型；**独立标注，互不可见对方结果**。决策一致率 ≥0.80 且 Cohen's κ ≥0.60，未达标须重训标准或重标。
+- 命令：`python3 scripts/search_tool.py agreement pairs.json`。
+- 只有一名标注者时允许有限初筛，但 κ/一致率填 null 并披露，不虚构人工或第二模型标注。
 
 ## 5. 冲突仲裁
 - 分歧类型：`decision`（纳/排相反）、`reason_code`（都纳但理由不同）、`evidence`（依据片段指向不同位置）。
@@ -39,6 +39,13 @@
 - 报三个数：纳排决策准确率、双人一致率（κ）、人工核对条数/耗时。
 - 对照必须同输入、同标准；差异要能指到具体记录，不能只给总体结论。
 
-## 8. 适用边界与不适用
+## 8. 可复算排序协议（先于结果冻结）
+- 维度 JSON：`{id,name,weight,anchors:{0,1,2}}`，权重和为 1。
+- 缺失：相应维度 `null`，写 `unknown_dimensions/unknown_details`；公式固定 `known_weight_renormalized`。
+- 阈值与 k：`0 <= exclude_max < include_min <= 2`，`top_k` 是排序前 k 个 ID，但保留全部候选。
+- 平局键固定：`unknown_last,total_desc,record_id_asc`；同组逐条写 tie_resolution，ID 不表示科学优劣。
+- 硬闸：`python3 scripts/search_tool.py rankcheck result.json`。
+
+## 9. 适用边界与不适用
 - 本 Skill 处理的是**有限快照**（给定题录集合），不声称在线数据库全覆盖、不声称全局召回率。
 - 不替代同行评审、不替代研究者的最终科学判断；模型判定默认是「待复核建议」。

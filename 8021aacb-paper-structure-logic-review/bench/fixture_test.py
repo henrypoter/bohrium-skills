@@ -118,6 +118,9 @@ base_result = {"case_id": "selftest", "status": "success", "summary": "逐维核
                "diagnosis": [], "edit_plan": [], "change_log": [], "sources": ["pos_zh.md"],
                "fact_source_map": [], "uncertainty": [], "human_confirmation": [],
                "material_gaps": [], "anomalies": [], "dimensions_checked": dims,
+               "artifact_version": "paper-structure-logic-review-1.1.0",
+               "input_manifest": {"algorithm": "sha256", "sha256": "0000000000000000000000000000000000000000000000000000000000000000", "bytes": 0},
+               "logic_audit": {"rule_version": "logic-audit-1.0.0"},
                "dimension_plan": {d: {"status": "no_finding", "diagnosis_ids": [], "edit_ids": []} for d in dims},
                "budget": {"model_requests_used": 3, "seconds_used": 120, "note": "selftest"}}
 rc, out = run_check(base_result)

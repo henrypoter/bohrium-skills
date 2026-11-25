@@ -14,7 +14,7 @@ E. figure_map.md 人可读映射表(组件/连线 -> quote+定位+命中+方向�
 F. result.json 标准化: outputs 按角色、sources 覆盖率摘要、changes 取舍与人工确认。
 另: 实体逐字核验(difflib top-3 建议)与 required 覆盖审计(缺失时 status 强制 partial)。
 """
-import argparse, difflib, json, os, re, shutil, subprocess, sys, unicodedata
+import argparse, datetime, difflib, hashlib, json, os, platform, re, shlex, shutil, subprocess, sys, unicodedata
 from xml.sax.saxutils import escape
 
 NODE_FILL = {"default": "#e3f2fd", "milestone": "#fff3e0", "source": "#e8f5e9", "sink": "#efebe9"}
@@ -285,7 +285,9 @@ def figure_score(rep):
          "required_missing": 15 * len((rep.get("required") or {}).get("missing", [])),
          "entity_mismatch": 4 * len((rep.get("entity") or {}).get("mismatch", [])),
          "legacy_source": 2 * len(q.get("legacy", [])),
-         "quote_minor": 1 * (len(q.get("too_long", [])) + len(q.get("unresolved", [])))}
+         "quote_minor": 1 * (len(q.get("too_long", [])) + len(q.get("unresolved", []))),
+         "workorder_error": 10 * len((rep.get("workorder") or {}).get("errors", [])),
+         "workorder_limitation": 2 * len((rep.get("workorder") or {}).get("limitations", []))}
     d = {k: v for k, v in d.items() if v}
     return max(0, 100 - sum(d.values())), d
 
@@ -558,6 +560,12 @@ def verify_figure(spec, svg_path, sources=None):
     ent = entity_audit(spec, raw) if raw.strip() else {"mismatch": [], "note": "no materials"}
     req = required_audit(spec)
     dr = direction_audit(spec, raw, lines, sents)
+    wo = None
+    if "workorder" in spec:
+        from workorder_guard import audit_workorder
+        wo = audit_workorder(spec, sources or [], require=True)
+    wo_bad = ["workorder:%s:%s" % (x.get("code"), x.get("path"))
+              for x in (wo or {}).get("errors", [])]
     bd_all = bd + ["%s source-reversed" % t for t in dr["contradicted"]]
     ov = layout_issues(spec)
     layers_found = sorted(set(LAYER_RE.findall(svg)))
@@ -567,8 +575,9 @@ def verify_figure(spec, svg_path, sources=None):
     export = {"svg_wellformed": True, "layers": layers_found, "layers_missing": layers_missing,
               "font_family": FONT, "font_stack_ok": font_ok}
     fails = (bs + bd_all + bn + bl + clo["dangling"] + q["missing"] + q["misplaced"] + req["missing"]
-             + ((tr["no_token"] + tr["num_missing"]) if tr else []))
+             + wo_bad + ((tr["no_token"] + tr["num_missing"]) if tr else []))
     rep = {"figure": os.path.basename(svg_path), "criteria": "assets/connection_rules.json",
+           "workorder": wo,
            "semantic": {"edges": len(EDGE_RE.findall(svg)), "bad": bs},
            "direction": {"bad": bd_all, "unknown": dr["unknown"], "unsourced": dr["unsourced"],
                          "by_edge": {str(k): v for k, v in dr["by_edge"].items()}, "rows": dr["rows"]},
@@ -617,6 +626,16 @@ def write_map(path, rep):
     lines += ["", "## required 覆盖审计", "",
               "required 覆盖率: %d/%d；缺失: %s" % (req.get("covered", 0), len(req.get("required") or []),
                                                     "、".join(req.get("missing") or []) or "无"), ""]
+    if rep.get("workorder"):
+        wo = rep["workorder"]
+        lines += ["## 参数 / 接口 / 工艺歧义工单", "",
+                  "状态: **%s**；completion_ceiling: **%s**" % (wo.get("status"), wo.get("completion_ceiling")), "",
+                  "| 级别 | code | 路径 | 处置/问题 |", "|---|---|---|---|"]
+        for level, key in (("error", "errors"), ("limitation", "limitations"), ("warning", "warnings")):
+            for item in wo.get(key) or []:
+                lines.append("| %s | %s | %s | %s |" % (level, item.get("code"), item.get("path"),
+                                                       str(item.get("message", "")).replace("|", "\\|")))
+        lines.append("")
     with open(path, "w", encoding="utf-8") as f:
         f.write("\n".join(lines))
 
@@ -695,8 +714,42 @@ def cmd_verify(a):
 def cmd_preview(a):
     jprint(make_preview(a.svg, a.png or a.svg.rsplit(".", 1)[0] + ".png"), 0)
 
+def fingerprint(path):
+    """Actual file identity for independent replay; missing files remain explicit nulls."""
+    if not path or not os.path.isfile(path):
+        return None
+    h = hashlib.sha256()
+    with open(path, "rb") as f:
+        for block in iter(lambda: f.read(65536), b""):
+            h.update(block)
+    return {"path": os.path.abspath(path), "bytes": os.path.getsize(path), "sha256": h.hexdigest()}
+
+
+def manifest(paths):
+    return [x for x in (fingerprint(p) for p in paths if p) if x is not None]
+
+
+def contract_value(key, ctx):
+    n = re.sub(r"[^a-z0-9]+", "", str(key).lower())
+    def has(*words):
+        return any(w in n for w in words)
+    if has("caseid") or n == "case": return ctx["case_id"]
+    if has("status"): return ctx["status"]
+    if has("editable", "svg"): return ctx["editable"]
+    if has("map", "trace", "locat", "provenance", "evidence"): return ctx["mapping"]
+    if has("png", "preview", "image", "thumbnail"): return ctx["preview"]
+    if has("pdf", "export", "vector"): return ctx["exports"]
+    if has("report", "check", "validation", "audit"): return ctx["report"]
+    if has("uncertain"): return ctx["uncertainty"]
+    if has("change", "log"): return ctx["changes"]
+    if has("source"): return ctx["sources"]
+    if has("deliverable", "output"): return ctx["outputs"]
+    return None
+
+
 def cmd_result(a):
     spec = load_json(a.spec) if a.spec else {}
+    case = load_json(a.case) if a.case else {}
     rep = check_spec(spec) if spec else {"ok": False, "errors": ["no spec"]}
     p = a.preview if a.preview and os.path.isfile(a.preview) else None
     svg_ok, n = False, None
@@ -712,6 +765,12 @@ def cmd_result(a):
             v = json.load(open(a.verify, encoding="utf-8"))
         except Exception:
             v = {"error": "verify unreadable"}
+    wo = v.get("workorder")
+    if not wo and a.workorder_audit and os.path.isfile(a.workorder_audit):
+        try:
+            wo = json.load(open(a.workorder_audit, encoding="utf-8"))
+        except Exception:
+            wo = {"ok": False, "completion_ceiling": "partial", "errors": [{"code": "audit_unreadable"}]}
     req = (v.get("required") if isinstance(v.get("required"), dict) else None) or required_audit(spec)
     map_path = None
     if a.svg:
@@ -729,6 +788,15 @@ def cmd_result(a):
     if req["missing"] and status in ("success", "complete", "answered"):
         status = "partial"
         uncertainty.append("required 未覆盖: %s → status 强制 partial(禁止 success/complete)" % "、".join(req["missing"]))
+    if wo:
+        if wo.get("completion_ceiling") == "partial" and status in ("success", "complete", "answered"):
+            status = "partial"
+            uncertainty.append("workorder 参数/接口/工艺歧义未完全闭合 → status 强制 partial")
+        for item in (wo.get("errors") or []) + (wo.get("limitations") or []):
+            uncertainty.append("workorder %s %s: %s" % (item.get("code"), item.get("path"), item.get("message")))
+    if v.get("verdict") in ("issues", "invalid") and status in ("success", "complete", "answered"):
+        status = "partial"
+        uncertainty.append("figure verify 未通过 → status 强制 partial")
     by_edge = (v.get("direction") or {}).get("by_edge") or {}
     dir_unknown = [t for t, st in by_edge.items() if st == "unknown"]
     dir_unsourced = [t for t, st in by_edge.items() if st == "unsourced"]
@@ -749,9 +817,16 @@ def cmd_result(a):
                "direction_contradicted": dir_contradicted,
                "required_total": len(req["required"]), "required_covered": req["covered"],
                "required_missing": req["missing"],
+               "workorder": {"status": (wo or {}).get("status", "not_declared"),
+                             "counts": (wo or {}).get("counts", {})},
+               "input_manifest": manifest((a.sources or []) + ([a.case] if a.case else [])),
                "details": [{"id": x.get("id"), "label": x.get("label"),
                             "locator": src_locator(x.get("source")), "quote": src_quote(x.get("source"))} for x in nodes]}
     result = {"case_id": a.case_id, "status": status, "task": "apparatus_and_technical_route",
+              "result_schema_version": "scifig-result/2.0",
+              "figure_version": str(spec.get("figure_version") or "1.0"),
+              "spec_schema_version": str(spec.get("schema_version") or "scifig-spec/1.0"),
+              "generated_at_utc": datetime.datetime.now(datetime.timezone.utc).isoformat(),
               "summary": a.summary or "", "figure_kind": spec.get("kind"),
               "outputs": {"editable_source": {"path": a.svg, "format": "svg", "layers": LAYERS, "bytes": n},
                           "preview": {"path": p, "renderer": a.renderer, "status": "ok" if p else "preview_unavailable"},
@@ -763,10 +838,39 @@ def cmd_result(a):
               "changes": {"decisions": spec.get("changes") or spec.get("change_records") or [],
                           "human_review": spec.get("human_review") or []},
               "change_records": spec.get("changes") or [], "uncertainty": uncertainty,
-              "checks": {"spec_check": rep, "figure_check": v,
+              "checks": {"spec_check": rep, "figure_check": v, "workorder_audit": wo,
                           "export_check": {"svg_wellformed": svg_ok, "svg_bytes": n,
                                            "font_family": FONT + "(未嵌)", "color_mode": "RGB"}},
-              "generator": "scifig.py (Python 标准库)"}
+              "generator": "scifig.py (Python 标准库)",
+              "tool_versions": {"scifig.py": "6.0.0", "workorder_guard.py": "1.0.0",
+                                "python": platform.python_version()},
+              "source_manifest": manifest((a.sources or []) + ([a.spec] if a.spec else []) + ([a.case] if a.case else [])),
+              "artifact_manifest": manifest([a.svg, p, a.verify, map_path, a.workorder_audit]),
+              "review": {"scientific_judgement": "native_or_human_review_required",
+                         "machine_check_scope": "source-anchor/interface/order/geometry/export consistency; not proof of scientific validity"},
+              "reproduction": {"commands": [
+                  "python3 scripts/workorder_guard.py audit %s %s --require --out workorder.audit.json" % (
+                      shlex.quote(a.spec or "spec.json"), " ".join(shlex.quote(x) for x in (a.sources or []))),
+                  "python3 scripts/scifig.py render %s figure.svg" % shlex.quote(a.spec or "spec.json"),
+                  "python3 scripts/scifig.py verify %s figure.svg %s" % (
+                      shlex.quote(a.spec or "spec.json"), " ".join(shlex.quote(x) for x in (a.sources or [])))
+              ], "working_directory": "/app/work", "output_directory": "/app/output"}}
+    oc = case.get("output_contract") or {}
+    contract_keys = list(oc) if isinstance(oc, dict) else [str(k) for k in oc]
+    result["output_contract"] = oc if isinstance(oc, dict) else {str(k): None for k in oc}
+    result["output_contract_null_fields"] = []
+    ctx = {"case_id": a.case_id, "status": status, "editable": result["outputs"]["editable_source"],
+           "mapping": result["outputs"]["mapping"], "preview": result["outputs"]["preview"],
+           "exports": result["outputs"]["exports"], "report": result["outputs"]["report"],
+           "uncertainty": uncertainty, "changes": result["changes"], "sources": sources,
+           "outputs": result["outputs"]}
+    for key in contract_keys:
+        if key in result and result[key] is not None:
+            continue
+        value = contract_value(key, ctx)
+        result[key] = value
+        if value is None:
+            result["output_contract_null_fields"].append(key)
     os.makedirs(os.path.dirname(os.path.abspath(a.out)), exist_ok=True)
     with open(a.out, "w", encoding="utf-8") as f:
         json.dump(result, f, ensure_ascii=False, indent=1)
@@ -783,6 +887,9 @@ def main():
     p = sub.add_parser("result")
     for f in ("--case-id", "--spec", "--svg", "--preview", "--renderer", "--verify", "--summary", "--out"):
         p.add_argument(f, required=(f in ("--case-id", "--out")))
+    p.add_argument("--case", help="原始 case.json；用于保留并逐键填 output_contract")
+    p.add_argument("--source", dest="sources", action="append", default=[], help="实际材料路径，可重复")
+    p.add_argument("--workorder-audit", help="workorder_guard.py 生成的审计 JSON")
     p.add_argument("--status", default="partial", choices=["success", "partial", "failed"])
     p.set_defaults(f=cmd_result)
     a = ap.parse_args(); a.f(a)

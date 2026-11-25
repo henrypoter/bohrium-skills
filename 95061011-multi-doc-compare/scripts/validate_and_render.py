@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""multi-doc-compare v3 validator/renderer (stdlib only).
+"""multi-doc-compare v4 validator/renderer (stdlib only).
 validate|render|result --work W [result needs --out O]. Work dir:
 corpus_index.json, evidence_cards.jsonl, relations.json, case_meta.json.
 Card checks: four-state/caliber, forced-merge, missing blocking_dims,
@@ -7,8 +7,11 @@ missing attribution, absence-as-negative-vote; renders matrix/coverage/
 comparability/attribution. Schema/locator errors exit 1; judgment issues
 advisory (exit 0). See SKILL.md 2-5. Never invents values.
 """
-import argparse, json, os, shutil, sys
+import argparse, hashlib, json, os, re, shutil, sys, unicodedata
 from collections import defaultdict
+
+SKILL_VERSION = "4.0.0"
+RESULT_SCHEMA_VERSION = "2.0.0"
 
 FIELDS = ["research_object", "data_source", "method", "condition", "metric",
   "metric_value", "main_conclusion", "limitation"]
@@ -26,6 +29,18 @@ MARK = {"reported-positive": "+", "reported-negative": "-",
 
 def norm(v):
  return " ".join(str(v or "").lower().split())
+
+
+def quote_norm(v):
+ return re.sub(r"\s+", "", unicodedata.normalize("NFKC", str(v or "")))
+
+
+def file_sha256(path):
+ h = hashlib.sha256()
+ with open(path, "rb") as f:
+  for block in iter(lambda: f.read(1024 * 1024), b""):
+   h.update(block)
+ return h.hexdigest()
 
 
 def load(work):
@@ -67,7 +82,11 @@ def states_of(cards):
 def validate(work):
  index, cards, relations, _ = load(work)
  dids = {d["source_document_id"] for d in index["documents"]}
- pids = {p["paragraph_id"] for d in index["documents"] for p in d["paragraphs"]}
+ ptexts = {p["paragraph_id"]: p.get("text", "")
+           for d in index["documents"] for p in d["paragraphs"]}
+ powner = {p["paragraph_id"]: d["source_document_id"]
+           for d in index["documents"] for p in d["paragraphs"]}
+ pids = set(ptexts)
  errors, issues, good = [], [], []
  E = errors.append
  I = issues.append
@@ -80,6 +99,14 @@ def validate(work):
    E("%s: unknown document %r" % (t, c.get("source_document_id")))
   elif c.get("paragraph_id") not in pids:
    E("%s: paragraph_id %r not in index" % (t, c.get("paragraph_id")))
+  elif powner.get(c.get("paragraph_id")) != c.get("source_document_id"):
+   E("%s: paragraph belongs to another document" % t)
+  else:
+   quote = quote_norm(c.get("quote"))
+   if not quote:
+    E(t + ": quote required for source verification")
+   elif quote not in quote_norm(ptexts.get(c.get("paragraph_id"), "")):
+    E(t + ": quote not found in cited paragraph")
   if c.get("value_state") not in STATES:
    E("%s: value_state not in %s" % (t, sorted(STATES)))
   if c.get("field") == "metric_value":
@@ -114,6 +141,8 @@ def validate(work):
   for e in r.get("evidence", []):
    if e.get("paragraph_id") not in pids:
     E("%s: bad evidence locator %r" % (t, e.get("paragraph_id")))
+   elif powner.get(e.get("paragraph_id")) != e.get("source_document_id"):
+    E("%s: evidence locator belongs to another document" % t)
    evd.add(e.get("source_document_id"))
   diff = set()
   if len(rdocs) >= 2:
@@ -162,7 +191,20 @@ def validate(work):
     "negative": ss.count("reported-negative"),
     "not_applicable": ss.count("not-applicable"),
     "not_reported": ss.count("not-reported")}
- rep = {"errors": errors, "issues": issues, "gaps": gaps,
+ try:
+  from intake_audit import audit_work
+  document_audit = audit_work(work)
+  errors.extend(document_audit["errors"])
+ except Exception as exc:
+  document_audit = {"ok": False, "errors": ["document audit failed: %s" % exc]}
+  errors.extend(document_audit["errors"])
+ gaps.extend({"source_document_id": g.get("source_document_id"),
+   "field": "figure:" + str(g.get("figure_id")),
+   "reason": "figure_" + str(g.get("reason", "unreadable"))}
+  for g in document_audit.get("visual_gaps", []))
+ rep = {"validator_version": SKILL_VERSION,
+  "document_audit": document_audit,
+  "errors": errors, "issues": issues, "gaps": gaps,
   "cards": len(cards), "documents": len(dids),
   "coverage": {"matrix": {f: {d: st.get((d, f), "not-reported")
           for d in sorted(dids)} for f in FIELDS},
@@ -174,8 +216,13 @@ def validate(work):
 
 
 def render(work):
- index, cards, relations, _ = load(work)
- docs = [d["source_document_id"] for d in index["documents"]]
+ index, cards, relations, meta = load(work)
+ excluded = {a.get("source_document_id") for a in meta.get("document_assessments", [])
+   if a.get("relevance") in {"irrelevant", "uncertain"}
+   or a.get("version_state") in {"superseded", "duplicate"}}
+ docs = [d["source_document_id"] for d in index["documents"]
+         if d["source_document_id"] not in excluded]
+ cards = [c for c in cards if c.get("source_document_id") not in excluded]
  cell = defaultdict(list)
  for c in cards:
   if "_parse_error" in c:
@@ -190,7 +237,9 @@ def render(work):
   cell[(c.get("field"), c.get("source_document_id"))].append(
    v + " [%s]" % c.get("paragraph_id", "?"))
  st = states_of(cards)
- L = ["# 比较矩阵 v3（维度 x 文档；[...] 为原文定位）", ""]
+ L = ["# 比较矩阵 v4（维度 x 文档；[...] 为原文定位）", ""]
+ if excluded:
+  L += ["排除文档（不进入比较/结论）：" + ", ".join(sorted(excluded)), ""]
 
  def table(head, rows):
   L.append("| " + " | ".join(head) + " |")
@@ -246,7 +295,8 @@ def result(work, outdir):
   with open(rp, encoding="utf-8") as f:
    report = json.load(f)
  os.makedirs(outdir, exist_ok=True)
- for name in ("comparison_matrix.md", "evidence_cards.jsonl"):
+ for name in ("comparison_matrix.md", "evidence_cards.jsonl", "relations.json",
+        "corpus_index.json", "document_audit.json", "validation_report.json"):
   src = os.path.join(work, name)
   if os.path.exists(src):
    shutil.copyfile(src, os.path.join(outdir, name))
@@ -256,6 +306,8 @@ def result(work, outdir):
    cited[c.get("source_document_id")].add(c["paragraph_id"])
  sources = [{"source_document_id": d["source_document_id"],
     "source_file": d.get("source_file"),
+     "content_sha256": d.get("content_sha256"),
+     "content_bytes": d.get("content_bytes"),
     "paragraph_count": d.get("paragraph_count"),
     "paragraph_ids_cited": sorted(cited.get(d["source_document_id"], []))}
    for d in index["documents"]]
@@ -264,13 +316,33 @@ def result(work, outdir):
  uncertainty = list(meta.get("uncertainty", []))
  if missing:
   uncertainty.append("output_contract 字段未完成: " + ",".join(missing))
- res = {"case_id": meta.get("case_id", "unknown"),
+ document_audit = report.get("document_audit", {})
+ for item in document_audit.get("unresolved_conflicts", []):
+  uncertainty.append("relations[%d] 结论冲突且无法归因，保持 unresolved" %
+                     item.get("relation_index", -1))
+ for did in document_audit.get("excluded_documents", []):
+  uncertainty.append("文档 %s 因主题/版本边界不参与比较" % did)
+ work_manifest = {name: file_sha256(os.path.join(work, name))
+   for name in ("corpus_index.json", "evidence_cards.jsonl", "relations.json",
+                "case_meta.json") if os.path.exists(os.path.join(work, name))}
+ artifact_manifest = {name: file_sha256(os.path.join(outdir, name))
+   for name in os.listdir(outdir)
+   if name != "result.json" and os.path.isfile(os.path.join(outdir, name))}
+ run_material = json.dumps({"case_id": meta.get("case_id", "unknown"),
+   "inputs": work_manifest}, ensure_ascii=False, sort_keys=True).encode("utf-8")
+ res = {"schema_version": RESULT_SCHEMA_VERSION,
+  "skill_version": SKILL_VERSION,
+  "run_id": "mdc-" + hashlib.sha256(run_material).hexdigest()[:16],
+  "case_id": meta.get("case_id", "unknown"),
   "status": meta.get("status", "partial"),
   "status_reason": meta.get("status_reason", ""),
   "contract": contract, "sources": sources, "uncertainty": uncertainty,
   "comparison_matrix_file": "comparison_matrix.md",
   "evidence_cards_file": "evidence_cards.jsonl",
   "coverage": report.get("coverage", {}),
+  "document_audit": document_audit,
+  "input_artifact_manifest": work_manifest,
+  "output_artifact_manifest": artifact_manifest,
   "relations": relations, "gaps": report.get("gaps", []),
   "validation_errors": report.get("errors", []),
   "validation_issues": report.get("issues", []),

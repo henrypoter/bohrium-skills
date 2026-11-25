@@ -1,1 +1,63 @@
-{"case_id": "c1", "status": "issues", "workflow": [{"id": "W1", "step": "采集", "depends_on": [], "input": "url", "output": "data.csv", "state": "done"}, {"id": "W2", "step": "清洗", "depends_on": ["W1"], "input": "data.csv", "output": "clean.csv", "state": "done"}], "state": {"completed_steps": ["W1"], "failed_step": "W2", "resume_point": "W2"}, "data_passing": [{"from": "W1", "to": "W2", "field_mapping": {"a": "b"}, "permission_scope": "green"}], "failures": [{"step": "W2", "error": "缺列", "recovery": "补列重试", "retry": 1}], "counts": {"steps": 2, "done": 1, "failed": 1}, "unchecked": [], "sources": [], "uncertainty": [], "change_log": []}
+{
+  "case_id": "synthetic-fixture",
+  "status": "pass",
+  "main_result": {"target": "synthetic.sqlite"},
+  "schema_version": "2.0",
+  "skill_version": "2.0.0",
+  "run_version": "fixture-001",
+  "input_contract": {
+    "case_path": "/input/case.json",
+    "task_path": "/input/task.md",
+    "required_fields": ["case_id", "status", "main_result"],
+    "preserved_fields": ["case_id", "status", "main_result"],
+    "expected_source_count": 3
+  },
+  "workflow": [
+    {"id": "W1", "step": "采集", "depends_on": [], "input": "sources", "output": "raw/*", "state": "done"},
+    {"id": "W2", "step": "迁移", "depends_on": ["W1"], "input": "raw/*", "output": "synthetic.sqlite", "state": "done"}
+  ],
+  "state": {"completed_steps": ["W1", "W2"], "failed_step": "", "resume_point": ""},
+  "collection": [
+    {"source_id": "S1", "locator": "http://organizer.local/s1", "retrieved_at": "2026-01-01T00:00:00Z", "retained_file": "raw/s1.html", "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "attribution": "Synthetic A / CC0", "record_count": 1},
+    {"source_id": "S2", "locator": "http://organizer.local/s2", "retrieved_at": "2026-01-01T00:01:00Z", "retained_file": "raw/s2.csv", "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb", "attribution": "Synthetic B / CC0", "record_count": 1},
+    {"source_id": "S3", "locator": "http://organizer.local/s3", "retrieved_at": "2026-01-01T00:02:00Z", "retained_file": "raw/s3.html", "sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc", "attribution": "Synthetic C / CC0", "record_count": 1}
+  ],
+  "field_mapping": [
+    {"source_field": "title", "target_field": "name", "transform": "strip_html", "on_missing": "mark_unmapped"}
+  ],
+  "unmapped": [],
+  "data_passing": [{"from": "W1", "to": "W2", "field_mapping": {"title": "name"}, "permission_scope": "green", "permission_ref": "P1"}],
+  "permission_records": [{"id": "P1", "site": "organizer.local", "role": "writer", "status": "active"}],
+  "deduplication": {"decisions": []},
+  "migration": {
+    "target": "synthetic.sqlite",
+    "transaction_id": "tx-fixture",
+    "transactional": true,
+    "checkpoint": "W2:batch-1",
+    "rollback_ref": "backup.sqlite",
+    "write_log": [{"batch_id": "batch-1", "idempotency_key": "W2-batch-1", "attempted_count": 3, "accepted_count": 3, "rejected_count": 0}]
+  },
+  "integrity": {
+    "source_count": 3,
+    "target_count": 3,
+    "exact_duplicates": 0,
+    "merged_duplicates": 0,
+    "skipped_count": 0,
+    "added_count": 0,
+    "expected_differences": [],
+    "unexpected_differences": [],
+    "source_attachments": 0,
+    "target_attachments": 0,
+    "expected_missing_attachments": [],
+    "unexpected_missing_attachments": []
+  },
+  "failures": [],
+  "sync_conflicts": [],
+  "artifacts": [{"path": "synthetic.sqlite", "sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd", "kind": "output"}],
+  "run_log": [{"step": "W1", "start": "2026-01-01T00:00:00Z", "end": "2026-01-01T00:03:00Z", "result": "ok"}],
+  "gain": {"baseline_success_rate": null, "skill_success_rate": null, "manual_steps_saved": null},
+  "unchecked": [],
+  "sources": ["raw/s1.html", "raw/s2.csv", "raw/s3.html"],
+  "uncertainty": [],
+  "change_log": []
+}

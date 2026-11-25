@@ -9,6 +9,7 @@
       "venue": "材料学报",
       "doi": "10.1234/mater.2021.011",
       "type": "综述",
+      "availability": "full_text",
       "locator": "第2段",
       "quote": "催化剂 X 在 300 K 下将反应产率从 45% 提升至 78%，且该结论在 8 个独立实验室得到重复验证",
       "supports": "催化剂 X 在 300 K 液相体系下将产率从 45% 提升至 78%，经 8 个独立实验室重复",
@@ -16,6 +17,14 @@
       "conditions": "300 K 标准气压液相反应体系",
       "limitations": "综述层面，未报告各实验间异质性",
       "evidence_level": "A",
+      "evidence_level_reason": "高质量综述汇总 12 项实验，8 个独立实验室重复且方向一致",
+      "strength_basis": {
+        "design": "综述，汇总对照实验",
+        "sample_size": "12 项实验",
+        "replication": "8 个独立实验室重复",
+        "consensus": "汇总结果方向一致",
+        "basis_unknown": []
+      },
       "caveat": null
     },
     {
@@ -26,6 +35,7 @@
       "venue": "催化通讯",
       "doi": "10.5678/catl.2023.042",
       "type": "原始研究",
+      "availability": "full_text",
       "locator": "第1段",
       "quote": "催化剂 X 的产率提升幅度为 12%",
       "supports": "单批次小样本（n=5）下产率提升 12%",
@@ -33,6 +43,14 @@
       "conditions": "单批次、小样本",
       "limitations": "样本量有限，受批次差异影响，未重复验证",
       "evidence_level": "C",
+      "evidence_level_reason": "单批次小样本且未独立重复，属于初步证据",
+      "strength_basis": {
+        "design": "单批次原始实验",
+        "sample_size": "n=5",
+        "replication": "未重复验证",
+        "consensus": "未评估",
+        "basis_unknown": []
+      },
       "caveat": null
     }
   ]

@@ -50,3 +50,16 @@ REF01,yes,no,miss,M1,"Q2 未覆盖同义词 'pyroptosis'",title match fail
 
 - `miss_reason_code`：M1 查询词未覆盖同义表达；M2 检索字段过窄；M3 时间窗截断；M4 来源库未收录；M5 记录标识异常
 - `miss_attribution` 必须指到**具体查询/字段/来源**，不能只写"数据库覆盖不足"
+
+## 5. 冻结参考集与命中矩阵（覆盖率类课题交接格式）
+
+`reference_set` 至少带 `version,frozen_at,source,denominator_rule,records[]`。每条参考带 `ref_id,inclusion_reason,countable,retraction_status,identifier_status,fulltext_status`；撤稿附证据，标识冲突列字段和值，无全文仍留分母。
+
+```
+ref_id,baseline_hit,final_hit,baseline_match_rule,baseline_evidence,baseline_matched_record_id,final_match_rule,final_evidence,final_matched_record_id,discovered_in_round
+REF001,true,true,identifier,DOI exact,R001,identifier,DOI exact,R001,
+REF002,false,true,,,,identifier,S1 DOI exact,R009,S1
+```
+
+`search_rounds` 列：`round_id,query,fields,source,run_date,status,target_miss_codes,new_hit_ids,detail,next_action`。`coverage` 的分子、分母、baseline/final、missed_by_code 必须能由上述逐条表复算。命令：
+`python3 scripts/search_tool.py covercheck result.json`。

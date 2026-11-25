@@ -4,7 +4,8 @@ import json, sys, os, re
 
 REQUIRED = ["case_id","status","summary","deliverables","diagnosis","edit_plan",
             "change_log","sources","fact_source_map","uncertainty",
-            "human_confirmation","material_gaps","anomalies","budget"]
+            "human_confirmation","material_gaps","anomalies","budget",
+            "artifact_version","input_manifest","logic_audit"]
 STATUS = {"success","partial","failed"}
 DIMS = {"research_question","section_structure","argument_chain",
         "paragraph_relation","redundancy","conclusion_boundary"}
@@ -120,7 +121,7 @@ def check(r, base):
         adv.append("partial 但未说明缺口/异常")
     return hard, adv
 
-POS = '{"case_id":"fx","status":"partial","summary":"ok","deliverables":[{"path":"d1.md","kind":"r"}],"diagnosis":[{"id":"D1","dimension":"redundancy","location":"S2.P1.s2","criterion":"same role","evidence":"proposes a scheduler","type":"rep","severity":"mid","action":"delete"}],"edit_plan":[{"id":"E1","action":"delete","level":"L1","anchor":"S2.P1.s2","target":null,"detail":"delete","ref_diagnosis":"D1"}],"change_log":[{"anchor":"S2.P1.s2","level":"L1","original":"proposes a greedy scheduler.","revised":"(deleted)","reason":"dup","fact_note":"delete"}],"sources":["in.md"],"fact_source_map":[],"uncertainty":[],"human_confirmation":[],"material_gaps":["fx"],"anomalies":[],"budget":{"model_requests_used":1,"seconds_used":5,"note":"t"}}'
+POS = '{"case_id":"fx","status":"partial","summary":"ok","deliverables":[{"path":"d1.md","kind":"r"}],"diagnosis":[{"id":"D1","dimension":"redundancy","location":"S2.P1.s2","criterion":"same role","evidence":"proposes a scheduler","type":"rep","severity":"mid","action":"delete"}],"edit_plan":[{"id":"E1","action":"delete","level":"L1","anchor":"S2.P1.s2","target":null,"detail":"delete","ref_diagnosis":"D1"}],"change_log":[{"anchor":"S2.P1.s2","level":"L1","original":"proposes a greedy scheduler.","revised":"(deleted)","reason":"dup","fact_note":"delete"}],"sources":["in.md"],"fact_source_map":[],"uncertainty":[],"human_confirmation":[],"material_gaps":["fx"],"anomalies":[],"artifact_version":"paper-structure-logic-review-1.1.0","input_manifest":{"algorithm":"sha256","sha256":"0000000000000000000000000000000000000000000000000000000000000000","bytes":0},"logic_audit":{"rule_version":"logic-audit-1.0.0"},"budget":{"model_requests_used":1,"seconds_used":5,"note":"t"}}'
 
 def dim_plan_from(r):
     """按 diagnosis/edit_plan 生成合法的六维 dimension_plan；无诊断的维度标 no_finding。"""

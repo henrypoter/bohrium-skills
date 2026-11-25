@@ -5,10 +5,15 @@
       "id": "C1",
       "text": "催化剂 X 在 300 K 下将反应产率从 45% 提升至 78%，该结论在 8 个独立实验室得到重复验证",
       "verdict": "supported",
+      "strength_annotation": {
+        "level": "A",
+        "rationale": "一致综述与多实验室重复支持较强表述",
+        "uncertainty": "综述未报告各实验间异质性"
+      },
       "bindings": [
-        {"evidence_id": "E1", "scope": "full",
+        {"evidence_id": "E1", "scope": "full", "position": "support",
          "note": "quote 逐字覆盖 300 K/45%→78%/8 个独立实验室重复"},
-        {"evidence_id": "E2", "scope": "partial",
+        {"evidence_id": "E2", "scope": "partial", "position": "context",
          "note": "单批次小样本仅报告 12% 提升，量级更弱，作条件性补充"}
       ]
     },
@@ -16,10 +21,15 @@
       "id": "C2",
       "text": "催化剂 X 将反应产率从 45% 提升至 78% 的结论已获得较广泛接受",
       "verdict": "supported",
+      "strength_annotation": {
+        "level": "A",
+        "rationale": "一致综述与多实验室重复支持较强表述",
+        "uncertainty": "综述未报告各实验间异质性"
+      },
       "bindings": [
-        {"evidence_id": "E1", "scope": "full",
+        {"evidence_id": "E1", "scope": "full", "position": "support",
          "note": "综述汇总 12 项实验且 8 个独立实验室重复，A 级证据支撑「较广泛接受」"},
-        {"evidence_id": "E2", "scope": "partial",
+        {"evidence_id": "E2", "scope": "partial", "position": "context",
          "note": "小样本研究量级更低，不改变多实验室重复的主结论"}
       ]
     }

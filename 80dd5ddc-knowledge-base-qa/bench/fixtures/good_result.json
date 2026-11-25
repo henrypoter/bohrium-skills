@@ -1,26 +1,42 @@
 {
-  "case_id": "case-001",
-  "status": "issues",
-  "inventory": {"file_count": 5, "total_bytes": 100, "skipped_count": 0, "duplicate_groups": 1},
-  "files": [
-    {"path": "2024/project_A/实验数据.csv", "sha256": "5a445e5f9943acf2", "size": 20, "category": "原始数据", "metadata": {"来源": "文件名推断", "年份": 2024}},
-    {"path": "2024/project_A/数据_分析_v1.txt", "sha256": "ce76a332eedf57af", "size": 18, "category": "分析稿", "metadata": {"版本": "v1"}},
-    {"path": "2025/数据_分析_v2.txt", "sha256": "不同哈希", "size": 25, "category": "分析稿", "metadata": {"版本": "v2"}},
-    {"path": "2024/project_A/论文.pdf.txt", "sha256": "3a53eb2e7e612a20", "size": 18, "category": "论文", "metadata": {"来源": "内容哈希"}},
-    {"path": "2025/论文副本.pdf.txt", "sha256": "3a53eb2e7e612a20", "size": 18, "category": "论文", "metadata": {"来源": "内容哈希"}}
-  ],
-  "actions": [
-    {"id": "A1", "action": "dedup", "source": "2025/论文副本.pdf.txt", "target": "归档/重复", "rule": "sha256 与 论文.pdf.txt 一致，判重复下载，副本归档", "reversible": true},
-    {"id": "A2", "action": "annotate", "source": "2025/数据_分析_v2.txt", "target": "版本链", "rule": "与 v1 同基名不同哈希，判版本升级，v2 替代 v1", "reversible": true}
-  ],
-  "version_groups": [
-    {"base": "数据_分析", "versions": ["2024/project_A/数据_分析_v1.txt", "2025/数据_分析_v2.txt"], "relation": "replaces"},
-    {"base": "论文", "versions": ["2024/project_A/论文.pdf.txt", "2025/论文副本.pdf.txt"], "relation": "duplicate"}
-  ],
-  "manifest": "归档清单 manifest.md（每文件归属/标签/元数据/哈希/版本关系）",
-  "skipped": ["2025/空目录 已清理（空目录）"],
-  "unchecked": [],
-  "sources": ["资料库目录", "file_tool.py inventory 输出"],
-  "uncertainty": ["实验数据.csv 的年份由目录 2024 推断，未核实"],
-  "change_log": ["inventory 发现 1 组重复 + 1 组版本差异", "dedup 与版本链重建均先留哈希后操作，可回滚"]
+  "_example": "纯合成接口夹具，不是正式案例结果；实际使用须由 index/search 替换所有锚点",
+  "case_id": "example-qa",
+  "status": "pass",
+  "scope": {
+    "index_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "searched_documents": ["docs/report_v2.txt"],
+    "excluded_documents": ["docs/report_v1.txt"],
+    "include_history": false
+  },
+  "answers": [{
+    "question": "示例：设置温度是多少？",
+    "answer": "v2 记录为 42 °C。",
+    "status": "answered",
+    "claims": [{
+      "claim_id": "c1",
+      "text": "v2 记录设置温度为 42 °C。",
+      "evidence": [{
+        "path": "docs/report_v2.txt",
+        "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "version": "v2",
+        "role": "current",
+        "chunk_id": "doc-bbbbbbbbbbbbbbbb:p0001",
+        "quote": "实验设置温度为 42 °C。",
+        "locator": {"page": null, "paragraph": 1, "start_line": 1, "end_line": 1}
+      }]
+    }]
+  }],
+  "exceptions": [],
+  "conflicts": [],
+  "run": {
+    "tool_version": "1.0.0",
+    "commands": ["index synthetic-library --versions synthetic-versions.json", "search synthetic-index.json --query 设置温度"],
+    "input_root": "synthetic-library",
+    "started_at": "2026-01-02T03:00:00Z",
+    "completed_at": "2026-01-02T03:05:00Z"
+  },
+  "sources": ["synthetic-index.json"],
+  "uncertainty": [],
+  "change_log": ["结构示例，不声称存在真实资料或证据"],
+  "gain": {"baseline_citation_pass_rate": null, "skill_citation_pass_rate": null, "manual_lookups_saved": null}
 }

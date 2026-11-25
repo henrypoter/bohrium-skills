@@ -1,54 +1,53 @@
-# 审查清单与判定锚点（checklist.md）
+# 引用与事实核验清单（v3）
 
-## 六类检查项
+> 每条核“稿件论断—来源证据”一对，而不是只检查参考文献是否存在。双侧均保留页/段/occurrence、逐字 quote、quote 哈希与全文内容哈希。无全文/歧义/权限不足必须 unknown。
 
-### 1. fact 事实核验
-- [ ] 数值、单位、量纲与稿件自述一致（同一指标前后数字是否打架）
-- [ ] 常识性事实与公开事实一致
-- [ ] 图表标题/坐标轴单位与正文描述一致
-判据：能指出"哪句与哪句/哪个来源冲突"。
+## 1. citation 引用支持
 
-### 2. citation 引用支持
-- [ ] 被引文献是否支持该论断的方向（支持 / 不支持 / 部分支持）
-- [ ] 引用是否为二次引用（转引未读原文）
-- [ ] 关键论断是否有引用（不是"有引用"，是"论断有支撑"）
-判据：写出被引文献的实际结论与本文论断的差异。
+- [ ] 方向：促进/抑制、有效/无效、正/负是否一致，否定词是否漏读
+- [ ] 对象：物种、人群、年龄、疾病亚型、体外/体内是否一致
+- [ ] 条件：剂量、时间、终点、干预、对照、场景是否一致
+- [ ] 强度：相关是否升级为因果；部分/亚组/初步是否升级为所有/必然/治愈
+- [ ] 数量：样本量、比例、效应量、单位是否一致
+- [ ] 结论：`full / partial / none / unknown` 及 support_rationale；partial/none 必须关联 issue
+- [ ] 运行 `align`；通过规则后仍人工核语义，不把词法规则当蕴含证明
 
-### 3. design 方法设计
-- [ ] 是否有对照，对照排除的是哪类混杂
-- [ ] 样本量与检验效能是否支撑结论强度
-- [ ] 随机化/盲法/批次效应是否处理
-判据：说明"缺哪个对照会让哪个替代解释无法排除"。
+## 2. 双侧证据定位
 
-### 4. statistics 统计报告
-- [ ] 检验方法与数据分布/设计匹配
-- [ ] 是否报告效应量与不确定性（CI/SD）
-- [ ] 多重比较是否校正
-- [ ] P 值是否被当作效应大小
-判据：指出具体检验名与不匹配之处。
+- [ ] 稿件端：实际连续 quote + page + paragraph + occurrence + quote_sha256 + manuscript source_sha256
+- [ ] 来源端：实际连续 quote + page + paragraph + occurrence + quote_sha256 + reference source_sha256
+- [ ] 多个相同 quote 时明确 occurrence，不默认第一次
+- [ ] source_id、DOI/URL、来源全文哈希可对应；issue 的 evidence 同样可定位
+- [ ] 运行 `locate`；取不到或歧义仅 partial，绝不拼接不相邻原句
 
-### 5. argument 论证链
-- [ ] 结论是否超出证据范围（相关说成因果、体外推体内）
-- [ ] 是否存在未排除的替代解释
-- [ ] 讨论是否回应了反例
-判据：引结论句 + 引证据句，两处对照。
+## 3. 来源可靠性与版本
 
-### 6. compliance 学术规范
-- [ ] 伦理审批号、知情同意
-- [ ] 数据可得性声明
-- [ ] 利益冲突、基金标注
-- [ ] 图像重复使用、作者贡献
-判据：指出缺哪一项声明。
+- [ ] 实际版本：preprint-vN / accepted / published-vN；若预印本与正式版并存，记录引的是哪版
+- [ ] publication_status、version、canonical_doi 与带来的 registry 快照是否一致
+- [ ] retraction_status：not_retracted / retracted / corrected / expression_of_concern / unknown
+- [ ] checked_at 与 evidence_url 是本次实际记录；不是虚构“数据库已查”
+- [ ] access：open / paywalled / permission_denied / unavailable；权限不足写明只见摘要/元数据范围
+- [ ] 运行 `provenance`；撤稿来源必须关联 issue，版本差异明确披露但不自动判错
 
-## 严重度锚点
+## 4. fact 与 statistics 数字一致性
 
-| 级别 | 判定 | 例子 |
-|-|-|-|
-| `critical` | 结论不成立或数据不可信 | 统计方法用错导致结论反转；图 3 与图 5 疑似同一图像 |
-| `major` | 影响可信度但有补救 | 缺效应量；对照缺失使因果表述无支撑 |
-| `minor` | 表述、格式、可读性 | 术语前后不一致；单位写法不统一 |
+- [ ] 摘要、正文、表格、图注、数据集的样本量/效应值/CI/p/单位交叉一致
+- [ ] 区分稿件自己的错误与稿件对被引研究的错误转述
+- [ ] 图表或补充材料不可得列 unchecked，不推定一致或不一致
 
-## 误报抑制三条
-1. 引文必须**逐字**，跑 `verify --text` 核验；不在原文的条目直接删。
-2. 同一 `location + quote` 只报一次。
-3. 拿不准的写进 `unchecked`，不要凑数。
+## 5. design 与 argument 论证链
+
+- [ ] 方法设计是否支持当前结论所需的对照、独立性和因果强度
+- [ ] 结论句 + 证据句对照，检查以偏概全、循环论证、缺对照、时间/场景跳跃
+- [ ] 引文支持的子结论与作者新增推断分层呈现，不能整句一概判错
+
+## 6. compliance 学术规范
+
+- [ ] 署名/贡献、重复或重叠发表说明、数据代码可用性、伦理和利益冲突按材料适用性检查
+- [ ] 仅在有期刊/机构/声明规范依据时写 norm_issue；缺材料写 evidence_gap，不直接认定违规
+
+## 覆盖、严重度与交付
+
+- categories 六类及 methods/results/discussion 均显式 checked/not_applicable/pending/unchecked；零问题不是漏查。
+- `critical`：问题使核心结论不成立；`major`：重要支持不足/实质版本差异但可补救；`minor`：格式定位或建议。`suggestion` 只能 minor。
+- confirmed 必须双侧定位完成；unknown/pending 必须进入 uncertainty。运行 `coverage`、`schema`、`gate` 后才交付。

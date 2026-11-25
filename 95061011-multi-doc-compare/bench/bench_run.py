@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """read_tool 自测：证据逐字回链、支持度分档、交付校验。"""
-import json, os, subprocess, sys, tempfile
+import json, os, re, subprocess, sys, tempfile
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 TOOL = os.path.join(HERE, "..", "scripts", "read_tool.py")
@@ -65,5 +65,10 @@ add("schema变异:缺material_version->失败", rc == 1, str(d.get("errors"))[:1
 ok = sum(1 for _, c, _ in checks if c)
 for n, c, dd in checks:
     print(("PASS" if c else "FAIL"), n, ("| " + dd if not c else ""))
-print("total %d/%d" % (ok, len(checks)))
-sys.exit(0 if ok == len(checks) else 1)
+extra = subprocess.run([sys.executable, os.path.join(HERE, "bench_intake_audit.py")],
+                       capture_output=True, text=True)
+print(extra.stdout, end="")
+match = re.search(r"total (\d+)/(\d+)", extra.stdout)
+extra_ok, extra_total = (int(match.group(1)), int(match.group(2))) if match else (0, 1)
+print("combined total %d/%d" % (ok + extra_ok, len(checks) + extra_total))
+sys.exit(0 if extra.returncode == 0 and ok == len(checks) and extra_ok == extra_total else 1)

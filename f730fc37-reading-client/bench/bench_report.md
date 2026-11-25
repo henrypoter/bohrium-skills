@@ -1,8 +1,16 @@
 # 公平对照基准报告（bench）
 
-本报告由 `bench/bench_run.py` 生成，数据可复跑：`python3 bench/bench_run.py`（结果同时落 `bench/bench_results.json`）。
+`bench/bench_results.json` 是上一版保留的确定性路径对照记录；当前 `bench/bench_run.py` 是 19 项正向/变异回归，不会覆盖该旧 JSON，也不把旧记录冒充官方成绩。v5 新增 `bench/bench_delivery_guard.py`（12 项）覆盖材料预检和答案绑定；当前实测 **19/19 PASS**，其中新增 **12/12 PASS**。
 
-## 对照设计
+## v5 新增判对闸
+
+| 能力 | 正向零误杀 | 变异必命中 |
+|-|-|-|
+| inspect | 纯文本含 `/Encrypt` 字样仍可读 | 加密字典、超文件限额均 exit 1 + 稳定错误码 |
+| open/export 异常闭环 | — | 加密仍交付 partial、open_error 和版本字段 |
+| 答案—选区—证据—原文绑定 | 导出的 answer/annotation/material_version 全部一致，audit 通过 | 改答案、改选区、换引文、换原文、删材料版本、改批注答案均 exit 1 |
+
+## 旧版路径对照设计
 
 同一批样例文献、同一个阅读任务，在两条路径下完成：
 
@@ -14,7 +22,7 @@
 样例（`bench/cases/`）：`c1_short`（短文 4 行）、`c2_long`（综述体 ~4.5k 字符，关键数据埋在 4.2 节且**引文跨行**）、`c3_scanned`（无文本层图片，检验诚实降级；该图片由脚本运行时在临时目录生成，以保证提交包内只含 UTF-8 文本文件）。
 题面与期望引文见 `bench/golden/`。
 
-## 实测结果
+## 旧版实测记录（见 bench_results.json）
 
 | 指标 | baseline | skill | 说明 |
 |-|-|-|-|

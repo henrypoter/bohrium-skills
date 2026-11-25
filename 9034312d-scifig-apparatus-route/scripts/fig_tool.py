@@ -5,7 +5,7 @@
   element_map <mapping.json>  每个视觉元素是否映射到来源数据/材料
   schema <result.json>        交付契约校验
 """
-import json, sys, xml.etree.ElementTree as ET
+import json, re, sys, xml.etree.ElementTree as ET
 
 SVGNS = "{http://www.w3.org/2000/svg}"
 
@@ -63,10 +63,46 @@ def cmd_element_map(path):
 def cmd_schema(path):
     d = json.load(open(path, encoding="utf-8"))
     errs = []
+    if d.get("result_schema_version"):
+        # v2: validate what scifig.py/make_result.py actually emit; keep legacy below.
+        for k in ("case_id", "status", "result_schema_version", "figure_version",
+                  "spec_schema_version", "tool_versions", "source_manifest",
+                  "artifact_manifest", "outputs", "sources", "uncertainty",
+                  "reproduction", "output_contract"):
+            if k not in d:
+                errs.append("缺 v2 顶层字段 %s" % k)
+        if d.get("status") not in {"success", "answered", "complete", "partial", "failed", "pass", "issues"}:
+            errs.append("status 非法")
+        if not isinstance(d.get("outputs"), dict) or "editable_source" not in d.get("outputs", {}):
+            errs.append("outputs 缺 editable_source 角色")
+        if d.get("status") in {"success", "answered", "complete"}:
+            editable = d.get("outputs", {}).get("editable_source", {})
+            if not editable.get("path"):
+                errs.append("成功状态缺真实 editable_source.path")
+        for key in ("source_manifest", "artifact_manifest"):
+            rows = d.get(key)
+            if not isinstance(rows, list):
+                errs.append("%s 必须为数组" % key)
+                continue
+            for i, row in enumerate(rows):
+                sha = row.get("sha256", "") if isinstance(row, dict) else ""
+                if not re.fullmatch(r"[0-9a-f]{64}", sha):
+                    errs.append("%s[%d] sha256 非 64 位小写十六进制" % (key, i))
+                if not isinstance(row, dict) or not isinstance(row.get("bytes"), int):
+                    errs.append("%s[%d] bytes 缺失或不是整数" % (key, i))
+        if not (d.get("reproduction", {}).get("commands")):
+            errs.append("reproduction.commands 为空，不能复跑")
+        if errs:
+            print(json.dumps({"ok": False, "schema_mode": "v2", "errors": errs}, ensure_ascii=False)); return 1
+        print(json.dumps({"ok": True, "schema_mode": "v2",
+                          "result_schema_version": d.get("result_schema_version"),
+                          "source_files": len(d.get("source_manifest", [])),
+                          "artifacts": len(d.get("artifact_manifest", []))}, ensure_ascii=False))
+        return 0
     for k in ("case_id", "status", "figure_version", "figures", "mapping",
               "gain", "unchecked", "sources", "uncertainty", "change_log"):
         if k not in d:
-            errs.append("缺顶层字段 %s" % k)
+            errs.append("缺 legacy 顶层字段 %s" % k)
     if d.get("status") not in {"pass", "issues", "partial", "failed"}:
         errs.append("status 非法")
     for i, f in enumerate(d.get("figures", [])):
@@ -74,8 +110,8 @@ def cmd_schema(path):
             if k not in f:
                 errs.append("figures[%d] 缺 %s(须同时给可编辑 SVG 源与渲染 PNG)" % (i, k))
     if errs:
-        print(json.dumps({"ok": False, "errors": errs}, ensure_ascii=False)); return 1
-    print(json.dumps({"ok": True, "figures": len(d.get("figures", []))}, ensure_ascii=False))
+        print(json.dumps({"ok": False, "schema_mode": "legacy", "errors": errs}, ensure_ascii=False)); return 1
+    print(json.dumps({"ok": True, "schema_mode": "legacy", "figures": len(d.get("figures", []))}, ensure_ascii=False))
     return 0
 
 if __name__ == "__main__":
