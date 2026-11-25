@@ -89,3 +89,22 @@ python3 /skills/weekly-skill/scripts/tpl_fit.py --guide /tmp/demo/guide.txt --so
 ```bash
 python3 bench/bench_run.py   # 正向零误杀 + 变异必命中
 ```
+
+## 补强：三项创新能力（阶段重做，2026-11-25）
+在 fit_check 基础上，新增 `scripts/tpl_audit.py` 三个机检能力（题面点名的创新方向）：
+
+1. **模板反推检查项清单** `tpl_audit.py reverse <template.txt>`：从模板/学校补充规定文本抽取结构化格式要求（摘要/关键词/标题层级/三线表/题注/页边距/行距/页码/目录/参考文献/字体/页眉页脚），形成 `requirements` 清单并处理版本差异。
+2. **图表与交叉引用联动核验** `tpl_audit.py xcheck <doc.json>`：图表编号、题注、正文交叉引用三对齐；编号变了引用没同步（指向不存在的图）、编号重复直接报错。
+3. **转换保真度比对** `tpl_audit.py fidelity <before.json> <after.json>`：转换前后内容单元（公式/脚注/题注/域代码/批注）逐项比对，丢失即报错——保证转换不改写、不丢内容。
+
+```bash
+python3 bench/bench_run.py   # 5/5
+```
+
+## 异常处置（补齐）
+| 异常 | 动作 |
+|-|-|
+| 模板缺失或版本不明 | 标 `unknown`，按通用学术规范输出并注明「未按指定模板」，不臆造模板要求 |
+| 模板规定相互冲突 | 并列冲突项 + 各自出处，标 `uncertainty`，不无依据取舍 |
+| 公式/域代码转换易丢 | 必跑 fidelity 保真比对，丢失处显式标注不静默 |
+| 编号变更引用未同步 | 必跑 xcheck，报错后回到原文修正再导 |
