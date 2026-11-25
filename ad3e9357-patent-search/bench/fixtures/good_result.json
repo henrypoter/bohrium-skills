@@ -1,198 +1,141 @@
 {
- "case_id": "case-001",
- "status": "issues",
- "protocol_version": "v1.0",
- "research_question": {
-  "topic": "pyroptosis in inflammation",
-  "object": "pyroptosis",
-  "method": "screening",
-  "time_range": "2015-2025",
-  "evidence_requirement": "original studies",
-  "scope": "finite snapshot"
- },
- "queries": [
-  {
-   "id": "Q1",
-   "query": "pyroptosis AND inflammation",
-   "database": "PubMed",
-   "fields": "title/abstract",
-   "date_range": "2015-2025",
-   "run_date": "2026-11-20"
+  "fixture": "synthetic minimal invocation example; not an official case answer",
+  "case_id": "fixture-patent-001",
+  "status": "issues",
+  "research_scope": {
+    "number_query": "US1000000B2",
+    "topic_query": "self-test sensor",
+    "date_limit": "source snapshot only",
+    "exclusions": ["infringement opinion", "freedom-to-operate conclusion", "patent valuation"]
   },
-  {
-   "id": "Q2",
-   "query": "细胞焦亡 AND 炎症",
-   "database": "CNKI",
-   "fields": "题名/摘要",
-   "date_range": "2015-2025",
-   "run_date": "2026-11-20"
-  }
- ],
- "records": [
-  {
-   "id": "R1",
-   "title": "Cell pyroptosis in inflammation",
-   "authors": "Shi J",
-   "year": 2017,
-   "doi": "10.1038/nature22307",
-   "source": "PubMed",
-   "language": "en",
-   "version": "journal"
-  },
-  {
-   "id": "R2",
-   "title": "Pyroptosis drives IL-1b release",
-   "authors": "Wang Y",
-   "year": 2019,
-   "doi": "10.1000/b",
-   "source": "Scopus",
-   "language": "en",
-   "version": "journal"
-  },
-  {
-   "id": "R3",
-   "title": "A commentary on pyroptosis",
-   "authors": "Li X",
-   "year": 2020,
-   "doi": "10.1000/c",
-   "source": "Scopus",
-   "language": "en",
-   "version": "comment"
-  },
-  {
-   "id": "R4",
-   "title": "细胞焦亡在炎症中的作用",
-   "authors": "张某",
-   "year": 2019,
-   "doi": "",
-   "source": "CNKI",
-   "language": "zh",
-   "version": "journal"
-  }
- ],
- "dedup": {
-  "exact_groups": [
-   [
-    "R1"
-   ]
+  "queries": [
+    {
+      "id": "Q1",
+      "query": "publication_number=US1000000B2",
+      "database": "fixture official bibliographic snapshot",
+      "fields": "publication_number",
+      "run_date": "2026-11-25",
+      "source_id": "S1",
+      "authorization": "green",
+      "returned_count": 2
+    },
+    {
+      "id": "Q2",
+      "query": "self-test AND sensor",
+      "database": "fixture technical snapshot",
+      "fields": "title,abstract",
+      "run_date": "2026-11-25",
+      "source_id": "S1",
+      "authorization": "green",
+      "returned_count": 1
+    }
   ],
-  "near_candidates": [],
-  "merged": 0
- },
- "reason_code_dict": {
-  "I1": "直接相关-原始研究",
-  "I2": "直接相关-综述",
-  "E3": "设计不符",
-  "E5": "语种不符"
- },
- "screening": [
-  {
-   "record_id": "R1",
-   "annotator": "A",
-   "decision": "include",
-   "reason_code": "I1",
-   "evidence_snippet": "we show pyroptosis drives inflammation in vivo",
-   "evidence_location": "abstract p1",
-   "rule": "I1"
+  "records": [
+    {
+      "id": "P1",
+      "publication_number": "US1000000B2",
+      "application_number": "US16123456",
+      "priority_numbers": ["US62123456"],
+      "title": "Self-test sensor",
+      "decision": "include",
+      "relevance_reason": "号码精确命中且主题字段同时命中",
+      "field_bindings": {
+        "publication_number": {"source_id": "S1", "field": "documents[0].publication_number"},
+        "application_number": {"source_id": "S1", "field": "documents[0].application_number"},
+        "priority_numbers": {"source_id": "S1", "field": "documents[0].priority_numbers"},
+        "title": {"source_id": "S1", "field": "documents[0].title"}
+      },
+      "evidence": [
+        {"source_id": "S1", "field": "documents[0].abstract", "quote": "A sensor comprises a self-test electrode.", "locator": "documents[0].abstract, sentence 1"}
+      ]
+    },
+    {
+      "id": "P2",
+      "publication_number": "WO2019000001A1",
+      "priority_numbers": ["US62123456"],
+      "title": "Capteur avec auto-test",
+      "decision": "include",
+      "relevance_reason": "共享优先权的观察族成员；保留 WO OCR 边界，不合并权利要求文本",
+      "field_bindings": {
+        "publication_number": {"source_id": "S1", "field": "documents[1].publication_number"},
+        "priority_numbers": {"source_id": "S1", "field": "documents[1].priority_numbers"},
+        "title": {"source_id": "S1", "field": "documents[1].title"}
+      },
+      "evidence": [
+        {"source_id": "S1", "field": "documents[1].abstract", "quote": "La presente invention concerne un capteur avec auto-test.", "locator": "documents[1].abstract, sentence 1"}
+      ]
+    }
+  ],
+  "technical_literature": [
+    {
+      "id": "T1",
+      "title": "Self-test methods for sensors",
+      "doi": "10.0000/selftest",
+      "decision": "include",
+      "evidence": [
+        {"source_id": "S1", "field": "papers[0].abstract", "quote": "We compare self-test methods for sensors.", "locator": "papers[0].abstract, sentence 1"}
+      ]
+    }
+  ],
+  "families": {
+    "simple": [{"basis": "identical normalized priority set", "members": ["P1", "P2"]}],
+    "extended": [{"basis": "shared normalized priority", "members": ["P1", "P2"]}],
+    "complete": false,
+    "claim_scope_equal": false,
+    "scope_note": "观察链接并非完整同族清单，也不证明权利要求范围相同"
   },
-  {
-   "record_id": "R2",
-   "annotator": "A",
-   "decision": "include",
-   "reason_code": "I1",
-   "evidence_snippet": "IL-1b release via pyroptosis",
-   "evidence_location": "abstract p1",
-   "rule": "I1"
+  "legal_status": [
+    {
+      "record_id": "P1",
+      "as_of": "2026-11-25",
+      "verification": "not_checked",
+      "current_status": "unknown",
+      "events": [
+        {
+          "status": "Grant",
+          "effective_date": "2018-01-02",
+          "evidence": [{"source_id": "S1", "field": "events[0].status", "quote": "Grant", "locator": "events[0].status"}]
+        }
+      ],
+      "uncertainty": "历史授权事件不能证明当前有效；未核验当前官方登记"
+    }
+  ],
+  "claims": [
+    {
+      "record_id": "P1",
+      "version": "v1",
+      "locator_scope": "documents[0].claim_v1 only",
+      "scope_comparison": "not_assessed",
+      "evidence": [{"source_id": "S1", "field": "documents[0].claim_v1", "quote": "1. A sensor comprising a substrate and an electrode.", "locator": "claim 1"}]
+    },
+    {
+      "record_id": "P1",
+      "version": "v2",
+      "locator_scope": "documents[0].claim_v2 only",
+      "scope_comparison": "different_text",
+      "evidence": [{"source_id": "S1", "field": "documents[0].claim_v2", "quote": "1. A sensor comprising a flexible substrate and two electrodes.", "locator": "claim 1"}]
+    }
+  ],
+  "counts": {"raw": 3, "deduplicated": 2, "include": 2, "exclude": 0, "unresolved": 0},
+  "coverage": {
+    "scope": "finite_snapshot",
+    "global_novelty": false,
+    "omissions": ["未观察到的族成员不视为不存在", "技术文献仅限所给快照"],
+    "miss_attribution": ["Q2 仅检索 title,abstract；未覆盖全文和引文字段"]
   },
-  {
-   "record_id": "R3",
-   "annotator": "A",
-   "decision": "exclude",
-   "reason_code": "E3",
-   "evidence_snippet": "this commentary discusses",
-   "evidence_location": "abstract p1",
-   "rule": "E3"
-  },
-  {
-   "record_id": "R4",
-   "annotator": "A",
-   "decision": "exclude",
-   "reason_code": "E5",
-   "evidence_snippet": "题录为中文原始研究，语种不在允许范围",
-   "evidence_location": "title",
-   "rule": "E5"
-  }
- ],
- "agreement": {
-  "decision_agreement": 0.85,
-  "cohen_kappa": 0.71,
-  "n": 4
- },
- "arbitration": [
-  {
-   "record_id": "R4",
-   "disagreement_type": "decision",
-   "decision": "exclude",
-   "rationale": "中文题录，语种不在允许范围"
-  }
- ],
- "counts": {
-  "records_raw": 4,
-  "records_dedup": 4,
-  "included": 2,
-  "excluded": 2,
-  "maybe": 0
- },
- "audit_log": [
-  {
-   "step": "search",
-   "input_n": 0,
-   "output_n": 4,
-   "operator": "agent",
-   "timestamp": "2026-11-20T10:00Z",
-   "rule_version": "v1.0"
-  },
-  {
-   "step": "dedup",
-   "input_n": 4,
-   "output_n": 4,
-   "operator": "script",
-   "timestamp": "2026-11-20T10:02Z",
-   "rule_version": "v1.0"
-  },
-  {
-   "step": "screen_A",
-   "input_n": 4,
-   "output_n": 4,
-   "operator": "A",
-   "timestamp": "2026-11-20T10:20Z",
-   "rule_version": "v1.0"
-  }
- ],
- "coverage": {
-  "reference_total": 4,
-  "retrieved": 4,
-  "missed": 0,
-  "missed_by_code": {}
- },
- "gain": {
-  "baseline_accuracy": 0.62,
-  "skill_accuracy": 0.88,
-  "kappa_baseline": 0.35,
-  "kappa_skill": 0.71,
-  "manual_checks_saved": 0.4
- },
- "unchecked": [],
- "sources": [
-  "PubMed",
-  "CNKI",
-  "Scopus"
- ],
- "uncertainty": [
-  "有限快照，未声称全局召回"
- ],
- "change_log": [
-  "v1.0 建协议",
-  "R4 仲裁排除"
- ]
+  "sources": [
+    {
+      "id": "S1",
+      "name": "synthetic authorized fixture source",
+      "version": "fixture-v1",
+      "query_date": "2026-11-25",
+      "path": "source.json",
+      "sha256": "3bbbcbc5a09e0d2e6987ab7d74ed7b2c75bd36a54e58efffa6a73d41e5c1aa3d",
+      "access": "green",
+      "register_role": "official_for_fixture_only"
+    }
+  ],
+  "uncertainty": ["当前官方法律状态未核验", "族与权利要求范围均不作超出快照的推断"],
+  "gain": {"mode": "not_measured", "reason": "平台对照尚未提供；不预填基准或提升值", "metrics": null},
+  "change_log": ["fixture-v1 建立协议", "v1→v2 权利要求仅记录文本差异，未作侵权或范围等同判断"]
 }

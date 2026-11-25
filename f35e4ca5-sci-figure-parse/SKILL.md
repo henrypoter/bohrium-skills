@@ -1,88 +1,68 @@
 ---
-name: sci-figure-parse
-description: 科研图表解析 Skill：对案例给定的 1 张原图及全部原表做可复核结构化解析。OCR 刻度定位 + 像素→数据标定；轴型双判据（R²+等距/等比预检）、残差审计剔除重拟合、双 y 轴强制 y_axis 归属；数值三档标注并指回原图。纯标准库脚本，判据外置 rules.json。
+name: paper-conclusion-data-extract
+description: 从真实科研论文（PDF/正文/表格/图注/补充材料）按统一字段表抽取研究结论与数据点，强制 claim→quote→location 证据绑定、quote 逐字回查与数值-引文双重核对、单位/统计量/实验条件同源保留、结论-限制-推测分层标注、缺字段四态区分（reported/not_reported/source_conflict/extraction_failed），产出可复核的 /app/output/result.json。当任务是给论文、出结构化字段表或结论卡片时使用。
 ---
 
-# sci-figure-parse：科研图表解析
+# 文献结论与数据提取 Skill
 
-把一张科研图（+原表）读成可复核的结构化数据，而不是一段像总结的文字。
+## 1. 用途
+把真实论文中散落在摘要、正文、表格、图注、补充材料里的**研究结论**与**数据点**，按 `/input/target-fields.json` 字段表还原成可核对结构：每个字段能回到原文位置（页/段/表格行列/图号），数值带单位、统计量与成立条件。不压缩论文，只做可复核的结构化抽取。
 
-## 0. 预算纪律
+适用：提供 `/input/case.json`、`/input/task.md`、`/input/target-fields.json` 与论文材料（PDF 等）。不适用：无材料或要求凭领域知识补值——必须标 `not_reported`，禁止猜值填充（**猜的值不是抽取，缺席不是 0**）。
 
-平台总预算 64 请求 / 900 秒，跑 3 案例 × 3 重复。**每案例 ≤12 次请求、≤600 秒**。
+## 2. 预算纪律（硬性）
+- 每案例模型请求 **≤12 次**，全程 **≤600 秒**，单次响应留余量。
+- **先写诚实骨架再增量改进**：第 1 次写文件就产出合法 result.json（全部字段、未做项标 `extraction_failed`），之后逐字段改进并就地覆盖，任何时刻中断都有可评分产物。
+- 长文不整篇复读：先抽文本层，再 grep 定位，只把命中页/段送入上下文。
 
-- **铁律：先写诚实 result.json 再增量改进。** 进案例先跑 P0（纯脚本、0 请求）落盘骨架；告急时带最诚实状态收尾（P4），宁可 partial 不可缺文件。批量数值交给脚本，不手抄数据点；不使用预制答案。
+## 3. 输入识别（第 1 步，1 次请求内完成）
+1. 读 `/input/case.json` 取 `case_id`；读 `/input/task.md` 取任务边界。
+2. 读 `/input/target-fields.json`：**逐 field_id 建空记录**（状态先置 `extraction_failed`），这就是骨架。
+3. 列材料清单写入 `sources`（正文 PDF、补充材料、表格文件等）。
+4. PDF 且无解析工具时：`python3 scripts/pdf_text.py paper.pdf work/paper.txt`（纯标准库兜底，输出带 `=== PAGE n ===` 页标记）。输出空/乱码 → 判扫描件无文本层，相关字段 `extraction_failed` 并在 `uncertainty` 说明，不得编造。
 
-## 1. 输入约定
+## 4. 抽取工作流（每字段一条记录，模板见 schemas/result_contract.json）
+1. **定位**：grep 关键词（指标名、缩写、单位、同义词），命中后只读该页/段上下文。
+2. **取值**：抄原文字面值，**不改写、不合并、不换算**；范围值（12–18）、「<0.05」、约值（~、≈）原样保留。
+3. **绑定五要素**（缺失要素显式置 null，不省略键）：`value` 原字面值；`unit` 原文单位（无则 null + note 说明，禁止自补）；`statistic` 误差/统计量/样本量（mean±SD、95% CI、p、n）；`condition` 数值成立的实验条件（样本、设置、时间点、数据来源）；`comparator` 比较基线（无则 null）。
+4. **证据定位** `evidence`：`quote` = 原文逐字片段（含数值那句），且 **value 中每个数字串必须能在 quote 中逐字找到**（统计量来自邻句时把该句一并抄入 quote；unit 与 statistic 的数字必须在原文中存在，validator 双重核对，不一致即 FAIL）；`page` 用 pdf_text.py 页标记号；`paragraph_id` 用「页码#段序」（如 `p3#para2`）；表格给 `table` + `cell`（表头行×列名，跨页/合并单元格在 note 说明还原规则）；图注给 `figure`。粒度须让第二个人独立抽查。
+5. **状态判定**（四态互斥）：`reported`（有直接字面值且 quote 命中）；`not_reported`（通读相关章节确认未给出——**合法答案，不是失败**）；`source_conflict`（多处数值冲突，value=null，note 列全部冲突值及位置）；`extraction_failed`（材料不可读/版式无法解析/超时，写明可人工接管位置）。仅字面 quote 匹配不等于语义正确：必须核对 quote 中数值、单位、条件确属该 field_id 所问对象（张冠李戴是主要扣分点）。
+6. **直接 vs 推断**：`basis` = `direct`（原文直述）| `inferred`（由文中数据推算，如差值/百分比变化；note 必须写算式含数字与运算符，如 `87.3-41.2=46.1`，validator 校验）。推断值必须与直述值区分。
 
-- 输入 `/input/case.json`、`/input/task.md` 及材料（v2 修订：必做对象 = **给定 1 张原图 + 全部原表**）。
-- 工作目录 `/app/work`；产出 `/app/output/result.json`（output_contract 全字段 + `case_id` + `status`/`sources`/`uncertainty`），契约字段用 `init_result.py` 镜像。
-- **缺口纪律**：只有图注未给像素的图列入 `uncertainty`（`caption_without_pixels`），不构造、不凭标签补数据。
+## 5. 结论分层标注（claims）
+从摘要、结果、讨论各抽 1–N 条主张，每条一张结论卡：
+- `type` ∈ `conclusion`（明确结论）/ `limitation`（限制条件）/ `speculation`（推测表述）。
+- 信号词：推测=suggest/may/might/possibly/「可能」「提示」；限制=limited to/only/under these conditions/「限于」；结论=demonstrate/show/conclude/「表明」。**信号词决定 type，禁止把「可能」改写成确定事实**；speculation 卡 quote 必须含情态信号词、limitation 卡必须含限定信号词（validator 机器校验，缺失即 FAIL）。
+- 每张卡同样带 quote + page/paragraph_id，`related_field_ids` 挂到字段记录，保证结论与实验条件不脱钩。
 
-## 2. 工作流（5 阶段）
+## 6. 异常处理表
+| 异常 | 处置 |
+|---|---|
+| 扫描件无文本层 | 相关字段 `extraction_failed`；uncertainty 注明需 OCR，禁止编造 |
+| 表格跨页/合并单元格 | 按表头×列名逐单元格溯源；note 写明还原规则与单元格地址 |
+| 单位缺失 | unit=null + note「原文未标单位」，不自补 |
+| 字段原文未报告 | `not_reported`，value=null；列入 gaps |
+| 多处数值冲突 | `source_conflict`，note 列全部冲突值与各自位置 |
+| 材料缺失/权限不足 | 对应字段 `extraction_failed`，status=partial 并写明接管位置 |
+| 超时/预算将尽 | 立即落盘当前 result.json（已含骨架），status=partial |
 
-### P0 探测与骨架（0 请求，纯脚本）
-```bash
-mkdir -p /app/work /app/output
-python3 scripts/init_result.py --case /input/case.json --out /app/output/result.json
-python3 scripts/probe.py /input/<图>           # 图像体检告警
-python3 scripts/ocr_words.py /input/<图> > /app/work/ocr.json   # tesseract→词+像素框
-```
-PDF 先 `pdftoppm -r 300 -png in.pdf /app/work/page` 栅格化。
+## 7. 输出契约（/app/output/result.json）
+顶层字段：`case_id`、`task`、`status`（success/partial/cannot_determine/refused，有 extraction_failed 时不得 success）、`results`（每 field_id 一条）、`claims`、`sources`、`uncertainty`（无则空数组）、`gaps`（三态 field_id 列表，与 results 一致）、`change_records`（{step, action}）。完整定义见 `schemas/result_contract.json`。
 
-### P1 任务与图型识别（≤2 请求）
-读 task.md/case.json：图表类型、子图划分、output_contract 要求。多子图时**每个子图一个 panel 键**，数值挂在 panel 下，杜绝跨子图错配。
+**落盘顺序**：① 骨架（全部 field_id 置 extraction_failed，source_type 先置 text）→ ② 逐字段回填 → ③ claims → ④ `python3 scripts/validate_result.py /app/output/result.json work/paper.txt` 自检（第二参数触发原文双重核对；无文本层时省略）。**任一 FAIL 必须修正后重跑，不得带错交付**。
 
-### P2 坐标轴标定（≤3 请求）
-1. `ocr.json` 的 `tick_candidates` 按质心聚类：x 轴 cy 接近在图下方；y 轴 cx 接近在图左；双 y 轴右侧另有一簇。
-2. 写 spec（刻度像素↔数值对 ≥2/轴、unit、type=auto；格式见 axisfit.py 开头说明），运行：
-```bash
-python3 scripts/axisfit.py /app/work/spec.json --rules scripts/rules.json > /app/work/calib.json
-```
-3. 读 calib.json 判定（**判据外置 rules.json，可复跑可审计**）：
-   - **轴型双判据**：`fit_quality` 比 R² + `spacing` 等距/等比一致性（对数轴 1,10,100 像素等距、比值相等）；冲突时 axisfit 写 `warnings`，须复查刻度词，不任选其一。
-   - `dropped_ticks` 非空 = 剔除错读刻度并重拟合：重 OCR 确认；无法确认则保留审计记录并写入 uncertainty。
-   - `verdict_confidence:"low"`（<3 刻度的对数判定）或 R² 低于阈值：复查像素与轴标签，必要时交 Agent 视觉裁决并在 sources 留痕。
-   - 单位量级（mV vs V、×10³ 倍数）以 OCR 轴标题原文为准并与刻度数值交叉核对；拿不准记 `unit:"unknown"` 入 uncertainty，**不猜**。
+## 8. 最小调用示例
+`examples/minimal_example.md`：**自拟合成**材料 + 调用步骤 + 标注「示例」的示意 result.json（已通过双重核对）。
 
-### P3 数据还原（≤3 请求）
-- 曲线：`trace.py 图 colors` 列主色簇 → `trace.py 图 extract --rgb R,G,B` 得像素折线；spec 加 `"trace_files"` 重跑 axisfit 得数据坐标序列。
-- **双 y 轴强制归属**：panel 含 `y_right` 时，每个 point 必须写 `"y_axis":"left|right"`、每条 trace 名必须带 `@left`/`@right` 后缀；缺失时 axisfit 按 left 处理**并写 panel 级 warning**，绝不静默混轴。归属依据写入 sources，不足标 inferred。
-- 点/柱/误差线：像素写入 spec `points`（`xerr_px`/`yerr_px` 给两端像素）→ 数据坐标 ± 区间；误差语义（SD/SEM/CI）图注明写=direct，否则 inferred。
-- 显著性标记（*、**、n.s.）：记 annotation（panel、比较对、符号原文）；**不把星号当数据点**。
-- 原表：CSV 直读；PDF/图片表用 pdftotext/OCR；表图互证不混替。比例尺：像素长÷标注长，写入 sources。
+## 9. 复跑与迁移
+字段表 + 第 4–5 节口径 + validate_result.py 即完整复跑规范，他人可按同一字段表复跑比对；迁移只需换字段表。
 
-### P4 组装与校验（≤2 请求）
-更新 result.json 全字段，写数据 CSV 到 /app/output；预装 matplotlib 时从 calib.json 重绘 `recon.svg`+`recon.png` 与原图对照核验（缺失则跳过），然后：
-```bash
-python3 scripts/init_result.py --finalize --case /input/case.json --out /app/output/result.json
-```
-打印 OK 方可结束；MISSING 项补齐或 `null`+uncertainty 说明。
-
-## 3. result.json 契约与三档证据
-
-骨架由 `init_result.py` 生成：`case_id`、`status`（success/partial/undeterminable/refused）、`status_reason`、`sources`（含 file/panel/region/basis）、`uncertainty` + output_contract 全字段。每个数值三档 `evidence`：`direct` 图中直接可读（刻度/标签/图注写明）；`inferred` 合理推断（标定换算、按图注规则推得），须带 `pixel` 与 R² 指回原图；`undetermined` 给原因不编数。
-
-## 4. 异常处理（诚实降级，写入 status/uncertainty）
-
-- 无坐标刻度 → 不标定；只给像素坐标+相对趋势，status=partial，axis 标 uncalibrated。
-- 图被裁剪 → 可读部分照常解析；裁剪区的量标 undetermined 并说明。
-- 图例缺失 → 系列以颜色/线型命名（series_rgb_210_40_40），uncertainty 注明
-- 单位不明 → unit:"unknown"，禁止按常识补单位；列入 uncertainty
-- 过曝/低对比 → probe 告警；降阈值重试 OCR，仍不行标 undetermined。
-- 曲线重叠 → 只提取可分离段与端点，重叠区标 undetermined；不强行拆分。
-- OCR 缺失 → probe 头解析仍给尺寸；靠可见信息定位刻度，降 partial。
-- PIL 缺失 → trace 拒绝运行并说明；退化为 OCR 刻度 + 关键点人工读数。
-
-## 5. 最小调用示例
-
-见 `examples/minimal-example.md`（自拟合成材料，输出标注"示例"）：全链路及变异自检。
-
-## 6. 依赖与限制
-
-- 仅用 Python 标准库；PIL、tesseract、poppler、matplotlib 为预装可选增强，缺失按 §4 降级，**不 pip 安装**。
-- 脚本：`probe.py`（图像体检）、`ocr_words.py`（OCR 词+像素框）、`axisfit.py`（标定/判别/数字化，阈值在 `rules.json`）、`trace.py`（取色描线）、`init_result.py`（骨架与校验）。
-- 限制：不做无标尺显微图绝对尺寸；不凭图像鉴定物质；对数轴非正刻度无法拟合时明示。脚本均自包含单文件，可直接复制复用。
+## 10. 文件清单
+- `SKILL.md` 本说明（入口）
+- `scripts/pdf_text.py` 纯标准库 PDF 文本层抽取（带页标记；不支持 CID/OCR，乱码须降级标注）
+- `scripts/validate_result.py` 契约校验 + 原文双重核对（quote 回查/数值回查/信号词/inferred 算式）+ 缺口汇总
+- `schemas/result_contract.json` 输出契约与字段记录模板
+- `examples/minimal_example.md` 合成最小示例（标注示例，非正式结果）
 
 ---
 

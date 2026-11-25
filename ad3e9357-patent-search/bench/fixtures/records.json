@@ -1,56 +1,22 @@
 {
- "records": [
-  {
-   "id": "R1",
-   "title": "Deep learning based protein structure prediction",
-   "authors": "Jumper J",
-   "year": 2021,
-   "doi": "10.1038/abc",
-   "source": "PubMed",
-   "language": "en",
-   "version": "journal"
-  },
-  {
-   "id": "R2",
-   "title": "Deep learning based protein structure prediction",
-   "authors": "Jumper J",
-   "year": 2021,
-   "doi": "10.1038/abc",
-   "source": "Scopus",
-   "language": "en",
-   "version": "journal"
-  },
-  {
-   "id": "R3",
-   "title": "Deep learning based protein structure prediction",
-   "authors": "Jumper J",
-   "year": 2021,
-   "doi": "",
-   "arxiv": "2101.00001",
-   "source": "arXiv",
-   "language": "en",
-   "version": "preprint"
-  },
-  {
-   "id": "R4",
-   "title": "Deep learning based protein structure prediction method",
-   "authors": "Jumper J",
-   "year": 2021,
-   "doi": "",
-   "arxiv": "2101.99999",
-   "source": "bioRxiv",
-   "language": "en",
-   "version": "preprint"
-  },
-  {
-   "id": "R5",
-   "title": "Cell pyroptosis in inflammation",
-   "authors": "Shi J",
-   "year": 2017,
-   "doi": "10.1038/nature22307",
-   "source": "PubMed",
-   "language": "en",
-   "version": "journal"
-  }
- ]
+  "fixture": "synthetic self-test only; not an official case answer",
+  "records": [
+    {
+      "id": "P1",
+      "publication_number": "US 1,000,000 B2",
+      "application_number": "US 16/123,456",
+      "grant_number": "US1000000B2",
+      "priority_numbers": ["US 62/123,456"]
+    },
+    {
+      "id": "P2",
+      "publication_number": "WO 2019/000001 A1",
+      "priority_numbers": ["US62/123,456"]
+    },
+    {
+      "id": "P3",
+      "publication_number": "EP 3 000 000 A1",
+      "priority_numbers": ["EP18123456"]
+    }
+  ]
 }

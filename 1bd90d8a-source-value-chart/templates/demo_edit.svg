@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="360pt" height="180pt" viewBox="0 0 360 180">
+  <g id="panel-a">
+    <rect id="bar-drugx" x="90" y="35" width="70" height="110" fill="#0072B2"/>
+    <text id="figure-title" x="20" y="22" font-family="sans-serif" font-size="12">Demo figure</text>
+    <text id="bar-label" x="125" y="165" text-anchor="middle" font-family="sans-serif" font-size="9">DMSO</text>
+  </g>
+</svg>

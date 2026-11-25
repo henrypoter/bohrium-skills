@@ -1,0 +1,22 @@
+{
+  "_README": "SYNTHETIC MINIMUM EXAMPLE, not an official case. Replace input_sha256 after hashing the actual input. Every edit has an expected old value and reason; scientific text must equal the cited source cell.",
+  "input_sha256": "TO_BE_FILLED_BY: python3 -c \"import hashlib;print(hashlib.sha256(open('templates/demo_edit.svg','rb').read()).hexdigest())\"",
+  "operations": [
+    {
+      "id": "figure-title",
+      "op": "set_text",
+      "expected": "Demo figure",
+      "value": "DrugX",
+      "reason": "Use the verbatim treatment entity from the demo source table.",
+      "source": {"file": "templates/demo_bar.csv", "row": 3, "column": "treatment", "quote": "treatment,cell_line,mean_expr"}
+    },
+    {
+      "id": "bar-drugx",
+      "op": "set_attr",
+      "attribute": "fill",
+      "expected": "#0072B2",
+      "value": "#E69F00",
+      "reason": "Apply the reusable Okabe-Ito style preset; style-only edit, no scientific value changed."
+    }
+  ]
+}

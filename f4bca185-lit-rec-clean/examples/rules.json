@@ -1,0 +1,21 @@
+{
+  "version": "synthetic-demo-v1",
+  "fields": {
+    "paper_id": {"type": "string", "aliases": ["Paper"], "required": true},
+    "experiment_id": {"type": "string", "aliases": ["Experiment"], "required": true},
+    "material": {"type": "string", "aliases": ["Material"], "allowed": ["alpha"],
+                  "synonyms": {"α": "alpha", "Alpha": "alpha"}},
+    "condition": {"type": "string", "aliases": ["Condition"], "required": true},
+    "metric": {"type": "string", "aliases": ["Metric"], "required": true},
+    "potential": {"type": "number", "aliases": ["Potential"], "target_unit": "mV",
+                   "conversions": {"mV": {"factor": "1"}, "V": {"factor": "1000"}},
+                   "min": -10000, "max": 10000, "rule_id": "R-POTENTIAL-DEMO"},
+    "concentration": {"type": "number", "aliases": ["Concentration"], "target_unit": "mg/L",
+                       "conversions": {"mg/L": {"factor": "1"}, "g/L": {"factor": "1000"}},
+                       "rule_id": "R-CONC-DEMO"}
+  },
+  "dedupe": {
+    "identity_keys": ["paper_id", "experiment_id", "material", "condition", "metric"],
+    "rule_id": "R-DEDUPE-DEMO"
+  }
+}

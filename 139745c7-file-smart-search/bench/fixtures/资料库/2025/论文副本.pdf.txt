@@ -1,1 +1,3 @@
-duplicate content
+# Results
+
+Figure 2 corresponds to experiment batch B-7 and dataset S1.

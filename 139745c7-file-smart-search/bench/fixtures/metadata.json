@@ -1,0 +1,9 @@
+{
+  "files": [
+    {"path": "2024/project_A/数据_分析_v1.txt", "year": 2024, "project": "project_A", "type": "txt", "batch": "B-7", "version": "v1", "version_group": "analysis", "current": false, "superseded_by": "2025/数据_分析_v2.txt", "permission": "read"},
+    {"path": "2025/数据_分析_v2.txt", "year": 2025, "project": "project_B", "type": "txt", "batch": "B-9", "version": "v2", "version_group": "analysis", "current": true, "supersedes": "2024/project_A/数据_分析_v1.txt", "permission": "read"},
+    {"path": "2024/project_A/论文.pdf.txt", "year": 2024, "project": "project_A", "type": "txt", "batch": "B-7", "version": "v1", "permission": "read"},
+    {"path": "2025/论文副本.pdf.txt", "year": 2024, "project": "project_A", "type": "txt", "batch": "B-7", "version": "v1", "permission": "read"},
+    {"path": "2024/project_A/实验数据.csv", "year": 2024, "project": "project_A", "type": "csv", "version": "v1", "permission": "read"}
+  ]
+}

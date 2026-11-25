@@ -1,5 +1,0 @@
-{
- "version": "1.0",
- "description": "物质/指标同义归一（S 系，示例表，按领域扩充）。只统一写法不裁决差异：修饰词差异在 change_log 留痕待人工确认，避免错并不同实验。",
- "rules": [{"rule_id": "S01", "canonical": "TiO2", "match": ["TiO2", "tio2", "TiO₂", "titanium dioxide", "anatase TiO2", "rutile TiO2", "二氧化钛"]}, {"rule_id": "S02", "canonical": "Cu2O", "match": ["Cu2O", "cu2o", "cuprous oxide", "氧化亚铜"]}, {"rule_id": "S03", "canonical": "MoS2", "match": ["MoS2", "mos2", "molybdenum disulfide", "二硫化钼"]}, {"rule_id": "S04", "canonical": "ZnO", "match": ["ZnO", "zno", "zinc oxide", "氧化锌"]}, {"rule_id": "S05", "canonical": "MB", "match": ["MB", "methylene blue", "亚甲基蓝"]}]
-}

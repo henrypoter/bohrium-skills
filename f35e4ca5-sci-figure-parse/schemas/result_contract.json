@@ -1,0 +1,49 @@
+{
+  "contract_name": "paper-conclusion-data-extract/result.json",
+  "version": "2.0",
+  "top_level": {
+    "case_id": "来自 /input/case.json，原样回填",
+    "task": "任务一句话概述",
+    "status": "success | partial | cannot_determine | refused",
+    "results": "字段记录数组；/input/target-fields.json 中每个 field_id 恰好一条，不得漏",
+    "claims": "结论卡数组（结论/限制/推测分层），可为空数组",
+    "sources": "材料清单数组，每项 {path, role}，role ∈ main_text/supplement/table_file/other",
+    "uncertainty": "不确定项数组，无则空数组；扫描件/乱码/版式问题必须声明",
+    "gaps": "缺口汇总 {not_reported:[field_id], source_conflict:[], extraction_failed:[]}，与 results 实际一致",
+    "change_records": "增量修改记录数组 {step, action}，体现先骨架后回填"
+  },
+  "field_record": {
+    "field_id": "与 target-fields.json 一致",
+    "question": "该字段所问内容（照抄字段表）",
+    "value": "原字面值（string/number），未报告/冲突/失败时为 null；禁止猜测填充，缺席不是 0",
+    "unit": "原文单位或 null（null 时 note 说明『原文未标单位』，禁止自补）",
+    "statistic": "误差/统计量/样本量原文表述，如 'mean±SD, n=12'、'p=0.03'，无则 null",
+    "condition": "数值成立的实验条件：样本、设置、时间点、数据来源",
+    "comparator": "比较基线（对照组/基线模型），无则 null",
+    "basis": "direct=原文直述 | inferred=由文中数据推算（note 必须写推算过程）",
+    "status": "reported | not_reported | source_conflict | extraction_failed",
+    "source_type": "text | table | figure_caption | supplement",
+    "evidence": {
+      "quote": "原文逐字片段（含数值那句），reported 必填；value 的每个数字串必须能在其中逐字找到",
+      "page": "页码整数或 null",
+      "paragraph_id": "段落定位，格式 'p{页}#para{序}'，如 'p3#para2'",
+      "table": "表号或 null",
+      "cell": "单元格地址：表头行×列名；跨页/合并单元格在此说明还原规则",
+      "figure": "图号或 null"
+    },
+    "note": "换算/冲突/版式还原等补充说明；source_conflict 时在此列全部冲突值及各自位置"
+  },
+  "claim_card": {
+    "claim_id": "如 C1",
+    "text": "主张内容（保持作者原意，不把推测改写成事实）",
+    "type": "conclusion（明确结论）| limitation（限制条件）| speculation（推测表述）",
+    "cue": "判定信号词，如 suggest/may/demonstrate/『可能』",
+    "evidence": {"quote": "原文逐字片段", "page": "页码", "paragraph_id": "p{页}#para{序}"},
+    "related_field_ids": ["挂接的 field_id，保证结论与实验条件同源"]
+  },
+  "status_semantics": {
+    "not_reported": "通读相关章节确认原文未给出——合法答案，不是失败",
+    "source_conflict": "文中多处数值冲突；value=null，冲突值全列于 note",
+    "extraction_failed": "材料不可读/版式无法解析/预算耗尽；写明可人工接管位置"
+  }
+}

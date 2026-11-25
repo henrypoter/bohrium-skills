@@ -1,1 +1,5 @@
-version 1 content
+# 实验方法
+
+## 缓冲液配方
+
+流式细胞术使用 FACS buffer：1x PBS、2% FBS、2 mM EDTA。实验批次 B-7。

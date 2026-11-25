@@ -1,0 +1,19 @@
+{
+  "audience": "public|expert|policymaker|investor",
+  "reading_goal": "读者读完需要理解或决定什么",
+  "genre": "科普文章|项目申报|双语摘要|结构化写作",
+  "required_sections": ["核心发现", "证据与边界"],
+  "min_chars": 20,
+  "max_chars": 1200,
+  "target_channel": "internal|public",
+  "confidential": false,
+  "unpublished": false,
+  "handling": {
+    "no_external_upload": true,
+    "human_review_required": true,
+    "release_approved": false
+  },
+  "allowed_abbreviations": [],
+  "language": "按task要求",
+  "export_settings": "按task要求"
+}

@@ -1,0 +1,4 @@
+Paper,Experiment,Material,Condition,Metric,Potential,Concentration
+P1,E1,α,25C,ocp,0.5 V,2 g/L
+P1,E1,Alpha,25C,ocp,500 mV,2000 mg/L
+P1,E2,alpha,25C,ocp,500 mV,2000 mg/L

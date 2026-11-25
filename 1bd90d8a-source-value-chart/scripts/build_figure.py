@@ -7,7 +7,7 @@
 # Quote dual-channel anchoring: any mapping may carry "quote" (verbatim fragment of the data
 # file header/first line); the script checks the NORMALIZED quote exists in the file head AND
 # contains the referenced column name -- column present but quote absent/mismatched = FATAL.
-import argparse, csv, difflib, hashlib, json, math, os, shutil, sys, traceback, zlib
+import argparse, csv, difflib, hashlib, json, math, os, shutil, subprocess, sys, traceback, zlib
 
 CT = ("bar", "line", "scatter", "box", "heatmap")
 EK = ("sd", "se", "sem", "ci", "ci90", "ci95", "ci99")
@@ -35,7 +35,11 @@ CAT = {"missing_columns": "entity", "series_value_unknown": "entity", "entity_li
        "unrendered_rows": "source", "heatmap_gaps": "source", "source_traceable": "source",
        "svg_export": "export", "png_export": "export", "pdf_export": "export", "value_map": "encoding", "geometry_proportional": "spatial",
         "legend_series": "annotation", "source_hash": "source", "png_srgb": "export",
-        "export_spec": "export"}
+        "export_spec": "export", "long_label": "spatial", "duplicate_glyph_key": "source",
+         "nonnumeric_value": "source", "invalid_errorbar": "annotation",
+         "errorbar_caption": "annotation", "sample_size": "annotation",
+         "significance_test": "annotation", "significance_convention": "annotation",
+         "x_geometry": "spatial", "errorbar_map": "annotation", "box_statistics": "encoding"}
 
 def die(msg, chk=None):
   d = OUT or os.getcwd()
@@ -90,15 +94,27 @@ def load_styles(path, preset):
   BASE.update({k: v for k, v in prof.items() if not k.startswith("_")})
   return BASE
 
-def pick_cjk_font():
+def pick_cjk_font(text=""):
+  # Select by actual glyph coverage, not by a font-name allowlist alone. This avoids
+  # both missing-CJK boxes and false 'no font' warnings on nonstandard installations.
   pref = ("Noto Sans CJK SC", "Noto Sans CJK JP", "Noto Sans CJK HK", "Source Han Sans SC",
           "WenQuanYi Micro Hei", "WenQuanYi Zen Hei", "Droid Sans Fallback", "AR PL UMing CN")
+  chars = {ord(c) for c in str(text) if "一" <= c <= "鿿"}
   try:
     from matplotlib import font_manager as fm
-    have = {x.name for x in fm.fontManager.ttflist}
-    return next((n for n in pref if n in have), None)
+    from matplotlib import ft2font
+    fonts = list(fm.fontManager.ttflist)
+    fonts.sort(key=lambda f: (pref.index(f.name) if f.name in pref else len(pref), f.name))
+    for font in fonts:
+      try:
+        face = ft2font.FT2Font(font.fname)
+        if all(face.get_char_index(cp) != 0 for cp in chars):
+          return font.name
+      except Exception:
+        continue
   except Exception:
-    return None
+    pass
+  return None
 
 def read_table(src):
   path = src["file"]; delim = src.get("delimiter")
@@ -380,7 +396,10 @@ def draw_panel(ax, p, tabs, st, chk, mp, meta):
         cols_used = dedup([xcol, ycol] + ([scol] if scol else []) + ([ecol] if ecol else []) + ([sig] if sig else []))
         el = {"panel": pid, "glyph": "bar", "series": sn, "x": groups[gi], "y": v0,
               "value": v0, "dx": x0, "value_column": ycol,
-              "error": be[k], "source": ref(src, j0, [xcol, ycol] + ([ecol] if ecol else [])),
+              "x_column": xcol, "x_value": groups[gi], "series_column": scol,
+              "error": be[k], "error_column": ecol, "error_kind": (p.get("error") or {}).get("kind"),
+              "significance_column": sig,
+              "source": ref(src, j0, cols_used),
               "source_sha256": file_sha256(src["file"]),
               "field_sha256": row_field_hash(rows[j0], cols_used),
               "hash_columns": cols_used}
@@ -401,6 +420,10 @@ def draw_panel(ax, p, tabs, st, chk, mp, meta):
       meta[pid0]["legend_labels"] = list(snames)
   elif ct in ("line", "scatter"):
     scol = (p.get("series") or {}).get("column")
+    # Numeric x is a quantitative coordinate, not a category index. Preserve irregular
+    # time/dose spacing; only genuinely non-numeric x values use categorical positions.
+    x_numeric = bool(xraw) and all(to_float(x) is not None for x in xraw)
+    meta[pid0]["x_numeric"] = x_numeric
     xlabs = []
     for xl in xraw:
       if xl not in xlabs:
@@ -414,7 +437,7 @@ def draw_panel(ax, p, tabs, st, chk, mp, meta):
     ecol = (p.get("error") or {}).get("column")
     evd = dict((j, e) for (e, j) in col_values(rows, ecol, chk, pid)) if ecol else {}
     for si, (gn, pts) in enumerate(groups.items()):
-      xs = [xlabs.index(xl) for xl, v, j in pts]
+      xs = [to_float(xl) if x_numeric else xlabs.index(xl) for xl, v, j in pts]
       yv = [v for xl, v, j in pts]
       js = [j for xl, v, j in pts]
       c = pal[si % len(pal)]
@@ -429,12 +452,16 @@ def draw_panel(ax, p, tabs, st, chk, mp, meta):
         cols_used = dedup([xcol, ycol] + ([scol] if scol else []) + ([ecol] if ecol else []))
         mp.append({"panel": pid, "glyph": ct, "series": gn, "x": pts[k][0], "y": yv[k],
                    "value": yv[k], "dx": xs[k], "value_column": ycol,
-                   "source": ref(src, j, [xcol, ycol] + ([ecol] if ecol else [])),
+                   "x_column": xcol, "x_value": to_float(pts[k][0]) if x_numeric else pts[k][0],
+                   "series_column": scol, "error": evd.get(j) if ecol else None,
+                   "error_column": ecol, "error_kind": (p.get("error") or {}).get("kind"),
+                   "source": ref(src, j, cols_used),
                    "source_sha256": file_sha256(src["file"]),
                    "field_sha256": row_field_hash(rows[j], cols_used),
                    "hash_columns": cols_used})
-    ax.set_xticks(range(len(xlabs)))
-    ax.set_xticklabels(xlabs, rotation=p["x"].get("rotation", 0))
+    if not x_numeric:
+      ax.set_xticks(range(len(xlabs)))
+      ax.set_xticklabels(xlabs, rotation=p["x"].get("rotation", 0))
     if scol:
       ax.legend(fontsize=st["font_size"] - 1, frameon=False)
       meta[pid0]["series_column"] = scol
@@ -457,9 +484,19 @@ def draw_panel(ax, p, tabs, st, chk, mp, meta):
       pt.set_edgecolor("black"); pt.set_linewidth(0.5)
     for ci, (vals, jj) in enumerate(zip(data, rows_of)):
       cols_used = dedup([xcol, ycol] + ([scol] if scol else []))
+      # Record the actual Matplotlib box statistics, including Tukey whiskers rather
+      # than mislabelling whiskers as min/max. audit_outputs independently recomputes.
+      vertices = bp["boxes"][ci].get_path().vertices
+      q1, q3 = float(min(vertices[:, 1])), float(max(vertices[:, 1]))
+      median = float(bp["medians"][ci].get_ydata()[0])
+      wy = list(bp["whiskers"][2 * ci].get_ydata()) + list(bp["whiskers"][2 * ci + 1].get_ydata())
+      outliers = [float(v) for v in bp["fliers"][ci].get_ydata()]
       mp.append({"panel": pid, "glyph": "box", "series": cats[ci], "n": len(vals),
-                 "min": min(vals), "max": max(vals), "value_column": ycol,
-                 "source": ref(src, jj[0], [xcol, ycol], multi=[j + 2 for j in jj]),
+                 "min": min(vals), "max": max(vals), "q1": q1, "median": median, "q3": q3,
+                 "whisker_low": float(min(wy)), "whisker_high": float(max(wy)),
+                 "outliers": outliers, "boxplot_whis": 1.5, "value_column": ycol,
+                 "x_column": xcol, "series_column": scol,
+                 "source": ref(src, jj[0], cols_used, multi=[j + 2 for j in jj]),
                  "source_sha256": file_sha256(src["file"]),
                  "field_sha256s": [row_field_hash(rows[j], cols_used) for j in jj],
                  "hash_columns": cols_used})
@@ -484,12 +521,15 @@ def draw_panel(ax, p, tabs, st, chk, mp, meta):
       M[ysl.index(b), xs.index(a)] = v
       cols_used = [xcl, ycl, vcol]
       mp.append({"panel": pid, "glyph": "heatmap_cell", "x": a, "y": b, "value": v,
-                 "value_column": vcol,
+                 "dx": xs.index(a), "dy": ysl.index(b), "value_column": vcol,
+                 "x_column": xcl, "x_value": a, "y_category_column": ycl, "y_category_value": b,
                  "source": ref(src, j, [xcl, ycl, vcol]),
                  "source_sha256": file_sha256(src["file"]),
                  "field_sha256": row_field_hash(rows[j], cols_used),
                  "hash_columns": cols_used})
     im = ax.imshow(M, aspect="auto", cmap=p.get("colormap", "viridis"))
+    meta[pid0]["colormap"] = im.get_cmap().name
+    meta[pid0]["color_norm"] = [float(im.get_clim()[0]), float(im.get_clim()[1])]
     ax.set_xticks(range(len(xs))); ax.set_xticklabels(xs, rotation=45, ha="right")
     ax.set_yticks(range(len(ysl))); ax.set_yticklabels(ysl)
     ax.figure.colorbar(im, ax=ax, shrink=0.85, label=p["value"].get("label", vcol))
@@ -529,9 +569,9 @@ def check_spatial(fig, axes, panels, nc, chk):
     chk.ok("tick_layout", "tick labels non-overlapping and within figure bounds")
 
 def attach_pixel_geometry(axes, panels, nc, mp, meta):
-  # v17 value->pixel map: after tight_layout/draw, transform each glyph's data
-  # coordinate to figure-pixel coordinates and record pixel_h / pixel_y, plus the
-  # panel's ylim + axes bbox so audit can independently recompute expected pixels.
+  # v18 value->pixel map: after tight_layout/draw, transform every quantitative
+  # glyph (including irregular numeric x, error-bar endpoints and heatmap centres),
+  # and record the panel transforms so audit can independently recompute pixels.
   axmap = {}
   for k, p in enumerate(panels):
     axmap[p["panel_id"]] = axes[k // nc][k % nc]
@@ -540,9 +580,15 @@ def attach_pixel_geometry(axes, panels, nc, mp, meta):
     if ax is None or "dx" not in el or el.get("value") is None:
       continue
     try:
-      px, py = ax.transData.transform((el["dx"], el["value"]))
+      data_y = el["dy"] if el.get("glyph") == "heatmap_cell" else el["value"]
+      px, py = ax.transData.transform((el["dx"], data_y))
       el["pixel_x"] = round(float(px), 2)
       el["pixel_y"] = round(float(py), 2)
+      if el.get("error") is not None:
+        _, plo = ax.transData.transform((el["dx"], el["value"] - float(el["error"])))
+        _, phi = ax.transData.transform((el["dx"], el["value"] + float(el["error"])))
+        el["pixel_y_error_low"] = round(float(plo), 2)
+        el["pixel_y_error_high"] = round(float(phi), 2)
       if el["glyph"] == "bar":
         _, py0 = ax.transData.transform((el["dx"], 0.0))
         el["pixel_y0"] = round(float(py0), 2)
@@ -824,6 +870,20 @@ def main():
     spec = json.load(f)
   os.makedirs(a.outdir, exist_ok=True)
   chk = Chk()
+  # Standard-library preflight is a hard gate, not optional documentation: ambiguous
+  # glyph keys, invalid error bars, missing n/caption and bad source anchors stop drawing.
+  guard = os.path.join(os.path.dirname(os.path.abspath(__file__)), "chart_guard.py")
+  pre = subprocess.run([sys.executable, guard, "preflight", "--spec", a.spec],
+                       capture_output=True, text=True)
+  try:
+    preflight = json.loads(pre.stdout)
+  except Exception:
+    preflight = {"ok": False, "errors": [{"message": pre.stdout + pre.stderr}]}
+  with open(os.path.join(a.outdir, "preflight.json"), "w", encoding="utf-8") as f:
+    json.dump(preflight, f, ensure_ascii=False, indent=1)
+  if pre.returncode or not preflight.get("ok"):
+    die("source preflight failed: " + " | ".join(e.get("message", str(e)) for e in preflight.get("errors", [])), chk)
+  chk.ok("source_hash", "standard-library preflight passed; source hashes and actionable warnings saved")
   errs = validate_spec(spec, chk)
   if errs:
     die("spec invalid: " + " | ".join(errs), chk)
@@ -857,8 +917,11 @@ def main():
   import matplotlib
   matplotlib.use("Agg")
   import matplotlib.pyplot as plt
-  if any("一" <= c <= "鿿" for c in json.dumps(spec, ensure_ascii=False)):
-    cj = pick_cjk_font()
+  spec_text = json.dumps(spec, ensure_ascii=False)
+  resolved_cjk_font = None
+  if any("一" <= c <= "鿿" for c in spec_text):
+    cj = pick_cjk_font(spec_text)
+    resolved_cjk_font = cj
     if cj:
       fams = [cj, st["font_family"]]
       chk.ok("cjk_font", cj)
@@ -926,7 +989,7 @@ def main():
                "panels": meta, "source_versions": src_versions,
                "export_spec": {"dpi": st["dpi"], "color_space": st["color_space"],
                                "figure_width_in": fig_w_in, "figure_height_in": fig_h_in,
-                               "font_family": st["font_family"], "pdf_fonttype": 42,
+                               "font_family": st["font_family"], "resolved_cjk_font": resolved_cjk_font, "pdf_fonttype": 42,
                                "svg_fonttype": st["svg_fonttype"]}},
               f, ensure_ascii=False, indent=1)
   qbp = {}
@@ -956,7 +1019,7 @@ def main():
              "source_versions": src_versions,
              "export_spec": {"dpi": st["dpi"], "color_space": st["color_space"],
                              "figure_width_in": fig_w_in, "figure_height_in": fig_h_in},
-             "coverage": cov,
+             "coverage": cov, "preflight_warnings": preflight.get("warnings", []),
              "warnings": [c for c in chk.checks if c["level"] == "warn"], "errors": errs}
   with open(os.path.join(a.outdir, "validation.json"), "w", encoding="utf-8") as f:
     json.dump({"summary": summary, "six_checkpoints": six_of(chk.checks),

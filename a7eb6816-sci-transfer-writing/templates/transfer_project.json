@@ -1,0 +1,43 @@
+{
+  "case_id": "从case.json复制",
+  "items": [
+    {
+      "id": "S1",
+      "kind": "number|claim|method|condition|sample|citation|figure",
+      "fact_key": "稳定的事实名称",
+      "source": "相对本JSON的UTF-8来源文本路径",
+      "original_file": "可选：原PDF/材料路径",
+      "page": "可选：原PDF页码",
+      "line": 1,
+      "field": "可选：JSON字段路径，与line二选一或同时给",
+      "quote": "来源中的逐字原文，含数字、单位和限定条件",
+      "surfaces": ["数字证据必填：88.1%", "120 名"],
+      "required": true,
+      "strength": "established|observed|preliminary|association|observational|not_significant|uncertain",
+      "figure": "可选：图1",
+      "conflict_group": "可选：仅同一事实有冲突版本时填写"
+    }
+  ],
+  "resolutions": [
+    {"group": "冲突组名", "status": "human_confirmed", "chosen": "S2", "reason": "人工确认记录"}
+  ],
+  "terms": [
+    {
+      "canonical": "全文唯一术语",
+      "aliases": ["禁止再出现的别名"],
+      "abbreviation": "ROC",
+      "expanded": "receiver operating characteristic",
+      "plain": "面向公众必须出现的白话解释"
+    }
+  ],
+  "changes": [
+    {
+      "segment_id": "p1",
+      "action": "keep|revise|add|delete",
+      "before_quote": "keep/revise/delete必填，且是某条证据quote的逐字片段",
+      "draft_segment": "非delete必填，逐字复制复核稿中的一个完整段落",
+      "reason": "指令编号+保留/压缩/删除/术语/降调理由",
+      "evidence_ids": ["S1"]
+    }
+  ]
+}

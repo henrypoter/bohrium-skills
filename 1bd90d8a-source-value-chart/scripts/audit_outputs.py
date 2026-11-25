@@ -145,6 +145,20 @@ def pdf_has_rgb(b):
     i = e + 9
   return False
 
+def linear_quantile(values, probability):
+  """Matplotlib/numpy default linear percentile, implemented independently here."""
+  xs = sorted(float(v) for v in values)
+  if not xs:
+    return None
+  pos = (len(xs) - 1) * probability
+  lo = int(pos); hi = min(lo + 1, len(xs) - 1); frac = pos - lo
+  return xs[lo] * (1.0 - frac) + xs[hi] * frac
+
+
+def close(a, b, tol=1e-8):
+  return a is not None and b is not None and abs(float(a) - float(b)) <= tol * max(1.0, abs(float(b)))
+
+
 def verify_map(mapping):
   # triple deterministic re-check from mapping_report.json (independent of build code):
   # V1 value domain (glyph value == source cell value; no invented numbers),
@@ -200,6 +214,21 @@ def verify_map(mapping):
           probs.append("box min/max mismatch glyph %s: got (%s,%s) expected (%s,%s)" %
                        (el.get("x"), emin, emax, min(vals), max(vals)))
           rep["value_domain"] = "fail"
+        q1, med, q3 = linear_quantile(vals, .25), linear_quantile(vals, .5), linear_quantile(vals, .75)
+        iqr = q3 - q1
+        inside = [v for v in vals if q1 - 1.5 * iqr <= v <= q3 + 1.5 * iqr]
+        expected = {"n": len(vals), "q1": q1, "median": med, "q3": q3,
+                    "whisker_low": min(inside), "whisker_high": max(inside)}
+        for key, want in expected.items():
+          if not close(el.get(key), want):
+            probs.append("box statistic mismatch glyph %s %s=%s expected=%s" %
+                         (el.get("series"), key, el.get(key), want))
+            rep["value_domain"] = "fail"
+        expected_out = sorted(v for v in vals if v < q1 - 1.5 * iqr or v > q3 + 1.5 * iqr)
+        got_out = sorted(float(v) for v in (el.get("outliers") or []))
+        if len(got_out) != len(expected_out) or any(not close(a, b) for a, b in zip(got_out, expected_out)):
+          probs.append("box outliers mismatch glyph %s: got=%s expected=%s" % (el.get("series"), got_out, expected_out))
+          rep["value_domain"] = "fail"
         rep["n_checked"] += 1
       continue
     if el.get("value") is None:
@@ -215,6 +244,32 @@ def verify_map(mapping):
       probs.append("value mismatch: glyph '%s/%s' value=%s but source %s row %s col '%s'=%s" %
                    (el.get("glyph"), el.get("x"), ev, os.path.basename(f), rn, vc, sv))
       rep["value_domain"] = "fail"
+    source_row = rows[ri]
+    # Independently verify every scientific annotation/coordinate, not only y.
+    if el.get("x_column"):
+      actual_x = source_row.get(el["x_column"])
+      expected_x = to_float(actual_x) if isinstance(el.get("x_value"), (int, float)) else str(actual_x).strip()
+      if el.get("x_value") != expected_x and not (isinstance(expected_x, float) and close(el.get("x_value"), expected_x)):
+        probs.append("x/category mismatch glyph %s: map=%r source=%r" % (el.get("x"), el.get("x_value"), expected_x))
+        rep["value_domain"] = "fail"
+    if el.get("y_category_column") and str(source_row.get(el["y_category_column"], "")).strip() != str(el.get("y_category_value")):
+      probs.append("heatmap y category mismatch glyph %s/%s" % (el.get("x"), el.get("y")))
+      rep["value_domain"] = "fail"
+    if el.get("series_column") and str(source_row.get(el["series_column"], "")).strip() != str(el.get("series")):
+      probs.append("series/entity mismatch glyph %s: map=%r source=%r" %
+                   (el.get("x"), el.get("series"), source_row.get(el["series_column"])))
+      rep["legend"] = "fail"
+    if el.get("error_column"):
+      source_error = to_float(source_row.get(el["error_column"]))
+      if source_error is None or source_error < 0 or not close(el.get("error"), source_error):
+        probs.append("error-bar value mismatch glyph %s: map=%r source=%r" %
+                     (el.get("x"), el.get("error"), source_row.get(el["error_column"])))
+        rep["value_domain"] = "fail"
+    if el.get("significance_column"):
+      source_sig = str(source_row.get(el["significance_column"], "")).strip()
+      if str(el.get("significance", "")) != source_sig:
+        probs.append("significance mismatch glyph %s: map=%r source=%r" % (el.get("x"), el.get("significance"), source_sig))
+        rep["value_domain"] = "fail"
     # value must be inside the source column value domain (no invented numbers)
     dom = domains.setdefault((f, vc), sorted({to_float(r.get(vc)) for r in rows if to_float(r.get(vc)) is not None}))
     if dom and not any(abs(float(ev) - d) <= 1e-6 * max(1.0, abs(d)) for d in dom):
@@ -227,26 +282,41 @@ def verify_map(mapping):
     rep["n_checked"] += 1
 
   for pid, pm in panels.items():
-    yl, bb = pm.get("ylim"), pm.get("axes_bbox")
+    yl, xl, bb = pm.get("ylim"), pm.get("xlim"), pm.get("axes_bbox")
     if not yl or not bb or yl[1] - yl[0] == 0:
       continue
-    y0, h = bb[1], bb[3]
+    x0, y0, w, h = bb
     lo, hi = float(yl[0]), float(yl[1])
     for e in elements:
-      if e.get("panel") != pid or e.get("glyph") not in ("bar", "line", "scatter"):
+      if e.get("panel") != pid or e.get("glyph") not in ("bar", "line", "scatter", "heatmap_cell"):
         continue
       if e.get("value") is None or e.get("pixel_y") is None:
         probs.append("glyph missing value/pixel geometry: %s/%s" % (pid, e.get("x"))); rep["geometry"] = "fail"; continue
-      v = float(e["value"])
+      v = float(e["dy"] if e["glyph"] == "heatmap_cell" else e["value"])
       ey = y0 + (v - lo) / (hi - lo) * h
       tol = 2.0 + 0.01 * abs(h)
       if abs(float(e["pixel_y"]) - ey) > tol:
         probs.append("geometry mismatch panel %s glyph %s value=%s pixel_y=%s expected=%.2f" %
                      (pid, e.get("x"), v, e.get("pixel_y"), ey))
         rep["geometry"] = "fail"
+      if xl and xl[1] != xl[0] and e.get("pixel_x") is not None and e.get("dx") is not None:
+        ex = x0 + (float(e["dx"]) - float(xl[0])) / (float(xl[1]) - float(xl[0])) * w
+        tolx = 2.0 + 0.01 * abs(w)
+        if abs(float(e["pixel_x"]) - ex) > tolx:
+          probs.append("x geometry mismatch panel %s glyph %s x=%s pixel_x=%s expected=%.2f" %
+                       (pid, e.get("x"), e.get("dx"), e.get("pixel_x"), ex))
+          rep["geometry"] = "fail"
+      if e.get("error_column"):
+        for suffix, delta in (("low", -float(e["error"])), ("high", float(e["error"]))):
+          key = "pixel_y_error_" + suffix
+          expected = y0 + (float(e["value"]) + delta - lo) / (hi - lo) * h
+          if e.get(key) is None or abs(float(e[key]) - expected) > tol:
+            probs.append("error-bar geometry mismatch panel %s glyph %s %s=%s expected=%.2f" %
+                         (pid, e.get("x"), key, e.get(key), expected))
+            rep["geometry"] = "fail"
       if e["glyph"] == "bar" and e.get("pixel_h") is not None:
         ey0 = y0 + (0.0 - lo) / (hi - lo) * h
-        eh = abs(ey - ey0)
+        eh = abs(y0 + (float(e["value"]) - lo) / (hi - lo) * h - ey0)
         if abs(float(e["pixel_h"]) - eh) > tol:
           probs.append("bar height mismatch panel %s glyph %s pixel_h=%s expected=%.2f" %
                        (pid, e.get("x"), e.get("pixel_h"), eh))
@@ -316,7 +386,7 @@ def verify_export(mapping, figdir):
 def standard_result(case_id, figs, matched, missing, req, verify):
   outputs = []
   for fid in sorted(figs):
-    h = figs[fid]; d = os.path.relpath(h["dir"])
+    h = figs[fid]; d = os.path.abspath(h["dir"])
     outputs.append({"figure_id": fid, "role_outputs": {
       "editable_source": [d + "/" + fid + "_plot_source.py"] if h["editable_source"] else [],
       "preview": sorted(d + "/" + fid + e for e, ok in h["artifacts"].items() if ok),
@@ -329,18 +399,24 @@ def standard_result(case_id, figs, matched, missing, req, verify):
              "rows_rendered": nr, "rows_valid": nv,
              "required_coverage": "%d/%d" % (len(matched), len(req)) if req else "no required list given",
              "required_matched": matched, "required_missing": [m["figure_id"] for m in missing]}
-  bad = missing or [fid for fid, p in verify.items() if p.get("problems")]
+  bad_ids = [m["figure_id"] for m in missing] + [fid for fid, p in verify.items() if p.get("problems")]
+  bad = bool(bad_ids or not req)
+  reason = ("all required outputs present and clean" if not bad else
+            "required_outputs.json absent/empty; completeness not proven" if not req else
+            "required/verify problems: %s" % bad_ids)
   return {"case_id": case_id,
           "status": "complete" if not bad else "partial",
-          "status_reason": "all required outputs present and clean" if not bad
-                           else "required/verify problems: %s" % ([m["figure_id"] for m in missing] + [fid for fid, p in verify.items() if p.get("problems")]),
+          "status_reason": reason,
           "answer": "not_determined_from_materials",
           "outputs": outputs, "sources": sources,
           "changes": [],
           "figures": sorted(figs),
           "validation": {"missing_required": missing, "verify_map": verify},
           "uncertainty": "fill after agent review; changes[] records tradeoffs and manual confirmations",
-          "change_log": []}
+          "change_log": [],
+           "gain": {"status": "not_run",
+                    "protocol": "same case_id + input_sha256 + export_spec; compare native baseline/Skill run records with scripts/chart_guard.py compare",
+                    "note": "The platform supplies official whiteboard results; no baseline or improvement is claimed here."}}
 
 def main():
   ap = argparse.ArgumentParser()
@@ -404,7 +480,7 @@ def main():
     else:
       matched.append(fid)
   verify_bad = [fid for fid, v in verify.items() if v.get("problems")]
-  ok = not missing and not verify_bad
+  ok = bool(req) and not missing and not verify_bad
   audit = {"outdir": a.outdir, "n_required": len(req), "n_produced": len(figs),
            "produced": sorted(figs), "matched": matched, "missing": missing,
            "verify_map": verify, "verify_failed": verify_bad,
@@ -415,11 +491,12 @@ def main():
   out = a.out or os.path.join(a.outdir, "output_audit.json")
   os.makedirs(os.path.dirname(out) or ".", exist_ok=True)
   patched = False; emitted = False
-  if a.result and os.path.exists(a.result) and (missing or verify_bad):
+  if a.result and os.path.exists(a.result) and (missing or verify_bad or not req):
     res = json.load(open(a.result, encoding="utf-8"))
     if res.get("status") in FINAL_OK:
       res["status"] = "partial"
-      res["status_reason"] = "required/verify problems: %s" % ([m["figure_id"] for m in missing] + verify_bad)
+      res["status_reason"] = ("required_outputs.json absent/empty; completeness not proven" if not req else
+                              "required/verify problems: %s" % ([m["figure_id"] for m in missing] + verify_bad))
       res["missing_required"] = missing
       res["verify_map"] = verify
       json.dump(res, open(a.result, "w", encoding="utf-8"), ensure_ascii=False, indent=1)

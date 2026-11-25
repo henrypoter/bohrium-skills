@@ -1,52 +1,52 @@
-# 工作表格式（worksheets.md）
+# 可复用专利工作表
 
-三张表的列定义固定，可直接复制为 CSV 使用。列名不要改，便于他人复用与脚本校验。
+以下列名可直接用于 CSV；原始响应仍以 JSON/文本文件和 SHA-256 为准，CSV 不能替代逐字回源。
 
-## 1. 标注表 annotation.csv
-
-```
-record_id,title,year,source,annotator,decision,reason_code,evidence_snippet,evidence_location,confidence,note
-R001,Example title,2021,PubMed,A,include,I1,"...object and outcome...",abstract p1,high,
-R001,Example title,2021,PubMed,B,exclude,E2,"...only biomarker reported...",abstract p1,medium,
+## 1. candidates.csv
+```text
+record_id,input_number,number_role,publication_number,application_number,grant_number,priority_numbers,title,decision,reason_code,relevance_reason,source_id,uncertainty
+P1,US 1000000 B2,publication,US1000000B2,US16123456,US1000000B2,US62123456,Example,include,P-NUM,号码与主题均命中,S1,
 ```
 
-- `decision` ∈ {include, exclude, maybe}
-- `reason_code` 必须来自 `reason_codes.md`
-- `evidence_location` 写到页码/章节/表号，**不接受"摘要里"这种模糊定位**
-- 每位标注者一行；同一 record 有 A、B 两行
-
-## 2. 仲裁表 arbitration.csv
-
+## 2. evidence.csv
+```text
+owner_id,evidence_type,source_id,field,quote,locator,start,end,access
+P1,relevance,S1,documents[0].abstract,"Exact source sentence.","abstract sentence 1",,,green
+P1,claim_v1,S1,documents[0].claim_v1,"1. Exact claim text.","claim 1",,,green
 ```
-record_id,ann_a_decision,ann_b_decision,disagreement_type,arbiter,decision,rule_version,rationale,evidence_location
-R001,include,exclude,decision,henry,include,v1.0,"摘要第2句报告了目标结局，B 的判断基于不完整摘要",abstract p1
+`quote` 必须是原字段内唯一逐字子串；若不唯一，填字符 `start/end`。页或 OCR 段不得合并成一条引文。
+
+## 3. families.csv
+```text
+family_scope,group_id,member_ids,basis,complete,claim_scope_equal
+simple,F1,P1|P2,identical normalized priority set,false,false
+extended,E1,P1|P2|P3,shared normalized priority,false,false
 ```
+以 `family` 命令重算输出为准；不能手工删掉不便解释的成员。
 
-- `disagreement_type` ∈ {decision, reason_code, evidence}
-- `rationale` 必须写**为什么**，禁止只写"以 A 为准"
-- 仲裁结论回写进 result.json 的 screening，并记入 change_log
-
-## 3. 审计日志 audit_log.csv
-
-```
-step,input_n,output_n,operator,operation,timestamp,rule_version,note
-search,0,312,agent,3 库检索,2026-11-20T10:00Z,v1.0,"Q1-Q3，库与字段见协议"
-dedup,312,287,script,精确键+近似候选,2026-11-20T10:05Z,v1.0,"25 条精确重复，3 组近似候选待裁决"
-screen_A,287,287,annotator_A,标题摘要筛选,2026-11-20T10:40Z,v1.0,"include 61 / exclude 214 / maybe 12"
-screen_B,287,287,annotator_B,标题摘要筛选,2026-11-20T10:42Z,v1.0,"include 58 / exclude 217 / maybe 12"
-arbitration,25,25,henry,冲突仲裁,2026-11-20T11:00Z,v1.0,"decision 分歧 19 条，reason_code 6 条"
-final,287,287,henry,定稿,2026-11-20T11:10Z,v1.0,"include 62 / exclude 213 / maybe 12"
+## 4. legal_events.csv
+```text
+record_id,event_status,effective_date,source_id,official,as_of,verification,current_status,uncertainty
+P1,Grant,2020-01-02,S1,true,2026-11-25,official_events_only,unknown,历史事件不证明当前有效
 ```
 
-- `input_n`/`output_n` 必须能逐行首尾相接：上一行 output = 下一行 input（仲裁与定稿行除外时须在 note 说明）
-- 与 `python3 scripts/search_tool.py audit result.json` 的结果对齐
-
-## 4. 覆盖率/漏检表 coverage.csv（覆盖率类课题用）
-
-```
-ref_id,in_reference,retrieved,hit_status,miss_reason_code,miss_attribution,evidence
-REF01,yes,no,miss,M1,"Q2 未覆盖同义词 'pyroptosis'",title match fail
+## 5. source_access.csv
+```text
+source_id,name,version,query_date,path,sha256,access,allowed_fields,retention,confidentiality_action
+S1,Authorized snapshot,v1,2026-11-25,/app/work/source.json,<64hex>,yellow,documents[].title,per task policy,仅展示白名单字段
 ```
 
-- `miss_reason_code`：M1 查询词未覆盖同义表达；M2 检索字段过窄；M3 时间窗截断；M4 来源库未收录；M5 记录标识异常
-- `miss_attribution` 必须指到**具体查询/字段/来源**，不能只写"数据库覆盖不足"
+## 6. iterations_and_misses.csv
+```text
+iteration,query_id,change,new_record_ids,zero_hit_or_error,miss_code,miss_attribution,stop_decision
+1,Q1,initial number query,P1,0,,,continue to topic
+2,Q2,add classification, ,0,M2,Q1 only searched title,stop: authorized snapshot exhausted
+```
+
+## 7. gain.csv
+```text
+case_id,input_hash,permissions,qrels_ref,k,arm,ranking,tool_calls,manual_checks,seconds,platform_run_id
+fixture,<sha256>,green-only,qrels.json,2,baseline,P3|P2|P1,6,4,,not-measured
+fixture,<sha256>,green-only,qrels.json,2,skill,P1|P2|P3,4,2,,not-measured
+```
+本地 qrels 与平台正式对照分开；没有真实运行时 `gain.mode=not_measured`。

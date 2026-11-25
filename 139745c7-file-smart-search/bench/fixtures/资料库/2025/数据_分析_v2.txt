@@ -1,1 +1,5 @@
-version 2 content revised
+# Methods
+
+## Buffer formulation
+
+FACS buffer contains 1x PBS and 1% BSA. This is revision v2 for project_B.

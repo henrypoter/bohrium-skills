@@ -1,0 +1,65 @@
+{
+  "case_id": "<原样来自 /input/case.json>",
+  "status": "success | partial | failed | refused",
+  "task": "文献抽取表清洗、标准化、精确去重与行级追溯",
+  "cleaned_table": "cleaned.csv",
+  "records": [
+    {
+      "_lineage_id": "L000001",
+      "<canonical_field>": "<规范值；缺失为空串，不是 0>",
+      "duplicate_count": 1,
+      "_source_rows": "<source.csv#2;source.csv#3>"
+    }
+  ],
+  "review": [
+    {
+      "id": "Q000001",
+      "type": "UNKNOWN_UNIT | ALIAS_CONFLICT | MISSING_VALUE | OUT_OF_RANGE | ENCODING_ERROR | EMPTY_TABLE | INSUFFICIENT_IDENTITY | DUPLICATE_CONFLICT | INVALID_NUMBER | UNMAPPED_FIELD",
+      "signal": "<触发的原值/规则/表头>",
+      "action": "<具体人工接管动作>",
+      "source_ref": {"source_file": "<文件>", "source_sha256": "<hash>", "row": 2},
+      "field": "<字段或 null>",
+      "status": "pending"
+    }
+  ],
+  "sources": [
+    {"path": "<原输入文件名>", "sha256": "<hash>", "encoding": "utf-8-sig", "rows": 0}
+  ],
+  "uncertainty": ["<review id、类型与信号；无则空数组>"],
+  "summary": {
+    "input_rows": 0,
+    "output_rows": 0,
+    "duplicate_rows_removed": 0,
+    "changed_values": 0,
+    "unit_conversions": 0,
+    "review_pending": 0,
+    "review_by_type": {}
+  },
+  "change_records": [
+    {
+      "rule_id": "R-E-001",
+      "action": "unit_conversion | normalization | exact_duplicate_merge",
+      "field": "potential",
+      "source_ref": {"source_file": "source.csv", "row": 2, "column": "E"},
+      "original": "0.5 V",
+      "normalized": "500",
+      "original_unit": "V",
+      "target_unit": "mV",
+      "formula": "(0.5)*(1000)+(0)"
+    }
+  ],
+  "gain": {
+    "status": "baseline_not_provided | complete",
+    "protocol": {"same_input": true, "same_permissions": true, "same_model": true, "same_budget": true},
+    "baseline_metrics": null,
+    "skill_metrics": {},
+    "delta": null
+  },
+  "rules_version": "<实际规则版本>",
+  "artifacts": {
+    "cleaned_csv": "cleaned.csv",
+    "changes": "changes.jsonl",
+    "lineage": "lineage.jsonl",
+    "review": "review.json"
+  }
+}

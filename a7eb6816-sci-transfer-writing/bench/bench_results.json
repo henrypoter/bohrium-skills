@@ -1,0 +1,122 @@
+{
+ "all_pass": true,
+ "passed": 20,
+ "total": 20,
+ "checks": [
+  {
+   "name": "evidence 正向：原文逐字+行号+schema 零误杀",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "evidence 变异：引文改字必命中 verbatim",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "evidence 变异：错误行号必命中 locator",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "evidence 变异：未裁决数据冲突必命中 conflict",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "audit 正向：保留/数字/术语/边界/改动全覆盖",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "audit 变异：数字漂移必命中 number",
+   "pass": true,
+   "detail": "[{'level': 'fail', 'kind': 'number', 'msg': '数字或单位未逐字回溯到本句来源: 88.2%', 'loc': 3}]"
+  },
+  {
+   "name": "audit 变异：删必需证据必命中 retention",
+   "pass": true,
+   "detail": "[{'level': 'fail', 'kind': 'retention', 'msg': '必须保留项未进入正文: S2', 'item': 'S2'}]"
+  },
+  {
+   "name": "audit 变异：初步观察写成因果定论必命中",
+   "pass": true,
+   "detail": "[{'level': 'fail', 'kind': 'claim_strength', 'msg': '初步/相关证据被写成定论', 'loc': 3, 'item': 'S1'}]"
+  },
+  {
+   "name": "audit 变异：术语别名必命中 terminology",
+   "pass": true,
+   "detail": "[{'level': 'fail', 'kind': 'terminology', 'msg': \"使用未锁定别名 'ROC曲线'，应统一为 '受试者工作特征曲线'\"}]"
+  },
+  {
+   "name": "audit 变异：缩写未展开必命中 abbreviation",
+   "pass": true,
+   "detail": "[{'level': 'fail', 'kind': 'abbreviation', 'msg': 'ROC 首次出现未在邻近位置展开'}]"
+  },
+  {
+   "name": "audit 变异：体裁缺节必命中 genre",
+   "pass": true,
+   "detail": "[{'level': 'fail', 'kind': 'genre', 'msg': '缺指定体裁小节: 方法与边界'}]"
+  },
+  {
+   "name": "audit 变异：无逐段记录必命中 change_coverage",
+   "pass": true,
+   "detail": "[{'level': 'fail', 'kind': 'change_coverage', 'msg': '正文段落无逐段改动记录', 'loc': 9, 'excerpt': '新增一段没有记录的事实。'}]"
+  },
+  {
+   "name": "audit 变异：before_quote 不回原文必命中",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "audit 变异：涉密公开发布缺审批必命中 disclosure",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "audit 变异：超篇幅必命中 length",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "result 正向：契约/文件/gain 零误杀",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "result 变异：output_contract 缺字段必命中",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "result 变异：A/B 输入不同必命中 gain",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "result 变异：带 fail 冒充 complete 必命中 closure",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "长稿 200 段：判定稳定且 <10s",
+   "pass": true,
+   "detail": "0.441s"
+  }
+ ],
+ "seconds": 5.464,
+ "deterministic_gain_fixture": {
+  "scope": "仅自拟夹具，不是平台基础 Agent 成绩",
+  "same_input_sha256": "320680ef74c059f67840492c8bf925de0eb193942cd0e7950fafaf9c0fef59b2",
+  "baseline": {
+   "fact_errors": 3,
+   "manual_edit_items": 8,
+   "rework_rounds": 2
+  },
+  "skill": {
+   "fact_errors": 0,
+   "manual_edit_items": 1,
+   "rework_rounds": 1
+  }
+ }
+}

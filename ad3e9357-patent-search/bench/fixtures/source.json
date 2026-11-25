@@ -1,0 +1,26 @@
+{
+  "fixture": "synthetic source for self-test only",
+  "documents": [
+    {
+      "publication_number": "US1000000B2",
+      "application_number": "US16123456",
+      "priority_numbers": ["US62123456"],
+      "title": "Self-test sensor",
+      "abstract": "A sensor comprises a self-test electrode.",
+      "claim_v1": "1. A sensor comprising a substrate and an electrode.",
+      "claim_v2": "1. A sensor comprising a flexible substrate and two electrodes."
+    },
+    {
+      "publication_number": "WO2019000001A1",
+      "priority_numbers": ["US62123456"],
+      "title": "Capteur avec auto-test",
+      "abstract": "La presente invention concerne un capteur avec auto-test."
+    }
+  ],
+  "events": [
+    {"document": "P1", "status": "Grant", "effective_date": "2018-01-02"}
+  ],
+  "papers": [
+    {"title": "Self-test methods for sensors", "doi": "10.0000/selftest", "abstract": "We compare self-test methods for sensors."}
+  ]
+}

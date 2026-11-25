@@ -1,0 +1,13 @@
+{
+  "_README": "SYNTHETIC INTERFACE EXAMPLE ONLY, not a benchmark result. Replace every measurement with a native trace from the same actual input.",
+  "case_id": "example-demo",
+  "condition": "baseline",
+  "input_sha256": "02f2c943767314b06ae644da6d6dc253d04347195aa4a3e9e2a837efbd337f75",
+  "export_spec": {"dpi": 300, "color_space": "sRGB", "figure_width_in": 3.5, "figure_height_in": 2.4},
+  "elapsed_seconds": 200,
+  "model_requests": 8,
+  "manual_edits": 3,
+  "redraw_rounds": 2,
+  "editable_source": false,
+  "metrics": {"glyph_total": 4, "glyph_value_errors": 1, "legend_total": 2, "legend_errors": 1, "annotation_total": 4, "annotation_errors": 2, "export_total": 3, "export_errors": 1}
+}
