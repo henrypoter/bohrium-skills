@@ -1,92 +1,84 @@
 ---
 name: result-interpretation
-description: 实验结果解释与异常分析：六要素齐备、参数逐项核对设备量程、风险带触发与止损、方案可版本化复核
+description: 实验结果解释与异常分析：五段结论(趋势/异常点/原因/复核/后续实验)、异常点绑定批次通道维度、原因按可检验性排序、每条结论回指数据文件与字段、可复算
 ---
 
 # 实验结果解释与异常分析
 
-把研究目标转成**能排期、能执行、能被同行评审**的方案：假设可检验、变量可测、对照能排除混杂、参数在设备允许范围内、风险有预案。
+把一份实验数据解释成**五段可检查的结论**：结果趋势、异常点、可能原因、复核步骤、后续实验建议。每条结论都要回指到具体数据文件、字段、阈值与版本，让人能照着复算。
 
-不适用：替代实验人员承担安全与伦理审查、替代统计分析、代写论文。
+**不适用**：实验方案设计、统计分析软件替代、新发现的事实认定。本 Skill 产出的是「可复核的解释性结论」，判定依据透明，不替代研究者的最终科学判断。
+
+## 判对（本题评分核心，不看写了多少结论）
+
+1. 五段结论是否齐备且可检查（趋势/异常/原因/复核/后续）。
+2. 趋势方向、拐点、幅度是否与原始读数一致；异常点是否落在真正异常的对象上；原因是否有数据支持。
+3. 是否覆盖全部指标、对照、重复与边界，并交代未解释部分。
+4. 每条结论能否回指具体数据文件、字段、阈值与版本，他人能否复算。
 
 ## 调用
+- 输入：`/input/case.json`、`/input/task.md`、数据文件（CSV/TXT/表）
+- 输出：`/app/output/result.json`
+- 工具：`scripts/interp_tool.py`（`interp_check` / `schema`）
 
-- 输入：`/input/case.json`、`/input/task.md`、设备/材料清单与约束
-- 输出：`/app/output/result.json` + 方案正文
-- 工具：`scripts/exp_tool.py`（`check` / `params` / `schema`）
-- 模板：`templates/plan_spec.md`（六要素检查表 + 参数表 + 风险矩阵）
+## 工作流（五个方向逐一过）
 
-## 工作流
+### 0. 锁定数据版本
+记录 `analysis_version` + `data_sources`（每个数据文件 + 字段 + 阈值），否则结论无法复算。
 
-### 0. 目标 → 可检验假设
-写 `research_goal.hypothesis`：**可被数据推翻**的陈述（含方向、比较对象、阈或范围）。"研究 X 的机制"不是假设；"X 在 A 条件下使 Y 上升 ≥20%"才是。
+### 1. 结果趋势（方向1）
+从读数给走势、拐点、平台期、偏离幅度，每条写明所依据的**区间、对照、拟合方式**。方向/拐点/幅度必须与原始读数一致，不凭空画趋势。
 
-### 1. 变量：给操作定义，不给名词
-每个变量必须有 `operational_definition`（怎么测）、`unit`、`range`，并标 `type`（independent/dependent/confounder）。混杂因素要单独列出，不要藏在自变量里。
+### 2. 异常点（方向2）
+在样本、批次、通道、孔位、时间点等维度上定位异常，每条给：`dimension`（绑定到哪个维度）、`severity`、`threshold`（判定阈值）、`deviation`（与对照或重复的偏离关系）。**异常必须落在真正异常的对象上**，不是"某批数据偏高"这种悬空判断。
 
-### 2. 对照：说明排除哪类混杂
-每个对照写 `confounder_excluded`。没有"排除什么"的对照等于没设对照。
+### 3. 可能原因（方向3）
+按**证据强度/可检验性降序**给原因候选，每条带：
+- `evidence_support` 支撑证据
+- `evidence_exclude` 排除证据（能排除什么）
+- `correlation_risk` 把相关误当因果的风险
+原因排序必须可解释，不是"都可能是原因"。
 
-### 3. 步骤 / 设备 / 材料 / 时间
-步骤绑定设备型号与耗材规格；写清 `time_estimate`（可分步时长与并行关系）与成本估算。**可替代与不可替代项要标出来**（试剂缺货时的替代路径）。
+### 4. 复核步骤（方向4）
+把结论拆成第二个人能执行的核查动作：回查具体数据文件与字段、核对批次与设备日志、加做对照或平行重复。每条有 `action` + `target`。
 
-### 4. 参数：逐项核对量程，不只看"看起来合理"
-写 `parameters`：`name / value / unit / min / max`。然后用设备与材料限值核验：
-```bash
-python3 scripts/exp_tool.py params result.json --spec limits.json
-```
-`limits.json` 里放设备手册/材料耐温/安全阈值。脚本会抓三类问题：**超出上限、单位不一致、spec 未声明限值（须补来源）**。参数依据注明来自设备手册/预实验/文献。
+### 5. 后续实验建议（方向5）
+依据原因候选与证据缺口给下一轮实验改动：补对照、加密采样点、调整参数范围、扩大重复数。每条有 `rationale`。
 
-### 5. 风险与异常：三件套缺一不可
-每个风险必须有 `trigger`（什么信号触发）、`mitigation`（怎么救）、`stop_rule`（何时止损）。只写"注意安全"不算。
+### 6. 增益对照
+同数据同权限，基础 Agent vs 本 Skill 各跑一次，报：趋势判读一致率、异常定位命中率、人工返工条目数。
 
-### 6. 六要素自检
-```bash
-python3 scripts/exp_tool.py check result.json
-```
-输出 `missing_elements` 与逐项错误（假设缺失、变量缺操作定义/单位、对照未说明混杂、风险三件套缺项、判断缺证据来源、参数越自述区间）。全部清零再接下一步。
-
-### 7. 增益对照
-同目标、同资源约束，基础 Agent vs 本 Skill 各跑一次，报：六要素完整度、需人工修改条目数、评审返工轮次。
-
-### 8. 异常处置
+### 7. 异常处置
 | 异常 | 动作 |
 |-|-|
-| 无设备参数/预算 | 该要素标 `unknown` 并给出"需确认清单"，**不编造型号与价格** |
-| 约束冲突（时间窗 vs 样本量） | 列出冲突双方与取舍空间，给两个可行方案供选择，不悄悄牺牲一方 |
-| 依赖不可用（试剂缺货/设备排期满） | 给替代路径与预计影响，标为 `blocked` 而非"已完成" |
-| 参数无可行解 | 说明冲突的参数对与放宽方向，转人工决策 |
-| 生成内容不确定 | 写明哪些是文献依据、哪些是经验推断，标 `confidence` |
-| 安全/伦理未明确 | 单列进 `expert_confirmation`，不自行放行 |
+| 数据缺失 | 标 `unexplained` 或 `unknown`，不臆造读数 |
+| 重复数不足 | 标低置信，注明"重复不足以支撑"，不强行下结论 |
+| 对照缺失 | 结论降级并注明"无对照，偏离判断不可靠" |
+| 读数超量程/饱和 | 该点标 `saturated`，不当作真实异常 |
+| 结论互相冲突 | 并列呈现，标 `uncertainty`，不无依据取舍 |
+| 数据需申请 | 标 `blocked` + 申请途径 |
 
-### 9. 诚实输出
+### 8. 诚实输出
 ```bash
-python3 scripts/exp_tool.py schema /app/output/result.json
+python3 scripts/interp_tool.py interp_check /app/output/result.json
+python3 scripts/interp_tool.py schema /app/output/result.json
 ```
 
 ## result.json 契约
-
 ```json
 {
-  "case_id": "", "status": "pass|issues|partial|failed", "plan_version": "plan-v1.0",
-  "research_goal": {"objective": "", "hypothesis": "", "constraints": []},
-  "variables": [{"id": "V1", "name": "", "type": "independent|dependent|confounder",
-                 "operational_definition": "", "unit": "", "range": ""}],
-  "controls": [{"id": "C1", "type": "blank|positive|negative|gradient", "purpose": "",
-                "confounder_excluded": ""}],
-  "steps": [{"id": "S1", "action": "", "equipment": "", "material": "", "duration": "", "parameter_range": ""}],
-  "resources": {"equipment": [], "materials": [], "sample": "", "time_estimate": "", "cost_estimate": ""},
-  "parameters": [{"name": "temperature", "value": 75, "unit": "C", "min": 20, "max": 90, "source": "设备手册 p12"}],
-  "risks": [{"id": "R1", "failure_mode": "", "trigger": "", "consequence": "", "mitigation": "", "stop_rule": ""}],
-  "judgments": [{"id": "J1", "claim": "", "evidence": "", "source": "", "confidence": ""}],
-  "expert_confirmation": [],
-  "gain": {"baseline_completeness": null, "skill_completeness": null, "rework_rounds_saved": null},
-  "unchecked": [], "sources": [], "uncertainty": [], "change_log": []
+  "case_id": "", "status": "pass|issues|partial|failed",
+  "analysis_version": "v1 / 2026-11-25",
+  "data_sources": [{"file": "", "field": "", "threshold": "", "version": ""}],
+  "trends": [{"direction": "", "interval": "", "control": "", "fitting": "", "knee": "", "deviation": ""}],
+  "anomalies": [{"dimension": "batch", "severity": "", "threshold": "", "deviation": "", "evidence": ""}],
+  "causes": [{"candidate": "", "evidence_support": "", "evidence_exclude": "", "correlation_risk": "", "testability": 3}],
+  "recheck_steps": [{"action": "", "target": ""}],
+  "next_experiments": [{"change": "", "rationale": ""}],
+  "unexplained": [], "gain": {"baseline": null, "skill": null},
+  "unchecked": [], "uncertainty": [], "change_log": []
 }
 ```
 
 ## 底线
-假设可检验、对照说明排除什么、参数不越量程、风险有止损点、需专家确认的单列。缺设备/预算就写 unknown，不编造。
-
-## 本课题聚焦
-本题聚焦**趋势、异常点、原因与复核**：趋势给区间与拟合方式，异常点给判定阈值与与对照的偏离，原因按证据强度排序并写排除证据（防把相关当因果），复核步骤要写成第二个人能照着做，后续实验建议对应具体证据缺口。
+趋势回读数、异常落对象、原因有证据且按可检验性排序、复核可执行、每条结论可复算。不把未解释的说成已解释。

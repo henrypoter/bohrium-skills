@@ -1,94 +1,90 @@
 ---
 name: logic-argument-review
-description: 论文逻辑与论证审查：六类检查项分面审查、每条定位到原句并逐字核验、严重度分级、已查/未查范围显式
+description: 论文逻辑与论证审查：主张抽取(区分作者/引用/假设)、证据支撑核查、推理链完整性、章节衔接一致性、严重度分级+可执行修改建议，每条问题定位到句、引文逐字、建议可落地
 ---
 
 # 论文逻辑与论证审查
 
-对一份稿件产出**可直接交办的问题清单**：每条有原文位置、原句引用、判断依据、严重度、修改建议。不是整篇评语，不复述内容。
+对稿件做**逻辑与论证**专项审查：把作者主张抽出来逐条核查，看证据是否撑得住、推理是否跳步、前后是否自洽，产出一条能落到具体句子、可直接核对的问题清单。
 
-不适用：代写、学术不端认定、期刊编辑决策。模型判定是**待作者确认的候选问题**，不替代编辑与同行评审。
+**不适用**：事实/数值/统计/学术规范等非逻辑类审查、代写、学术不端认定。判定是待作者确认的候选问题，不替代编辑决策。
+
+## 判对三件事（本题评分核心，不看报了多少条）
+
+1. **问题真实存在，能回到原文某一句话**——`quote` 必须逐字，`verify` 核验。
+2. **定位精确到句/段**——不能只给"第三章""讨论部分"，必须到第几段第几句。
+3. **修改建议可执行**——说清"补什么证据 / 改哪句表述 / 把哪个结论降成什么强度"，不是"加强论证"。
+
+三件事各有一条机检闸，跑完才能交：
+```bash
+python3 scripts/review_tool.py logic_check issues.json --text manuscript.txt
+```
 
 ## 调用
-
 - 输入：`/input/case.json`、`/input/task.md`、稿件（PDF/MD/TXT）
-- 输出：`/app/output/result.json` + 问题清单（CSV/MD）
-- 工具：`scripts/review_tool.py`（`verify` / `summary` / `schema`）
-- 模板：`templates/checklist.md`（六类检查项 + 判定锚点 + 严重度锚点）
+- 输出：`/app/output/result.json` + 问题清单
+- 工具：`scripts/review_tool.py`（`logic_check` / `verify` / `schema`）
+- 模板：`templates/checklist.md`
 
-## 工作流
+## 工作流（五个方向逐一过）
 
 ### 0. 锁定稿件版本
-先记录稿件版本（文件名 + 日期或哈希）到 `manuscript_version`。**版本不记录，后面所有定位都无法复核**。
+记录 `manuscript_version`（文件名 + 哈希/日期），否则定位无法复核。
 
-### 1. 抽取正文并按检查项分面审查
-按 `templates/checklist.md` 六类逐项过：
-| 类目 | 查什么 |
-|-|-|
-| `fact` 事实核验 | 数据、数值、单位、常识性事实是否与稿件自述及公开事实一致 |
-| `citation` 引用支持 | 被引文献是否真的支持该论断（不看"有没有引"，看"引的对不对"） |
-| `design` 方法设计 | 对照、样本量、随机化、盲法、混杂控制是否足以支撑结论 |
-| `statistics` 统计报告 | 检验方法是否匹配数据结构、是否报效应量与不确定性、是否多重比较校正 |
-| `argument` 论证链 | 结论是否超出证据、是否存在因果化表述、有无未排除的替代解释 |
-| `compliance` 学术规范 | 伦理审批、数据可得性、利益冲突、图像重复使用、作者贡献 |
+### 1. 论点与主张抽取（方向1）
+从摘要、引言、结果、讨论抽出核心主张，每条标注 `claim_type`：
+- `author_claim` 作者自己的主张
+- `cited_claim` 引用他人观点
+- `hypothesis` 假设情形
+- 保留限定条件（"可能""在X条件下""与Y相关"），不把弱表述拔成强主张。
 
-**未涉及的类目也要在 `checked_scope.not_checked` 里写明**，不要静默跳过。
+### 2. 证据支撑核查（方向2）
+对每条 author_claim 检查：支撑证据是否存在、来自本文实验还是所引文献、是否足以支撑该强度表述。重点抓两类：**结论超出数据**、**引用不支持观点**（引文说的和本文用它证明的不是一回事）。
 
-### 2. 每条问题定位到原句（这是误报控制的根本）
-每条 issue 必须有：`location`（页/段/表/图号）、`quote`（**原文逐字片段**）、`claim`（问题是什么）、`fix`（怎么改）、`severity`。
-- 引文必须**逐字**，不得改写、概括或拼接。
-- 写完立刻跑一遍核验，把"原文里根本不存在"的引用揪出来：
-```bash
-python3 scripts/review_tool.py verify issues.json --text manuscript.txt
-```
-输出里的 `quote_not_in_source` 就是误报候选——必须回到原文确认，改引文或删条目。`duplicates` 是同一处被重复报的条目，合并。
+### 3. 推理链完整性（方向3）
+查前提→结论的跳跃：隐含假设未说明、替代解释未排除、相关当因果、循环论证。
 
-### 3. 严重度分级（有锚点，不凭语气）
-`critical`：结论不成立或数据不可信；`major`：影响可信度但有补救；`minor`：表述与格式。锚点见 `templates/checklist.md`。
+### 4. 章节衔接与前后一致性（方向4）
+引言承诺的问题是否在方法/结果里交付、方法与结果口径是否一致、摘要与正文结论是否一致、图表与正文描述是否对应。
 
-### 4. 覆盖自检
-```bash
-python3 scripts/review_tool.py summary issues.json
-```
-看 `unchecked_categories`：确实是本文不涉及的，写进 `checked_scope.not_checked` 并给理由；不是，就补查。
+### 5. 严重度与修改建议（方向5）
+- 严重度有依据：`critical` 影响主结论或不可信 / `major` 有补救 / `minor` 表述问题。
+- `fix` 落到具体句子：补什么证据、改哪句表述、降哪个结论强度，不写"加强论证""完善逻辑"这类空话。
 
-### 5. 增益对照（不要只写自述）
-同一稿件、同一检查项、同一预算，分别用基础 Agent（不加载本 Skill）与本 Skill 各跑一次，报：问题条数、经原文核验的命中率、误报率。差异要能指到具体条目。
+### 6. 增益对照
+同稿件同预算，基础 Agent vs 本 Skill 各跑一次，报：经原文核验的命中率、误报率、定位精确率。
 
-### 6. 异常处置
+### 7. 异常处置
 | 异常 | 动作 |
 |-|-|
-| 稿件解析失败/乱码 | 换 `pdftotext -layout` 或按 UTF-8/GBK 重解一次；仍失败则标该段不可读，**不据残缺文本下判断** |
-| 图表无法读取 | 记 `unchecked`，写明"图 N 不可读，相关结论未核" |
-| 参考文献缺失 | 涉及引用支持的条目降级为 `major` 并注明"原文缺文献列表，未能核对" |
-| 原文表述歧义 | 保留原文 + 写出两种读法，标 `minor`，交作者澄清 |
-| 稿件超长 | 分面分段处理，在 `checked_scope` 写明已覆盖与未覆盖章节 |
-| 数据与结论冲突 | 记为 `critical`，同时引结论句与数据句两处 quote |
+| 论文解析失败 | 换 `pdftotext -layout` 或重解编码，仍失败标该段不可读，不据残缺文本下判断 |
+| 扫描版无文本层 | 说明需 OCR 及置信度，低置信处标 `unknown`，不臆造引文 |
+| 超长截断 | 分面分段处理，在 `checked_scope` 写明已覆盖/未覆盖章节 |
+| 引用无法获取 | 涉及引用的条目降级 `major` 并注明"文献不可得，未能核对" |
+| 章节缺失 | 标 `unchecked`，写明缺哪章，相关论断未核 |
 
-### 7. 诚实输出
-写 `result.json` 后自检：
+### 8. 诚实输出
 ```bash
 python3 scripts/review_tool.py schema /app/output/result.json
 ```
 
 ## result.json 契约
-
 ```json
 {
   "case_id": "", "status": "pass|issues|partial|failed",
   "manuscript_version": "v1.2 / 2026-11-20 / sha256:…",
-  "issues": [{"id": "P1", "category": "fact|citation|design|statistics|argument|compliance",
-              "severity": "critical|major|minor", "location": "结果 第2段",
-              "quote": "原文逐字片段", "claim": "问题描述", "fix": "修改建议",
-              "evidence": "判定依据（规范条目/文献/数据）"}],
-  "checked_scope": {"did": ["..."], "not_checked": ["..."]},
+  "issues": [{"id": "P1", "category": "argument",
+              "claim_type": "author_claim|cited_claim|hypothesis",
+              "severity": "critical|major|minor",
+              "location": "结果 第2段 第3句",
+              "quote": "原文逐字片段",
+              "claim": "问题是什么", "fix": "补什么证据/改哪句/降什么强度",
+              "evidence": "判定依据"}],
+  "checked_scope": {"did": ["主张抽取","证据核查","推理链","前后一致"], "not_checked": []},
   "gain": {"baseline_hit_rate": null, "skill_hit_rate": null, "false_positive_rate": null},
   "unchecked": [], "sources": [], "uncertainty": [], "change_log": []
 }
 ```
 
 ## 底线
-不编造问题、不改写引文、不把"没查"说成"没问题"。每条问题都能让人翻到原句核对。
-
-## 本课题聚焦
-本题聚焦**论证链**：结论是否超出证据（相关说成因果、体外推体内）、是否存在未排除的替代解释、讨论是否回应反例、章节间是否自相矛盾。每条要同时引「结论句」与「证据句」两处原文，做对照，而不是只给一句评语。
+问题必须回到原句、定位到句、建议落到句。不编造、不改写引文、不把"没查"说成"没问题"。

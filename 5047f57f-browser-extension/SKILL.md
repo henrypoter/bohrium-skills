@@ -1,6 +1,6 @@
 ---
 name: browser-extension
-description: 学术浏览器插件：步骤依赖成 DAG 且无环、状态随手记录、断点续跑、跨站权限与幂等重试
+description: 学术浏览器插件：步骤依赖成 DAG 且无环、状态随手记录、断点续跑、产物字段逐项回指原文位置与片段、跨站权限与幂等重试
 ---
 
 # 学术浏览器插件
@@ -13,7 +13,7 @@ description: 学术浏览器插件：步骤依赖成 DAG 且无环、状态随�
 
 - 输入：`/input/case.json`、`/input/task.md`、站点/软件清单与账号权限
 - 输出：`/app/output/result.json` + 中间产物 + 运行日志
-- 工具：`scripts/auto_tool.py`（`trace` / `resume` / `schema`）
+- 工具：`scripts/auto_tool.py`（`trace` / `resume` / `field_check` / `schema`）
 - 模板：`templates/flow_spec.md`（状态机 + 站点选择器与字段映射 + 权限分级）
 
 ## 工作流
@@ -36,7 +36,14 @@ python3 scripts/auto_tool.py resume result.json
 ```
 输出 `runnable_now`（依赖已满足、可立即执行的步骤）与 `waiting`（还缺哪些上游）。按它续跑，**已完成步骤不重复执行**。
 
-### 4. 跨站数据交接
+### 4. 产物字段逐项对上原文（判对核心，方向1/2/3）
+每抓取一个字段，写成 `extracted` 条目：`field / value / locator（选择器或位置）/ raw_text（原文片段）/ derived`。字段值必须能在原文片段里找到，除非标 `derived`（如 DOI 规范化）。抓完立刻核验：
+```bash
+python3 scripts/auto_tool.py field_check result.json
+```
+它抓两类：字段缺 locator/raw_text（无法回指原文位置）、value 与 raw_text 对不上（错位/串读）。懒加载、分页、多标签场景必须在 raw_text 上体现，不把相邻元素误当成目标字段。
+
+### 5. 跨站数据交接
 每条 `data_passing` 写：`from / to / field_mapping（源字段→目标字段）/ permission_scope（green/yellow/red）`。转换规则（单位、编码、日期格式）写进映射表，传完做一次完整性校验（条数、关键字段非空）。
 
 ### 5. 失败恢复与幂等
@@ -68,6 +75,7 @@ python3 scripts/auto_tool.py schema /app/output/result.json
   "workflow": [{"id": "W1", "step": "", "depends_on": [], "input": "", "output": "", "state": "done"}],
   "state": {"completed_steps": [], "failed_step": "", "resume_point": ""},
   "data_passing": [{"from": "W2", "to": "W3", "field_mapping": {"title": "name"}, "permission_scope": "green"}],
+  "extracted": [{"field": "title", "value": "", "locator": "h1.article-title", "raw_text": "", "derived": false}],
   "failures": [{"step": "W3", "error": "", "recovery": "", "retry": 0, "idempotency_key": ""}],
   "run_log": [{"step": "W1", "start": "", "end": "", "result": "ok", "note": ""}],
   "gain": {"baseline_success_rate": null, "skill_success_rate": null, "manual_steps_saved": null},

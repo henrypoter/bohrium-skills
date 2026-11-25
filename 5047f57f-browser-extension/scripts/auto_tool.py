@@ -95,6 +95,23 @@ def cmd_resume(path):
                      ensure_ascii=False))
     return 0
 
+def cmd_field_check(path):
+    """判对②机检：产物每个字段须回指原文位置(locator)与片段(raw_text)，字段值与片段一致。"""
+    d = _load(path)
+    items = d.get("extracted") or []
+    errs = []
+    for i, it in enumerate(items):
+        for k in ("field", "value", "locator", "raw_text"):
+            if not it.get(k):
+                errs.append("extracted[%d] 缺 %s(产物字段须回指原文位置与片段)" % (i, k))
+        v, rt = str(it.get("value", "")), str(it.get("raw_text", ""))
+        if v and rt and not it.get("derived") and (v not in rt and rt not in v):
+            errs.append("extracted[%d] value 与 raw_text 对不上: %s vs %s" % (i, v[:20], rt[:20]))
+    out = {"ok": not errs, "extracted": len(items), "errors": errs}
+    print(json.dumps(out, ensure_ascii=False))
+    return 0 if not errs else 1
+
+
 def cmd_schema(path):
     d = _load(path)
     if not isinstance(d, dict):
@@ -117,6 +134,8 @@ if __name__ == "__main__":
     a = sys.argv[1:]
     if not a:
         print(__doc__); sys.exit(2)
+    if a[0] == "field_check":
+        sys.exit(cmd_field_check(a[1]))
     if a[0] in ("trace", "resume", "schema"):
         sys.exit({"trace": cmd_trace, "resume": cmd_resume, "schema": cmd_schema}[a[0]](a[1]))
     print(__doc__); sys.exit(2)

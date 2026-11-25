@@ -91,6 +91,21 @@ bad = json.loads(json.dumps(BASE)); bad["run_log"] = []
 rc, d = run("schema", dump("a8.json", bad))
 add("schema变异:缺run_log->失败", rc == 1 and any("run_log" in e for e in d.get("errors", [])), str(d.get("errors"))[:140])
 
+# 11) field_check：产物字段须回指原文位置与片段
+EXT = {"extracted": [
+    {"field": "title", "value": "Deep Learning for X", "locator": "h1.article-title", "raw_text": "Deep Learning for X", "derived": False},
+    {"field": "doi", "value": "10.1234/abc", "locator": "meta[name=doi]", "raw_text": "doi:10.1234/abc", "derived": True}]}
+rc, d = run("field_check", dump("f1.json", EXT))
+add("field_check:合规零误杀", rc == 0 and d.get("ok"), str(d)[:150])
+
+bad = json.loads(json.dumps(EXT)); bad["extracted"][0].pop("locator")
+rc, d = run("field_check", dump("f2.json", bad))
+add("field_check:缺locator->被抓", rc == 1 and any("locator" in e for e in d.get("errors", [])), str(d.get("errors"))[:140])
+
+bad = json.loads(json.dumps(EXT)); bad["extracted"][0]["value"] = "完全不同"
+rc, d = run("field_check", dump("f3.json", bad))
+add("field_check:字段值与原文对不上->被抓", rc == 1 and any("对不上" in e for e in d.get("errors", [])), str(d.get("errors"))[:140])
+
 ok = sum(1 for _, c, _ in checks if c)
 for n, c, dd in checks:
     print(("PASS" if c else "FAIL"), n, ("| " + dd if not c else ""))

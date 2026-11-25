@@ -68,6 +68,22 @@ full = [dict(ISSUES[0], id="C%d" % i, category=c) for i, c in enumerate(
 rc, d = run("summary", dump("i4.json", {"issues": full}))
 add("summary:六类全覆盖 ratio=1", rc == 0 and d.get("category_coverage") == 1.0, str(d.get("category_coverage")))
 
+# 5b) logic_check：判对三件事（引文逐字 + 定位精确到句 + 建议可执行）
+rc, d = run("logic_check", dump("i5.json", {"issues": ISSUES[:2]}), "--text", txt)
+add("logic_check:合规零误杀", rc == 0 and d.get("ok"), str(d)[:150])
+
+bad = json.loads(json.dumps(ISSUES[:1])); bad[0]["location"] = "第三章"
+rc, d = run("logic_check", dump("i5a.json", {"issues": bad}), "--text", txt)
+add("logic_check:定位只给章节名->被抓", rc == 1 and d.get("imprecise_location"), str(d.get("imprecise_location"))[:120])
+
+bad = json.loads(json.dumps(ISSUES[:1])); bad[0]["fix"] = "改进论证"
+rc, d = run("logic_check", dump("i5b.json", {"issues": bad}), "--text", txt)
+add("logic_check:建议空泛->被抓", rc == 1 and d.get("unactionable_fix"), str(d.get("unactionable_fix"))[:120])
+
+bad = json.loads(json.dumps(ISSUES[:1])); bad[0]["quote"] = "原文里没有这句话"
+rc, d = run("logic_check", dump("i5c.json", {"issues": bad}), "--text", txt)
+add("logic_check:引文不在原文->被抓", rc == 1 and d.get("quote_not_in_source"), str(d.get("quote_not_in_source"))[:120])
+
 BASE = {"case_id": "c1", "status": "issues", "manuscript_version": "v1.2-2026-11-20",
         "issues": ISSUES[:2], "checked_scope": {"did": ["statistics", "citation"], "not_checked": ["design"]},
         "gain": {"baseline_f1": 0.51, "skill_f1": 0.78, "false_positive_rate": 0.06},
